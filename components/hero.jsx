@@ -55,9 +55,9 @@ const HeroSection = () => {
 
                             <div className="space-y-8">
                                 <div className="relative">
-                                    <h1 className="text-6xl sm:text-8xl md:text-[8rem] font-black leading-[0.9] text-foreground tracking-tight">
-                                        <TextHoverEffect text="SIKHO" />
-                                    </h1>
+                                    <h2 className="text-6xl sm:text-8xl md:text-[8rem] font-black leading-[0.9] text-foreground tracking-tight">
+                                        <TextHoverEffect text="ELEVATE" />
+                                    </h2>
                                 </div>
                                 
                                 <div className="flex justify-center">
@@ -69,27 +69,27 @@ const HeroSection = () => {
                             </div>
 
                             <p className="text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-4xl mx-auto leading-relaxed">
-                                Transform your career journey with{' '}
-                                <span className="font-semibold text-foreground">personalized AI guidance</span>,{' '}
-                                intelligent job matching, and expert insights tailored to your unique path.
+                                Your AI-powered career companion that turns ambitions into achievements with{' '}
+                                <span className="font-semibold text-foreground">smart insights</span>,{' '}
+                                personalized roadmaps, and opportunities designed for your success.
                             </p>
                         </div>
 
-                        <div className='flex flex-col sm:flex-row items-center justify-center gap-4 pt-8'>
-                            <Link href="/dashboard">
+                        <div className='flex flex-col sm:flex-row items-center justify-center gap-6 pt-8'>
+                            <Link href="/dashboard" className="w-full sm:w-auto">
                                 <Button
                                     size="lg"
-                                    className="w-48 h-12 rounded-xl font-semibold text-base shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group"
+                                    className="w-full sm:w-56 h-14 rounded-xl font-semibold text-base shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group"
                                 >
                                     Start Your Journey
                                     <span className="ml-2 transition-transform group-hover:translate-x-1">→</span>
                                 </Button>
                             </Link>
-                            <Link href="/sign-in">
+                            <Link href="/sign-in" className="w-full sm:w-auto">
                                 <Button
                                     variant="outline"
                                     size="lg"
-                                    className="w-48 h-12 rounded-xl font-semibold text-base transition-all duration-300 hover:scale-105 bg-background/60 backdrop-blur-md border-border/50"
+                                    className="w-full sm:w-56 h-14 rounded-xl font-semibold text-base transition-all duration-300 hover:scale-105 bg-background/60 backdrop-blur-md border-border/50 hover:bg-background/80"
                                 >
                                     Explore Features
                                 </Button>
@@ -97,7 +97,7 @@ const HeroSection = () => {
                         </div>
 
                         <div className="pt-16">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto px-4">
                                 {[
                                     {
                                         title: "AI-Powered Matching",
@@ -117,19 +117,18 @@ const HeroSection = () => {
                                 ].map(({ title, description, icon }, idx) => (
                                     <Card
                                         key={idx}
-                                        className="group bg-card/30 backdrop-blur-md border-border/50 hover:border-border/80 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 hover:bg-card/40"
+                                        className="group bg-card/40 backdrop-blur-md border-border/60 hover:border-primary/50 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:bg-card/50"
                                     >
-                                        <CardHeader className="text-center space-y-4 pb-2">
-                                            <div className="text-2xl group-hover:scale-110 transition-transform duration-300">
+                                        <CardHeader className="text-center space-y-5 pb-4">
+                                            <div className="text-5xl group-hover:scale-125 transition-transform duration-500">
                                                 {icon}
                                             </div>
-                                            <div className="w-2 h-2 bg-primary rounded-full animate-pulse mx-auto" />
-                                            <CardTitle className="text-lg">
+                                            <CardTitle className="text-xl font-bold">
                                                 {title}
                                             </CardTitle>
                                         </CardHeader>
                                         <CardContent className="text-center pt-0">
-                                            <CardDescription className="text-sm leading-relaxed">
+                                            <CardDescription className="text-base leading-relaxed">
                                                 {description}
                                             </CardDescription>
                                         </CardContent>
@@ -139,15 +138,19 @@ const HeroSection = () => {
                         </div>
 
                         <div className="pt-12">
-                            <div className="flex flex-wrap justify-center items-center gap-8 text-muted-foreground">
+                            <div className="flex flex-wrap justify-center items-center gap-6 text-muted-foreground">
                                 {[
-                                    { stat: "10+ Success Stories", icon: "⭐" },
-                                    { stat: "95% Match Accuracy", icon: "🎯" },
+                                    { stat: "10K+ Success Stories", icon: "⭐" },
+                                    { stat: "98% Match Accuracy", icon: "🎯" },
                                     { stat: "24/7 AI Support", icon: "🤖" },
                                 ].map(({ stat, icon }, idx) => (
-                                    <Badge key={idx} variant="outline" className="px-4 py-2 bg-background/40 backdrop-blur-md border-border/30 hover:bg-background/60 hover:text-foreground transition-all duration-300">
-                                        <span className="text-base mr-2">{icon}</span>
-                                        <span className="text-sm font-medium">{stat}</span>
+                                    <Badge 
+                                        key={idx} 
+                                        variant="outline" 
+                                        className="px-6 py-3 text-base bg-background/50 backdrop-blur-md border-border/50 hover:bg-primary/10 hover:border-primary/50 hover:text-foreground transition-all duration-300 hover:scale-110 cursor-default"
+                                    >
+                                        <span className="text-xl mr-3">{icon}</span>
+                                        <span className="font-semibold">{stat}</span>
                                     </Badge>
                                 ))}
                             </div>
@@ -155,22 +158,22 @@ const HeroSection = () => {
                     </div>
                 </div>
 
-                <div className="mt-20">
+                <div className="mt-24">
                     <div className="flex flex-col overflow-hidden">
                         <ContainerScroll
                             titleComponent={
                                 <>
-                                    <h2 className="text-4xl md:text-6xl font-bold text-center mb-12 text-foreground tracking-tight">
+                                    <h2 className="text-5xl md:text-7xl font-extrabold text-center mb-16 text-foreground tracking-tight">
                                         Unleash the power of
                                         <br />
-                                        <span className="text-5xl md:text-7xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent font-bold mt-4 leading-tight">
+                                        <span className="text-6xl md:text-8xl bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent font-extrabold mt-6 leading-tight inline-block">
                                             AI Career Platform
                                         </span>
                                     </h2>
                                 </>
                             }
                         >
-                            <Card className="w-full rounded-xl overflow-hidden aspect-[2/1] border-border shadow-xl bg-card/80 backdrop-blur-md">
+                            <Card className="w-full rounded-2xl overflow-hidden aspect-[2/1] border-2 border-border/60 shadow-2xl bg-card/90 backdrop-blur-lg hover:shadow-primary/20 transition-shadow duration-500">
                                 <CardContent className="p-0 relative">
                                     <img
                                         src={`/banner.png`}
@@ -181,10 +184,12 @@ const HeroSection = () => {
                                         draggable={false}
                                     />
                                     
-                                    <div className="absolute inset-0 bg-gradient-to-t from-background/10 to-transparent pointer-events-none" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-background/20 to-transparent pointer-events-none" />
                                     
-                                    <div className="absolute top-4 right-4 w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-                                    <div className="absolute bottom-4 left-4 w-2 h-2 bg-blue-500 rounded-full animate-pulse delay-1000" />
+                                    <div className="absolute top-6 right-6 flex items-center gap-2 bg-green-500/20 backdrop-blur-sm px-3 py-1.5 rounded-full border border-green-500/30">
+                                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                        <span className="text-xs font-medium text-green-500">Live</span>
+                                    </div>
                                 </CardContent>
                             </Card>
                         </ContainerScroll>

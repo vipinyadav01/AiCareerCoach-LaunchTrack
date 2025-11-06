@@ -193,6 +193,19 @@
   background: radial-gradient(circle, transparent, rgba(0, 0, 0, 0.9));
 }
 
+/* Performance tweak: while the user is actively scrolling/typing we add the
+   `reduce-blur` class to the root. This reduces expensive backdrop-filter
+   rendering which can cause scroll/typing jank on low-end devices. */
+.reduce-blur [class*="backdrop-blur"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.reduce-blur [class*="backdrop-filter"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
 /* .gradient {
   @apply bg-gradient-to-b from-gray-400 via-gray-200 to-gray-600;
 }

@@ -8,6 +8,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from '@clerk/themes'
 import { Toaster } from "@/components/ui/sonner";
 import { BackgroundBeams } from "@/components/ui/background-beams";
+import PerfScrollOptimizer from "@/components/perf-scroll-optimizer";
 
 
 export const metadata = {
@@ -308,6 +309,7 @@ export default function RootLayout({ children }) {
             >
               {/* Global animated background */}
               <BackgroundBeams className="fixed inset-0 -z-10 pointer-events-none" />
+              <PerfScrollOptimizer />
               {/* Header */}
               <HeaderWrapper/>
               <main className="min-h-screen">

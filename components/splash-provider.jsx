@@ -34,7 +34,7 @@ const SplashScreen = ({ onComplete }) => {
         const newProgress = Math.max(prev + Math.random() * 10, minProgress);
         return Math.min(newProgress, 100);
       });
-    }, 150);
+  }, 300);
 
     return () => clearInterval(interval);
   }, [onComplete]);

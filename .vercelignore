@@ -1,12 +1,5 @@
-# Ignore Windows system directories
-**/Application Data/**
-**/AppData/**
-**/Program Files/**
-**/Windows/**
-C:/Users/**/Application Data/**
-C:/Users/**/AppData/**
-
-# Ignore development files
+# Vercel ignore — kept minimal to avoid accidental absolute-glob expansion on Windows
+# Only ignore common local dev artifacts
 .env.local
 .env.development
 .env.test

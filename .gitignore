@@ -9,7 +9,7 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
-
+/package-lock.json
 # testing
 /coverage
 
@@ -44,12 +44,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-/generated/prisma
-
-/generated/prisma
-
-# clerk configuration (can include secrets)
-/.clerk/
-
-/generated/prisma

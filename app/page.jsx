@@ -26,13 +26,13 @@ export default function Home() {
       <div className="relative z-10">
         <HeroSection />
 
-        <section className="w-full py-16 md:py-24">
+        <section className="w-full py-20 md:py-32">
           <div className="container mx-auto px-4 md:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-5xl font-bold text-center mb-6">
+            <div className="text-center mb-20">
+              <h2 className="text-4xl md:text-6xl font-extrabold text-center mb-8 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
                 Powerful Features For Your Career Growth
               </h2>
-              <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              <p className="text-muted-foreground text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
                 We offer a wide range of features to help you grow your career with cutting-edge AI technology.
               </p>
             </div>
@@ -147,28 +147,35 @@ export default function Home() {
           </div>
         </section>
         {/* CTA Section */}
-        <section className="w-full">
-          <div className="mx-auto py-24 bg-gradient-to-b from-gray-100 via-gray-50 to-gray-200 dark:from-gray-800 dark:via-gray-700 dark:to-gray-600 rounded-lg">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center max-w-3xl mx-auto">
-              <h2 className="text-3xl font-bold tracking-tighter text-gray-900 dark:text-white sm:text-4xl md:text-5xl">
-                Ready to Accelerate Your Career?
-              </h2>
-              <p className="mx-auto max-w-[600px] text-gray-700 dark:text-gray-200 md:text-xl">
-                Join thousands of professionals who are advancing their careers
-                with AI-powered guidance.
-              </p>
-              <Link href="/dashboard" passHref>
-                <Button
-                  size="lg"
-                  variant="secondary"
-                  className="h-11 mt-5 animate-bounce"
-                >
-                  Start Your Journey Today <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
+        <section className="w-full py-20 md:py-32">
+          <div className="mx-auto px-4 md:px-6 lg:px-8">
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/90 via-primary to-primary/80 p-12 md:p-20 shadow-2xl">
+              <div className="absolute inset-0 bg-grid-white/[0.05] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]" />
+              
+              <div className="relative z-10 flex flex-col items-center justify-center space-y-8 text-center max-w-4xl mx-auto">
+                <h2 className="text-4xl font-extrabold tracking-tight text-primary-foreground sm:text-5xl md:text-6xl">
+                  Ready to Accelerate Your Career?
+                </h2>
+                <p className="text-xl md:text-2xl text-primary-foreground/90 max-w-2xl leading-relaxed">
+                  Join thousands of professionals who are advancing their careers with AI-powered guidance.
+                </p>
+                <Link href="/dashboard" passHref>
+                  <Button
+                    size="lg"
+                    variant="secondary"
+                    className="h-14 px-8 text-lg font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 group mt-4"
+                  >
+                    Start Your Journey Today 
+                    <ArrowRight className="ml-3 h-5 w-5 transition-transform group-hover:translate-x-2" />
+                  </Button>
+                </Link>
+              </div>
+
+              <div className="absolute top-10 right-10 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
+              <div className="absolute bottom-10 left-10 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
             </div>
           </div>
-                 </section>
+        </section>
        </div>
      </div>
    );

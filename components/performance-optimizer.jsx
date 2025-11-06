@@ -60,12 +60,17 @@ const PerformanceOptimizer = () => {
           if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
               navigator.serviceWorker.register('/sw.js')
-                .then(function(registration) {
-                  console.log('SW registered: ', registration);
-                })
-                .catch(function(registrationError) {
-                  console.log('SW registration failed: ', registrationError);
-                });
+                      .then(function(registration) {
+                        // avoid noisy logs in production
+                        if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
+                          console.log('SW registered: ', registration);
+                        }
+                      })
+                      .catch(function(registrationError) {
+                        if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
+                          console.log('SW registration failed: ', registrationError);
+                        }
+                      });
             });
           }
         `
@@ -78,14 +83,17 @@ const PerformanceOptimizer = () => {
           if ('PerformanceObserver' in window) {
             const observer = new PerformanceObserver((list) => {
               for (const entry of list.getEntries()) {
-                if (entry.entryType === 'largest-contentful-paint') {
-                  console.log('LCP:', entry.startTime);
-                }
-                if (entry.entryType === 'first-input') {
-                  console.log('FID:', entry.processingStart - entry.startTime);
-                }
-                if (entry.entryType === 'layout-shift') {
-                  console.log('CLS:', entry.value);
+                // Only emit core web vital logs during development to avoid console spam
+                if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
+                  if (entry.entryType === 'largest-contentful-paint') {
+                    console.log('LCP:', entry.startTime);
+                  }
+                  if (entry.entryType === 'first-input') {
+                    console.log('FID:', entry.processingStart - entry.startTime);
+                  }
+                  if (entry.entryType === 'layout-shift') {
+                    console.log('CLS:', entry.value);
+                  }
                 }
               }
             });
