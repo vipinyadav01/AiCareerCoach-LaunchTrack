@@ -26,7 +26,7 @@ export default function Home() {
       <div className="relative z-10">
         <HeroSection />
 
-        <section className="w-full py-20 md:py-32">
+        <section id="features" className="w-full py-20 md:py-32">
           <div className="container mx-auto px-4 md:px-6 lg:px-8">
             <div className="text-center mb-20">
               <h2 className="text-4xl md:text-6xl font-extrabold text-center mb-8 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
@@ -79,7 +79,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="w-full py-16 md:py-24">
+        <section id="testimonials" className="w-full py-16 md:py-24">
           <div className="container mx-auto px-4 md:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h3 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent">
@@ -124,7 +124,7 @@ export default function Home() {
         </section>
 
         {/* Frequently Asked Questions */}
-        <section className="w-full py-16 md:py-24 bg-transparent ">
+        <section id="faq" className="w-full py-16 md:py-24 bg-transparent ">
           <div className="container mx-auto px-4 md:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h3 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent">
