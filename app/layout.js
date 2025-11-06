@@ -22,17 +22,17 @@ export default function RootLayout({ children }) {
         baseTheme: dark,
       }}
     >
-    <html lang="en" suppressHydrationWarning>
-            <head>
-              <HeadMeta />
-              <StructuredData />
-      </head>
-      <body
-        className="font-jetbrains antialiased"
-        suppressHydrationWarning={true}
-      >
-        <LayoutWrapper>
-          <ThemeProvider
+      <html lang="en" suppressHydrationWarning>
+        <head>
+          <HeadMeta />
+          <StructuredData />
+        </head>
+        <body
+          className="font-jetbrains antialiased"
+          suppressHydrationWarning={true}
+        >
+          <LayoutWrapper>
+            <ThemeProvider
               attribute="class"
               defaultTheme="dark"
               enableSystem
@@ -42,19 +42,19 @@ export default function RootLayout({ children }) {
               <BackgroundBeams className="fixed inset-0 -z-10 pointer-events-none" />
               <PerfScrollOptimizer />
               {/* Header */}
-              <HeaderWrapper/>
+              <HeaderWrapper />
               <main className="min-h-screen">
-  {children}
+                {children}
               </main>
               <PWAInstallPrompt />
               <PWAStatus />
-              <Toaster richColors/>
+              <Toaster richColors />
               {/* Footer */}
               <Footer />
             </ThemeProvider>
-        </LayoutWrapper>
-      </body>
-    </html>
+          </LayoutWrapper>
+        </body>
+      </html>
     </ClerkProvider>
   );
 }

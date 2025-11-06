@@ -6,11 +6,8 @@ import SplashScreen from "./splash-screen";
 export default function LayoutWrapper({ children }) {
   const [showSplash, setShowSplash] = useState(true);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true);
-    
     // Check if this is the first visit in this session
     const hasShownSplash = sessionStorage.getItem('splashShown');
     
@@ -28,15 +25,6 @@ export default function LayoutWrapper({ children }) {
     setTimeout(() => setIsLoaded(true), 100);
   };
 
-  // Prevent hydration mismatch by not rendering until mounted
-  if (!isMounted) {
-    return (
-      <div className="opacity-0">
-        {children}
-      </div>
-    );
-  }
-
   return (
     <>
       {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
@@ -45,9 +33,7 @@ export default function LayoutWrapper({ children }) {
           isLoaded ? 'opacity-100' : 'opacity-0'
         }`}
         style={{ 
-          visibility: isLoaded ? 'visible' : 'hidden',
-          position: isLoaded ? 'relative' : 'absolute',
-          top: isLoaded ? 'auto' : '-9999px'
+          visibility: isLoaded ? 'visible' : 'hidden'
         }}
       >
         {children}
