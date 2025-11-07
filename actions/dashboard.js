@@ -76,7 +76,6 @@ export async function getIndustryInsights() {
           data: {
             industry: user.industry,
             ...insights,
-            userId: user.id,
             nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
           },
         });

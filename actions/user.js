@@ -28,7 +28,21 @@ export async function updateUser(data) {
 
         // If industry doesn't exist, create it with default values
         if (!industryInsight) {
-          const insights = await generateAIInsights(data.industry);
+          let insights = {};
+          try {
+            insights = await generateAIInsights(data.industry);
+          } catch (_e) {
+            // If insight generation fails, proceed with minimal record
+            insights = {
+              salaryRanges: [],
+              growthRate: 0,
+              demandLevel: "Unknown",
+              topSkills: [],
+              marketOutlook: "Neutral",
+              keyTrends: [],
+              recommendedSkills: [],
+            };
+          }
 
           industryInsight = await db.industryInsight.create({
             data: {
@@ -60,7 +74,7 @@ export async function updateUser(data) {
     );
 
     revalidatePath("/");
-    return result.user;
+    return { success: true, user: result.updatedUser };
   } catch (error) {
     throw new Error("Failed to update profile");
   }

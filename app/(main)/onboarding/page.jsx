@@ -1,5 +1,5 @@
 
-import { getUserOnboardingStatus } from '@/actions/user';
+import { getUserOnboardingStatus } from '@/lib/user-status';
 import { industries } from '@/data/industries';
 import { redirect } from 'next/navigation';
 import React from 'react';

@@ -12,6 +12,7 @@ import PerfScrollOptimizer from "@/components/perf-scroll-optimizer";
 import { HeadMeta } from "./lib/head-meta";
 import { StructuredData } from "./lib/structured-data";
 import { Footer } from "components/Footer";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export { metadata, viewport } from "./lib/metadata";
 
@@ -51,9 +52,10 @@ export default function RootLayout({ children }) {
               <Toaster richColors />
               {/* Footer */}
               <Footer />
+              <SpeedInsights />
             </ThemeProvider>
           </LayoutWrapper>
-        </body>
+  </body>
       </html>
     </ClerkProvider>
   );
