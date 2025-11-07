@@ -74,8 +74,9 @@ export async function updateUser(data) {
     );
 
     revalidatePath("/");
-    return { success: true, user: result.updatedUser };
+    return result.user;
   } catch (error) {
+    console.error("Error updating user and industry:", error.message);
     throw new Error("Failed to update profile");
   }
 }
@@ -84,23 +85,27 @@ export async function getUserOnboardingStatus() {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
+  const user = await db.user.findUnique({
+    where: { clerkUserId: userId },
+  });
+
+  if (!user) throw new Error("User not found");
+
   try {
     const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
+      where: {
+        clerkUserId: userId,
+      },
+      select: {
+        industry: true,
+      },
     });
 
-    if (!user) {
-      // User doesn't exist, they need to go through onboarding
-      return { isOnboarded: false };
-    }
-
-    // Check if user has completed onboarding (has industry set)
     return {
-      isOnboarded: !!user.industry,
+      isOnboarded: !!user?.industry,
     };
   } catch (error) {
-    // If database is unreachable or any other error occurs,
-    // assume user is not onboarded to be safe
-    return { isOnboarded: false };
+    console.error("Error checking onboarding status:", error);
+    throw new Error("Failed to check onboarding status");
   }
 }
