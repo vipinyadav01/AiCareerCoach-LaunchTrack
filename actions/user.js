@@ -6,16 +6,20 @@ import { revalidatePath } from "next/cache";
 import { generateAIInsights } from "./dashboard";
 
 export async function updateUser(data) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
-
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const user = await db.user.findUnique({
+      where: { clerkUserId: userId },
+    });
+
+    if (!user) {
+      return { success: false, error: "User not found" };
+    }
+
     // Start a transaction to handle both operations
     const result = await db.$transaction(
       async (tx) => {
@@ -31,7 +35,8 @@ export async function updateUser(data) {
           let insights = {};
           try {
             insights = await generateAIInsights(data.industry);
-          } catch (_e) {
+          } catch (error) {
+            console.warn("Failed to generate AI insights, using defaults:", error.message);
             // If insight generation fails, proceed with minimal record
             insights = {
               salaryRanges: [],
@@ -44,7 +49,7 @@ export async function updateUser(data) {
             };
           }
 
-          industryInsight = await db.industryInsight.create({
+          industryInsight = await tx.industryInsight.create({
             data: {
               industry: data.industry,
               ...insights,
@@ -69,43 +74,65 @@ export async function updateUser(data) {
         return { updatedUser, industryInsight };
       },
       {
-        timeout: 10000, // default: 5000
+        timeout: 15000, // Increased timeout for AI generation
+        maxWait: 20000,
       }
     );
 
-    revalidatePath("/");
-    return result.user;
+    revalidatePath("/dashboard");
+    revalidatePath("/onboarding");
+    
+    return { 
+      success: true, 
+      user: result.updatedUser,
+      message: "Profile updated successfully"
+    };
   } catch (error) {
-    console.error("Error updating user and industry:", error.message);
-    throw new Error("Failed to update profile");
+    console.error("Error updating user and industry:", error);
+    return { 
+      success: false, 
+      error: error.message || "Failed to update profile" 
+    };
   }
 }
 
 export async function getUserOnboardingStatus() {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
-
   try {
+    const { userId } = await auth();
+    
+    if (!userId) {
+      return { success: false, isOnboarded: false, error: "Unauthorized" };
+    }
+
     const user = await db.user.findUnique({
-      where: {
-        clerkUserId: userId,
-      },
+      where: { clerkUserId: userId },
       select: {
+        id: true,
         industry: true,
+        experience: true,
+        bio: true,
+        skills: true,
       },
     });
 
+    if (!user) {
+      return { success: false, isOnboarded: false, error: "User not found" };
+    }
+
+    // Consider user onboarded if they have industry set
+    const isOnboarded = !!user.industry;
+
     return {
-      isOnboarded: !!user?.industry,
+      success: true,
+      isOnboarded,
+      user: isOnboarded ? user : null,
     };
   } catch (error) {
     console.error("Error checking onboarding status:", error);
-    throw new Error("Failed to check onboarding status");
+    return { 
+      success: false, 
+      isOnboarded: false, 
+      error: "Failed to check onboarding status" 
+    };
   }
 }
