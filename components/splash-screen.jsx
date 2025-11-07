@@ -58,12 +58,10 @@ const SplashScreen = ({ onComplete }) => {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.5 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-background"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-linear-to-br from-primary/10 via-background/80 to-primary/20"
           style={{
-            height: '100vh',
-            height: '100dvh', 
-            width: '100vw',
-            width: '100dvw', 
+            height: '100dvh',
+            width: '100dvw',
             position: 'fixed',
             top: 0,
             left: 0,
@@ -73,20 +71,19 @@ const SplashScreen = ({ onComplete }) => {
             WebkitOverflowScrolling: 'touch',
           }}
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-background via-muted/20 to-background"></div>
-          
-          <div className="relative flex flex-col items-center justify-center space-y-8 px-4">
+          <div className="absolute inset-0 bg-linear-to-br from-primary/20 via-background/60 to-primary/10 blur-xl opacity-70"></div>
+          <div className="relative flex flex-col items-center justify-center space-y-10 px-4">
             <motion.div
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
               className="relative"
             >
-              <Card className="relative w-24 h-24 bg-card/80 backdrop-blur-md border-border flex items-center justify-center">
+              <Card className="relative w-28 h-28 bg-card/80 backdrop-blur-xl border-2 border-primary/30 shadow-2xl flex items-center justify-center">
                 <img 
                   src="/android-chrome-512x512.png" 
                   alt="LaunchTrack Logo" 
-                  className="w-16 h-16 object-contain"
+                  className="w-16 h-16 object-contain drop-shadow-lg"
                   style={{
                     imageRendering: 'crisp-edges',
                     WebkitImageRendering: 'crisp-edges',
@@ -97,7 +94,8 @@ const SplashScreen = ({ onComplete }) => {
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                  className="absolute inset-0 border-2 border-transparent border-t-primary/60 rounded-lg"
+                  className="absolute inset-0 border-4 border-primary/40 border-t-primary/80 rounded-full pointer-events-none"
+                  style={{ boxShadow: '0 0 32px 8px rgba(80,80,255,0.12)' }}
                 />
               </Card>
             </motion.div>
@@ -108,10 +106,10 @@ const SplashScreen = ({ onComplete }) => {
               transition={{ duration: 0.8, delay: 0.3 }}
               className="text-center space-y-2"
             >
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-foreground via-primary to-primary bg-clip-text text-transparent">
+              <h1 className="text-5xl font-extrabold bg-linear-to-r from-primary via-foreground to-primary bg-clip-text text-transparent tracking-tight drop-shadow-lg">
                 LaunchTrack
               </h1>
-              <Badge variant="secondary" className="text-lg px-4 py-1">
+              <Badge variant="secondary" className="text-lg px-5 py-2 rounded-xl shadow-md">
                 AI Career Platform
               </Badge>
             </motion.div>
@@ -120,38 +118,38 @@ const SplashScreen = ({ onComplete }) => {
               initial={{ width: 0, opacity: 0 }}
               animate={{ width: "100%", opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.6 }}
-              className="w-64 space-y-3"
+              className="w-72 space-y-3"
             >
-              <div className="flex justify-between text-sm text-muted-foreground">
+              <div className="flex justify-between text-base text-muted-foreground font-medium">
                 <span>Loading...</span>
                 <span>{Math.round(progress)}%</span>
               </div>
-              <Progress value={progress} className="h-2" />
+              <Progress value={progress} className="h-3 rounded-full bg-primary/10" />
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.9 }}
-              className="flex items-center space-x-2 text-muted-foreground"
+              className="flex items-center space-x-2 text-muted-foreground text-base"
             >
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span className="text-sm">Preparing your experience...</span>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span>Preparing your experience...</span>
             </motion.div>
 
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
               {particlePositions.map((particle, i) => (
                 <motion.div
                   key={i}
-                  className="absolute w-2 h-2 bg-primary/20 rounded-full"
+                  className="absolute w-3 h-3 bg-primary/30 rounded-full shadow-lg"
                   style={{
                     left: `${particle.left}%`,
                     top: `${particle.top}%`,
                   }}
                   animate={{
-                    y: [0, -30, 0],
-                    opacity: [0.1, 0.6, 0.1],
-                    scale: [0.5, 1.2, 0.5],
+                    y: [0, -40, 0],
+                    opacity: [0.1, 0.7, 0.1],
+                    scale: [0.7, 1.3, 0.7],
                   }}
                   transition={{
                     duration: particle.duration,
