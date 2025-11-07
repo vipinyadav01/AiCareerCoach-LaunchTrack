@@ -2,32 +2,41 @@ import { getIndustryInsights } from "@/actions/dashboard";
 import DashboardView from "./_components/dashboard-view";
 import { getUserOnboardingStatus } from "@/actions/user";
 import { redirect } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
 
 export default async function DashboardPage() {
   try {
+    const { userId } = await auth();
+    
+    if (!userId) {
+      redirect("/sign-in");
+    }
     const { isOnboarded } = await getUserOnboardingStatus();
 
-    // If not onboarded, redirect to onboarding page
     if (!isOnboarded) {
       redirect("/onboarding");
     }
 
     const insights = await getIndustryInsights();
 
-    // Handle redirect response from getIndustryInsights
-    if (insights.redirect) {
+    if (insights?.redirect) {
       redirect(insights.redirect);
+    }
+    const dashboardData = insights?.data || insights;
+    
+    if (!dashboardData || !dashboardData.salaryRanges || !dashboardData.industry) {
+      redirect("/onboarding");
     }
 
     return (
       <div className="container mx-auto">
-        <DashboardView insights={insights.data || insights} />
+        <DashboardView insights={dashboardData} />
       </div>
     );
   } catch (error) {
-    console.error("Dashboard error:", error);
-    
-    // If database connection fails or user data is unavailable, redirect to onboarding
-    redirect("/onboarding");
+    if (error?.digest?.startsWith('NEXT_REDIRECT')) {
+      throw error;
+    }
+        redirect("/onboarding");
   }
 }

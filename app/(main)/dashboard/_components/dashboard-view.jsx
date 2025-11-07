@@ -256,7 +256,7 @@ const DashboardView = ({ insights }) => {
             <ul className="space-y-3">
               {insights.keyTrends.map((trend, index) => (
                 <li key={index} className="flex items-center space-x-3">
-                  <div className="h-2 w-2 rounded-full bg-primary flex-shrink-0" />
+                  <div className="h-2 w-2 rounded-full bg-primary shrink-0" />
                   <span className="text-sm text-muted-foreground">
                     {trend}
                   </span>
