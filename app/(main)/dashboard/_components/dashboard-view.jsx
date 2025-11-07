@@ -21,6 +21,9 @@ import {
   TrendingUp,
   TrendingDown,
   Brain,
+  FileText,
+  FileSignature,
+  MessagesSquare,
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import {
@@ -33,6 +36,8 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const DashboardView = ({ insights }) => {
   const salaryData = insights.salaryRanges.map((range) => ({
@@ -79,12 +84,27 @@ const DashboardView = ({ insights }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <Badge variant="secondary" className="px-3 py-1 text-sm">
-          Last updated: {lastUpdatedDate}
-        </Badge>
-      </div>
+      {/* Header */}
+      <Card className="bg-card/70 border-border/40">
+        <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div>
+            <CardTitle className="text-2xl md:text-3xl">
+              Your {insights.industry} Dashboard
+            </CardTitle>
+            <CardDescription className="mt-1">
+              Personalized insights to help you plan your next career move.
+            </CardDescription>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Badge variant="secondary" className="px-3 py-1 text-sm">
+              Last updated: {lastUpdatedDate}
+            </Badge>
+            <Badge className="px-3 py-1 text-sm">{insights.industry}</Badge>
+          </div>
+        </CardHeader>
+      </Card>
 
+      {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -151,6 +171,7 @@ const DashboardView = ({ insights }) => {
         </Card>
       </div>
 
+      {/* Salary Chart */}
       <Card className="col-span-4 shadow-lg bg-card/80 border border-border/30">
         <CardHeader className="pb-2">
           <CardTitle className="text-lg font-bold text-primary">Salary Ranges by Role</CardTitle>
@@ -191,33 +212,9 @@ const DashboardView = ({ insights }) => {
                     tickLine={false}
                     axisLine={false}
                   />
-                  <ChartTooltip
-                    cursor={{ fill: 'rgba(0, 0, 0, 0.07)' }}
-                    content={({ active, payload, label }) => {
-                      if (!active || !payload?.length) return null;
-                      return (
-                        <div className="bg-background/95 backdrop-blur-md border border-border/30 shadow-xl rounded-xl p-4 min-w-[140px]">
-                          <p className="font-semibold text-primary mb-2">{`Role: ${label}`}</p>
-                          {payload.map((item, index) => (
-                            <div key={index} className="flex items-center justify-between gap-2 mb-1">
-                              <div className="flex items-center gap-2">
-                                <div 
-                                  className="w-3 h-3 rounded-full border border-border/40" 
-                                  style={{ backgroundColor: item.color }}
-                                />
-                                <span className="text-xs text-muted-foreground">
-                                  {item.name}:
-                                </span>
-                              </div>
-                              <span className="font-mono font-bold text-foreground">
-                                ${item.value}K
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      );
-                    }}
-                  />
+                  <ChartTooltip cursor={{ fill: 'rgba(0, 0, 0, 0.07)' }}>
+                    <ChartTooltipContent />
+                  </ChartTooltip>
                   <ChartLegend content={<ChartLegendContent />} />
                   <Bar 
                     dataKey="min" 
@@ -244,7 +241,8 @@ const DashboardView = ({ insights }) => {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Trends, Skills, and Quick Actions */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Card>
           <CardHeader>
             <CardTitle>Key Industry Trends</CardTitle>
@@ -272,17 +270,40 @@ const DashboardView = ({ insights }) => {
             <CardDescription>Skills to consider developing</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap gap-2"></div>
-          </CardContent>
-          <CardFooter className="flex flex-wrap gap-2">
             <div className="flex flex-wrap gap-2">
               {insights.recommendedSkills.map((skill) => (
                 <Badge key={skill} variant="secondary" className="px-3 py-1">
-                  {skill}{" "}
+                  {skill}
                 </Badge>
               ))}
             </div>
-          </CardFooter>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+            <CardDescription>Boost your profile in minutes</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <Link href="/resume">
+                <Button variant="secondary" className="w-full justify-start gap-2">
+                  <FileText className="h-4 w-4" /> Improve Resume
+                </Button>
+              </Link>
+              <Link href="/ai-cover-letter">
+                <Button variant="secondary" className="w-full justify-start gap-2">
+                  <FileSignature className="h-4 w-4" /> Write Cover Letter
+                </Button>
+              </Link>
+              <Link href="/interview">
+                <Button variant="secondary" className="w-full justify-start gap-2">
+                  <MessagesSquare className="h-4 w-4" /> Practice Interview
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
         </Card>
       </div>
     </div>
