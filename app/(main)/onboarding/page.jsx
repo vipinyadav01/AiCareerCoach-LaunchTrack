@@ -9,21 +9,38 @@ import { checkUser } from '@/lib/checkUser';
 
 
 const onboardingPage = async () => {
-  // Ensure user exists in DB
-  await checkUser();
+  try {
+    // Ensure user exists in DB
+    const user = await checkUser();
+    
+    if (!user) {
+      // User not authenticated, redirect to sign in
+      redirect("/sign-in");
+    }
 
-  // Check if user is already onboarded
-  const { isOnboarded } = await getUserOnboardingStatus();
-  if (isOnboarded) {
-    // If user is already onboarded, redirect to the dashboard
-    redirect("/dashboard");
+    // Check if user is already onboarded
+    const { isOnboarded } = await getUserOnboardingStatus();
+    if (isOnboarded) {
+      // If user is already onboarded, redirect to the dashboard
+      redirect("/dashboard");
+    }
+
+    return (
+      <main>
+        <OnboardingForm industries={industries} />
+      </main>
+    );
+  } catch (error) {
+    if (error?.digest?.startsWith('NEXT_REDIRECT')) {
+      throw error;
+    }
+    
+    return (
+      <main>
+        <OnboardingForm industries={industries} />
+      </main>
+    );
   }
-
-  return (
-    <main>
-      <OnboardingForm industries={industries} />
-    </main>
-  );
 }
 
 export default onboardingPage

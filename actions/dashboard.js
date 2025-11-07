@@ -36,7 +36,6 @@ export async function checkUserAndRedirect() {
 
     return user;
   } catch (error) {
-    console.error("Error in checkUser:", error.message);
     redirect("/onboarding");
   }
 }
@@ -84,7 +83,6 @@ export async function getIndustryInsights() {
 
         return { data: industryInsight, redirect: null };
       } catch (error) {
-        console.error("Error generating industry insights:", error);
         return { 
           redirect: "/onboarding", 
           message: "Unable to generate industry insights. Please update your profile." 
@@ -94,8 +92,6 @@ export async function getIndustryInsights() {
 
     return { data: user.industryInsight, redirect: null };
   } catch (error) {
-    console.error("Error fetching industry insights:", error);
-    
     // If database connection fails, redirect to onboarding
     return { 
       redirect: "/onboarding", 
@@ -137,7 +133,6 @@ export const generateAIInsights = async (industry) => {
     
     return JSON.parse(cleanedText);
   } catch (error) {
-    console.error("Error generating AI insights:", error);
     throw new Error("Failed to generate industry insights");
   }
 };
