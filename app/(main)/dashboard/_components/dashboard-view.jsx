@@ -151,93 +151,96 @@ const DashboardView = ({ insights }) => {
         </Card>
       </div>
 
-      <Card className="col-span-4 shadow-lg">
-        <CardHeader>
-          <CardTitle>Salary Ranges by Role</CardTitle>
-          <CardDescription>
+      <Card className="col-span-4 shadow-lg bg-card/80 border border-border/30">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg font-bold text-primary">Salary Ranges by Role</CardTitle>
+          <CardDescription className="text-sm text-muted-foreground">
             Displaying minimum, median, and maximum salaries (in thousands)
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <ChartContainer
-            config={{
-              min: {
-                label: "Minimum Salary",
-                color: "#10b981", // Green
-              },
-              median: {
-                label: "Median Salary", 
-                color: "#3b82f6", // Blue
-              },
-              max: {
-                label: "Maximum Salary",
-                color: "#8b5cf6", // Purple
-              },
-            }}
-            className="h-[400px]"
-          >
-            <BarChart data={salaryData}>
-              <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-              <XAxis 
-                dataKey="name" 
-                tick={{ fontSize: 12 }}
-                tickLine={false}
-                axisLine={false}
-              />
-              <YAxis 
-                tick={{ fontSize: 12 }}
-                tickLine={false}
-                axisLine={false}
-              />
-              <ChartTooltip
-                cursor={{ fill: 'rgba(0, 0, 0, 0.1)' }}
-                content={({ active, payload, label }) => {
-                  if (!active || !payload?.length) return null;
-                  
-                  return (
-                    <div className="bg-background/95 backdrop-blur-sm border shadow-lg rounded-lg p-3 min-w-[120px]">
-                      <p className="font-medium text-foreground mb-2">{`Role: ${label}`}</p>
-                      {payload.map((item, index) => (
-                        <div key={index} className="flex items-center justify-between gap-2 mb-1">
-                          <div className="flex items-center gap-2">
-                            <div 
-                              className="w-3 h-3 rounded-full" 
-                              style={{ backgroundColor: item.color }}
-                            />
-                            <span className="text-sm text-muted-foreground">
-                              {item.name}:
-                            </span>
-                          </div>
-                          <span className="font-mono font-medium text-foreground">
-                            ${item.value}K
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  );
+        <CardContent className="p-0">
+          <div className="w-full overflow-x-auto">
+            <div className="min-w-[340px] md:min-w-0 px-2 md:px-6 py-4">
+              <ChartContainer
+                config={{
+                  min: {
+                    label: "Minimum Salary",
+                    color: "#10b981", // Green
+                  },
+                  median: {
+                    label: "Median Salary", 
+                    color: "#3b82f6", // Blue
+                  },
+                  max: {
+                    label: "Maximum Salary",
+                    color: "#8b5cf6", // Purple
+                  },
                 }}
-              />
-              <ChartLegend content={<ChartLegendContent />} />
-              <Bar 
-                dataKey="min" 
-                fill="var(--color-min)" 
-                name="Minimum Salary"
-                radius={[2, 2, 0, 0]}
-              />
-              <Bar 
-                dataKey="median" 
-                fill="var(--color-median)" 
-                name="Median Salary"
-                radius={[2, 2, 0, 0]}
-              />
-              <Bar 
-                dataKey="max" 
-                fill="var(--color-max)" 
-                name="Maximum Salary"
-                radius={[2, 2, 0, 0]}
-              />
-            </BarChart>
-          </ChartContainer>
+                className="h-[340px] md:h-[400px]"
+              >
+                <BarChart data={salaryData} barSize={32}>
+                  <CartesianGrid strokeDasharray="3 3" className="opacity-20" />
+                  <XAxis 
+                    dataKey="name" 
+                    tick={{ fontSize: 12 }}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 12 }}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <ChartTooltip
+                    cursor={{ fill: 'rgba(0, 0, 0, 0.07)' }}
+                    content={({ active, payload, label }) => {
+                      if (!active || !payload?.length) return null;
+                      return (
+                        <div className="bg-background/95 backdrop-blur-md border border-border/30 shadow-xl rounded-xl p-4 min-w-[140px]">
+                          <p className="font-semibold text-primary mb-2">{`Role: ${label}`}</p>
+                          {payload.map((item, index) => (
+                            <div key={index} className="flex items-center justify-between gap-2 mb-1">
+                              <div className="flex items-center gap-2">
+                                <div 
+                                  className="w-3 h-3 rounded-full border border-border/40" 
+                                  style={{ backgroundColor: item.color }}
+                                />
+                                <span className="text-xs text-muted-foreground">
+                                  {item.name}:
+                                </span>
+                              </div>
+                              <span className="font-mono font-bold text-foreground">
+                                ${item.value}K
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    }}
+                  />
+                  <ChartLegend content={<ChartLegendContent />} />
+                  <Bar 
+                    dataKey="min" 
+                    fill="var(--color-min)" 
+                    name="Minimum Salary"
+                    radius={[4, 4, 0, 0]}
+                  />
+                  <Bar 
+                    dataKey="median" 
+                    fill="var(--color-median)" 
+                    name="Median Salary"
+                    radius={[4, 4, 0, 0]}
+                  />
+                  <Bar 
+                    dataKey="max" 
+                    fill="var(--color-max)" 
+                    name="Maximum Salary"
+                    radius={[4, 4, 0, 0]}
+                  />
+                </BarChart>
+              </ChartContainer>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
