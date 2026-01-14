@@ -9,8 +9,24 @@ const isProtectedRoute = createRouteMatcher([
   '/onboarding(.*)',
 ]);
 
+const isPublicRoute = createRouteMatcher([
+  '/',
+  '/sign-in(.*)',
+  '/sign-up(.*)',
+  '/api/webhooks(.*)',
+  '/api/inngest(.*)',
+  '/api/auth(.*)', // Clerk OAuth callbacks
+  '/api/diagnostics(.*)', // Diagnostics routes
+]);
+
 export default clerkMiddleware(async (auth, req) => {
   try {
+    // Allow public routes and Clerk API routes to pass through
+    if (isPublicRoute(req)) {
+      return NextResponse.next();
+    }
+
+    // Protect routes that require authentication
     if (isProtectedRoute(req)) {
       const { userId } = await auth();
       if (!userId) {
@@ -19,16 +35,23 @@ export default clerkMiddleware(async (auth, req) => {
         return NextResponse.redirect(signInUrl);
       }
     }
+    
     return NextResponse.next();
   } catch (error) {
     console.error('Clerk middleware error:', error);
+    // Don't block OAuth callbacks on error
+    if (req.url.includes('/api/auth/')) {
+      return NextResponse.next();
+    }
     return NextResponse.next();
   }
 });
 
 export const config = {
   matcher: [
-    // Run middleware on all routes except static files and next internals
+    // Skip Next.js internals and static files
     '/((?!_next/static|_next/image|favicon.ico|.*\\.png|.*\\.jpg|.*\\.jpeg|.*\\.gif|.*\\.svg|.*\\.webp|.*\\.ico).*)',
+    // Always run for API routes
+    '/(api|trpc)(.*)',
   ],
 };

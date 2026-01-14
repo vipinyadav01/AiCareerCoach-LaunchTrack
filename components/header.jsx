@@ -3,6 +3,7 @@
 import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
 import React from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { Button, buttonVariants } from './ui/button'
 import { cn } from '@/lib/utils'
 import { FileText, GraduationCap, Home, PenBox, Github } from 'lucide-react'
@@ -13,7 +14,9 @@ import { useScroll } from './use-scroll'
 
 const Header = () => {
   const [open, setOpen] = React.useState(false)
+  const [hoveredLink, setHoveredLink] = React.useState(null)
   const scrolled = useScroll(10)
+  const pathname = usePathname()
 
   React.useEffect(() => {
     if (open) {
@@ -66,7 +69,7 @@ const Header = () => {
       className={cn(
         'sticky top-0 z-50 mx-auto w-full max-w-5xl border-b border-transparent md:rounded-md md:border md:transition-all md:ease-out',
         {
-          'bg-background/95 supports-[backdrop-filter]:bg-background/50 border-border backdrop-blur-lg md:top-4 md:max-w-4xl md:shadow':
+          'bg-background/95 supports-backdrop-filter:bg-background/50 border-border backdrop-blur-lg md:top-4 md:max-w-4xl md:shadow':
             scrolled && !open,
           'bg-background/90': open,
         }
@@ -80,29 +83,39 @@ const Header = () => {
         )}>
         {/* Logo */}
         <SignedOut>
-          <Link href="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 flex items-center justify-center rounded-md">
+          <Link
+            href="/"
+            className="flex items-center gap-2 group transition-all duration-200 hover:scale-105"
+            onMouseEnter={() => setHoveredLink('logo')}
+            onMouseLeave={() => setHoveredLink(null)}
+          >
+            <div className="h-8 w-8 flex items-center justify-center rounded-md transition-all duration-200 group-hover:rotate-12 group-hover:shadow-lg">
               <img
                 src="/favicon-32x32.png"
                 alt="Launch Track Logo"
-                className="h-6 w-6 object-contain"
+                className="h-6 w-6 object-contain transition-transform duration-200 group-hover:scale-110"
               />
             </div>
-            <span className="text-foreground text-sm font-bold font-nav tracking-tight hidden sm:block">
+            <span className="text-foreground text-sm font-bold font-nav tracking-tight hidden sm:block transition-colors duration-200 group-hover:text-primary">
               Launch Track
             </span>
           </Link>
         </SignedOut>
         <SignedIn>
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="h-8 w-8 flex items-center justify-center rounded-md">
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-2 group transition-all duration-200 hover:scale-105"
+            onMouseEnter={() => setHoveredLink('logo')}
+            onMouseLeave={() => setHoveredLink(null)}
+          >
+            <div className="h-8 w-8 flex items-center justify-center rounded-md transition-all duration-200 group-hover:rotate-12 group-hover:shadow-lg">
               <img
                 src="/favicon-32x32.png"
                 alt="Launch Track Logo"
-                className="h-6 w-6 object-contain"
+                className="h-6 w-6 object-contain transition-transform duration-200 group-hover:scale-110"
               />
             </div>
-            <span className="text-foreground text-sm font-bold font-nav tracking-tight hidden sm:block">
+            <span className="text-foreground text-sm font-bold font-nav tracking-tight hidden sm:block transition-colors duration-200 group-hover:text-primary">
               Launch Track
             </span>
           </Link>
@@ -113,14 +126,29 @@ const Header = () => {
           <SignedIn>
             {signedInLinks.map((link) => {
               const Icon = link.icon
+              const isActive = pathname === link.href || pathname.startsWith(link.href + '/')
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={buttonVariants({ variant: 'ghost' })}
+                  className={cn(
+                    buttonVariants({ variant: 'ghost' }),
+                    'relative transition-all duration-200 group',
+                    isActive && 'text-primary font-semibold',
+                    'hover:scale-105 hover:text-primary'
+                  )}
+                  onMouseEnter={() => setHoveredLink(link.href)}
+                  onMouseLeave={() => setHoveredLink(null)}
                 >
-                  <Icon className="w-4 h-4 mr-2" />
+                  <Icon className={cn(
+                    "w-4 h-4 mr-2 transition-all duration-200",
+                    isActive && "scale-110",
+                    hoveredLink === link.href && "scale-110 rotate-12"
+                  )} />
                   {link.label}
+                  {isActive && (
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+                  )}
                 </Link>
               )
             })}
@@ -147,22 +175,39 @@ const Header = () => {
           <SignedOut>
             {signedOutLinks.map((link) => {
               const Icon = link.icon
+              const isActive = pathname === link.href
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={buttonVariants({ variant: 'ghost' })}
+                  className={cn(
+                    buttonVariants({ variant: 'ghost' }),
+                    'relative transition-all duration-200 group',
+                    isActive && 'text-primary font-semibold',
+                    'hover:scale-105 hover:text-primary'
+                  )}
+                  onMouseEnter={() => setHoveredLink(link.href)}
+                  onMouseLeave={() => setHoveredLink(null)}
                 >
-                  <Icon className="w-4 h-4 mr-2" />
+                  <Icon className={cn(
+                    "w-4 h-4 mr-2 transition-all duration-200",
+                    isActive && "scale-110",
+                    hoveredLink === link.href && "scale-110 rotate-12"
+                  )} />
                   {link.label}
+                  {isActive && (
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+                  )}
                 </Link>
               )
             })}
             <Link href="/sign-in">
-              <Button variant="outline">Sign In</Button>
-            </Link>
-            <Link href="/sign-up">
-              <Button>Get Started</Button>
+              <Button
+                variant="outline"
+                className="transition-all duration-200 hover:scale-105 hover:shadow-md"
+              >
+                Sign In
+              </Button>
             </Link>
             <span className="mx-1 w-px h-6 bg-border/40 rounded-full" aria-hidden="true"></span>
             <ThemeToggle />
@@ -217,16 +262,24 @@ const Header = () => {
             <SignedIn>
               {signedInLinks.map((link) => {
                 const Icon = link.icon
+                const isActive = pathname === link.href || pathname.startsWith(link.href + '/')
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
                     onClick={() => setOpen(false)}
-                    className={buttonVariants({
-                      variant: 'ghost',
-                      className: 'justify-start',
-                    })}>
-                    <Icon className="w-4 h-4 mr-2" />
+                    className={cn(
+                      buttonVariants({
+                        variant: 'ghost',
+                        className: 'justify-start transition-all duration-200',
+                      }),
+                      isActive && 'bg-primary/10 text-primary font-semibold',
+                      'hover:bg-primary/5 hover:scale-[1.02]'
+                    )}>
+                    <Icon className={cn(
+                      "w-4 h-4 mr-2 transition-all duration-200",
+                      isActive && "scale-110"
+                    )} />
                     {link.label}
                   </Link>
                 )
@@ -235,16 +288,24 @@ const Header = () => {
             <SignedOut>
               {signedOutLinks.map((link) => {
                 const Icon = link.icon
+                const isActive = pathname === link.href
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
                     onClick={() => setOpen(false)}
-                    className={buttonVariants({
-                      variant: 'ghost',
-                      className: 'justify-start',
-                    })}>
-                    <Icon className="w-4 h-4 mr-2" />
+                    className={cn(
+                      buttonVariants({
+                        variant: 'ghost',
+                        className: 'justify-start transition-all duration-200',
+                      }),
+                      isActive && 'bg-primary/10 text-primary font-semibold',
+                      'hover:bg-primary/5 hover:scale-[1.02]'
+                    )}>
+                    <Icon className={cn(
+                      "w-4 h-4 mr-2 transition-all duration-200",
+                      isActive && "scale-110"
+                    )} />
                     {link.label}
                   </Link>
                 )
@@ -254,13 +315,8 @@ const Header = () => {
           <div className="flex flex-col gap-2">
             <SignedOut>
               <Link href="/sign-in" onClick={() => setOpen(false)}>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full transition-all duration-200 hover:scale-105">
                   Sign In
-                </Button>
-              </Link>
-              <Link href="/sign-up" onClick={() => setOpen(false)}>
-                <Button className="w-full">
-                  Get Started
                 </Button>
               </Link>
             </SignedOut>

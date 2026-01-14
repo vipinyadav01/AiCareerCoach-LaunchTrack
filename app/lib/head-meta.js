@@ -22,8 +22,6 @@ export function HeadMeta() {
       
       {/* Custom Font Preloads */}
       <link rel="preload" href="/fonts/font-nav.otf" as="font" type="font/otf" crossOrigin="anonymous" />
-      <link rel="preload" href="/fonts/fonts/variable/JetBrainsMono[wght].ttf" as="font" type="font/truetype" crossOrigin="anonymous" />
-      <link rel="preload" href="/fonts/fonts/variable/JetBrainsMono-Italic[wght].ttf" as="font" type="font/truetype" crossOrigin="anonymous" />
       
       <link rel="preconnect" href="https://clerk.accounts.dev" />
       <link rel="dns-prefetch" href="https://clerk.accounts.dev" />

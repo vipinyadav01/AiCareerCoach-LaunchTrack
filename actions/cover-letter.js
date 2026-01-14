@@ -2,10 +2,7 @@
 
 import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+import { getGeminiModel } from "@/lib/gemini";
 
 export async function generateCoverLetter(data) {
   const { userId } = await auth();
@@ -45,8 +42,12 @@ const prompt = `
 `;
 
   try {
-    const result = await model.generateContent(prompt);
-    const content = result.response.text().trim();
+    const { client } = await getGeminiModel();
+    const response = await client.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: prompt,
+    });
+    const content = (response.text || "").trim();
 
     const coverLetter = await db.coverLetter.create({
       data: {

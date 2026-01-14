@@ -2,10 +2,7 @@
 
 import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+import { getGeminiModel } from "@/lib/gemini";
 
 export async function generateQuiz() {
   const { userId } = await auth();
@@ -45,10 +42,12 @@ export async function generateQuiz() {
   Make sure the correctAnswer field exactly matches one of the provided options.
   `;
 
- 
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    const text = response.text();
+    const { client } = await getGeminiModel();
+    const response = await client.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: prompt,
+    });
+    const text = response.text || "";
     const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
     const quiz = JSON.parse(cleanedText);
 
@@ -104,9 +103,12 @@ export async function saveQuizResult(questions, answers, score) {
     `;
 
     try {
-      const result = await model.generateContent(improvementPrompt);
-      const response = result.response;
-      improvementTip = response.text().trim();
+      const { client } = await getGeminiModel();
+      const response = await client.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: improvementPrompt,
+      });
+      improvementTip = (response.text || "").trim();
 
 
       

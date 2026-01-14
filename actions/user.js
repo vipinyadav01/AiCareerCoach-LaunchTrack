@@ -4,6 +4,7 @@ import { db, executeWithRetry } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { generateAIInsights } from "./dashboard";
+import { cache } from "react";
 
 export async function updateUser(data) {
   try {
@@ -100,7 +101,7 @@ export async function updateUser(data) {
   }
 }
 
-export async function getUserOnboardingStatus() {
+const getUserOnboardingStatusImpl = async () => {
   try {
     const { userId } = await auth();
     
@@ -152,4 +153,7 @@ export async function getUserOnboardingStatus() {
       error: "Failed to check onboarding status" 
     };
   }
-}
+};
+
+// Cache the onboarding status check within a request to prevent duplicate calls
+export const getUserOnboardingStatus = cache(getUserOnboardingStatusImpl);

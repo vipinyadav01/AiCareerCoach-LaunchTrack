@@ -2,11 +2,8 @@
 
 import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { revalidatePath } from "next/cache";
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+import { getGeminiModel } from "@/lib/gemini";
 
 export async function saveResume(content) {
   const { userId } = await auth();
@@ -90,9 +87,12 @@ const prompt = `
 `;
 
   try {
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    const improvedContent = response.text().trim();
+    const { client } = await getGeminiModel();
+    const response = await client.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: prompt,
+    });
+    const improvedContent = (response.text || "").trim();
     return improvedContent;
   } catch (error) {
     console.error("Error improving content:", error);
