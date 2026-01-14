@@ -4,9 +4,9 @@ import HeaderWrapper from "@/components/header-wrapper";
 import PWAInstallPrompt from "@/components/pwa-install-prompt";
 import PWAStatus from "@/components/pwa-status";
 import LayoutWrapper from "@/components/layout-wrapper";
+import { ToasterWrapper } from "@/components/toaster-wrapper";
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from '@clerk/themes'
-import { Toaster } from "@/components/ui/sonner";
 import { BackgroundBeams } from "@/components/ui/background-beams";
 import PerfScrollOptimizer from "@/components/perf-scroll-optimizer";
 import { HeadMeta } from "./lib/head-meta";
@@ -31,14 +31,11 @@ export default function RootLayout({ children }) {
         <body
           className="font-jetbrains antialiased"
           suppressHydrationWarning={true}
+          data-suppress-hydration-warning
         >
+
           <LayoutWrapper>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="dark"
-              enableSystem
-              disableTransitionOnChange
-            >
+            <ThemeProvider>
               {/* Global animated background */}
               <BackgroundBeams className="fixed inset-0 -z-10 pointer-events-none" />
               <PerfScrollOptimizer />
@@ -49,7 +46,7 @@ export default function RootLayout({ children }) {
               </main>
               <PWAInstallPrompt />
               <PWAStatus />
-              <Toaster richColors />
+              <ToasterWrapper richColors />
               {/* Footer */}
               <Footer />
               <SpeedInsights />

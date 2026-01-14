@@ -12,14 +12,24 @@ export default function useFetch(fn) {
     try {
       const result = await fn(...args);
       setData(result);
+      
+      // If the result contains an error, throw it
+      if (result?.error && !result?.success) {
+        const err = new Error(result.error);
+        setError(err);
+        toast.error(result.error);
+        return result;
+      }
+      
       return result;
     } catch (err) {
-        toast.error("An error occurred while fetching data.");
+      console.error("useFetch error:", err);
+      const errorMessage = err?.message || "An error occurred while processing your request.";
+      toast.error(errorMessage);
       setError(err);
       throw err;
     } finally {
       setLoading(false);
-      
     }
   };
 

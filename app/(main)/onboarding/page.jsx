@@ -6,13 +6,13 @@ import React from 'react';
 import OnboardingForm from './_components/onboarding-form';
 import { checkUser } from '@/lib/checkUser';
 
-
+export const dynamic = 'force-dynamic';
 
 const onboardingPage = async () => {
   try {
     // Ensure user exists in DB
     const user = await checkUser();
-    
+
     if (!user) {
       // User not authenticated, redirect to sign in
       redirect("/sign-in");
@@ -34,7 +34,7 @@ const onboardingPage = async () => {
     if (error?.digest?.startsWith('NEXT_REDIRECT')) {
       throw error;
     }
-    
+
     return (
       <main>
         <OnboardingForm industries={industries} />

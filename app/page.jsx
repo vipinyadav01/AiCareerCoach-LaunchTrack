@@ -1,7 +1,7 @@
-import HeroSection from "@/components/hero";
+import dynamic from "next/dynamic";
 import Link from "next/link";
+import { memo } from "react";
 import { Button } from "@/components/ui/button";
-import { FeatureSection } from "@/components/feature";
 import { Check, Users, Target, Trophy, ArrowRight } from "lucide-react";
 import { testimonials } from "@/data/testimonials";
 import { whyChooseUs } from "@/data/whyChooseUs";
@@ -13,12 +13,71 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 
+// Lazy load heavy components below the fold
+const HeroSection = dynamic(() => import("@/components/hero"), {
+  loading: () => <div className="h-screen" />,
+  ssr: true,
+});
+
+const FeatureSection = dynamic(() => import("@/components/feature").then(mod => ({ default: mod.FeatureSection })), {
+  loading: () => <div className="h-96" />,
+});
+
 const iconMap = {
   Check,
   Users,
   Target,
   Trophy,
 };
+
+// Memoized components to prevent unnecessary re-renders
+const WhyChooseCard = memo(({ item, IconComponent }) => (
+  <div
+    className="group/feature flex flex-col items-center justify-center space-y-6 p-8 bg-transparent backdrop-blur-md rounded-lg border border-gray-300 dark:border-white hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-xl transition-all duration-300 hover:scale-105 relative"
+  >
+    <div className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-gradient-to-t from-blue-50 dark:from-blue-900/20 to-transparent pointer-events-none rounded-lg" />
+    <div className="flex items-center justify-center w-16 h-16 rounded-lg bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 group-hover/feature:bg-blue-500 group-hover/feature:text-white transition-all duration-300 relative z-10 shadow-lg group-hover/feature:shadow-blue-500/25">
+      {IconComponent && <IconComponent className="w-8 h-8" />}
+    </div>
+    <h3 className="text-xl font-bold text-center text-gray-900 dark:text-white relative z-10">
+      {item.title}
+    </h3>
+    <p className="text-sm text-gray-700 dark:text-gray-200 text-center leading-relaxed relative z-10">
+      {item.description}
+    </p>
+  </div>
+));
+
+WhyChooseCard.displayName = "WhyChooseCard";
+
+const TestimonialCard = memo(({ testimonial }) => (
+  <div className="group/feature bg-transparent backdrop-blur-md border border-gray-300 dark:border-white p-6 hover:shadow-xl transition-all duration-300 rounded-lg relative">
+    <div className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-gradient-to-t from-blue-50 dark:from-blue-900/20 to-transparent pointer-events-none rounded-lg" />
+    <div className="relative z-10">
+      <div className="flex items-center mb-4">
+        <img
+          src={testimonial.image}
+          alt={testimonial.name}
+          className="w-12 h-12 object-cover border-2 border-gray-300 dark:border-white/50 rounded-lg"
+          loading="lazy"
+          decoding="async"
+        />
+        <div className="ml-4">
+          <h4 className="font-semibold text-gray-900 dark:text-white">{testimonial.name}</h4>
+          <p className="text-sm text-gray-600 dark:text-gray-300">{testimonial.role}</p>
+        </div>
+      </div>
+      <p className="text-gray-700 dark:text-gray-200 text-sm leading-relaxed italic">
+        "{testimonial.comment}"
+      </p>
+      <div className="flex text-yellow-400 mt-4">
+        {'⭐'.repeat(testimonial.rating)}
+      </div>
+    </div>
+  </div>
+));
+
+TestimonialCard.displayName = "TestimonialCard";
 
 export default function Home() {
   return (
@@ -54,26 +113,7 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
               {whyChooseUs.map((item) => {
                 const IconComponent = iconMap[item.icon];
-                return (
-                  <div
-                    key={item.id}
-                    className="group/feature flex flex-col items-center justify-center space-y-6 p-8 bg-transparent backdrop-blur-md rounded-lg border border-gray-300 dark:border-white hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-xl transition-all duration-300 hover:scale-105 relative"
-                  >
-                    <div className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-gradient-to-t from-blue-50 dark:from-blue-900/20 to-transparent pointer-events-none rounded-lg" />
-
-                    <div className="flex items-center justify-center w-16 h-16 rounded-lg bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 group-hover/feature:bg-blue-500 group-hover/feature:text-white transition-all duration-300 relative z-10 shadow-lg group-hover/feature:shadow-blue-500/25">
-                      {IconComponent && <IconComponent className="w-8 h-8" />}
-                    </div>
-
-                    <h3 className="text-xl font-bold text-center text-gray-900 dark:text-white relative z-10">
-                      {item.title}
-                    </h3>
-
-                    <p className="text-sm text-gray-700 dark:text-gray-200 text-center leading-relaxed relative z-10">
-                      {item.description}
-                    </p>
-                  </div>
-                );
+                return <WhyChooseCard key={item.id} item={item} IconComponent={IconComponent} />;
               })}
             </div>
           </div>
@@ -92,32 +132,7 @@ export default function Home() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
               {testimonials.map((testimonial) => (
-                <div
-                  key={testimonial.id}
-                  className="group/feature bg-transparent backdrop-blur-md border border-gray-300 dark:border-white p-6 hover:shadow-xl transition-all duration-300 rounded-lg relative"
-                >
-                  <div className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-gradient-to-t from-blue-50 dark:from-blue-900/20 to-transparent pointer-events-none rounded-lg" />
-
-                  <div className="relative z-10">
-                    <div className="flex items-center mb-4">
-                      <img
-                        src={testimonial.image}
-                        alt={testimonial.name}
-                        className="w-12 h-12 object-cover border-2 border-gray-300 dark:border-white/50 rounded-lg"
-                      />
-                      <div className="ml-4">
-                        <h4 className="font-semibold text-gray-900 dark:text-white">{testimonial.name}</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">{testimonial.role}</p>
-                      </div>
-                    </div>
-                    <p className="text-gray-700 dark:text-gray-200 text-sm leading-relaxed italic">
-                      "{testimonial.comment}"
-                    </p>
-                    <div className="flex text-yellow-400 mt-4">
-                      {'⭐'.repeat(testimonial.rating)}
-                    </div>
-                  </div>
-                </div>
+                <TestimonialCard key={testimonial.id} testimonial={testimonial} />
               ))}
             </div>
           </div>
@@ -151,7 +166,7 @@ export default function Home() {
           <div className="mx-auto px-4 md:px-6 lg:px-8">
             <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/90 via-primary to-primary/80 p-12 md:p-20 shadow-2xl">
               <div className="absolute inset-0 bg-grid-white/[0.05] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]" />
-              
+
               <div className="relative z-10 flex flex-col items-center justify-center space-y-8 text-center max-w-4xl mx-auto">
                 <h2 className="text-4xl font-extrabold tracking-tight text-primary-foreground sm:text-5xl md:text-6xl">
                   Ready to Accelerate Your Career?
@@ -163,9 +178,9 @@ export default function Home() {
                   <Button
                     size="lg"
                     variant="secondary"
-                    className="h-14 px-8 text-lg font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 group mt-4"
+                    className="h-14 px-8 text-lg font-semibold rounded-xl shadow -xl hover:shadow-2xl transition-all duration-300 hover:scale-110 group mt-4"
                   >
-                    Start Your Journey Today 
+                    Start Your Journey Today
                     <ArrowRight className="ml-3 h-5 w-5 transition-transform group-hover:translate-x-2" />
                   </Button>
                 </Link>
@@ -176,7 +191,7 @@ export default function Home() {
             </div>
           </div>
         </section>
-       </div>
-     </div>
-   );
-}
+      </div>
+    </div>
+  );
+}                  

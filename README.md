@@ -113,7 +113,9 @@ Create `.env.local` file in the root directory:
 
 ```env
 # Database
-DATABASE_URL="postgresql://username:password@host:port/database"
+# Add connection pool parameters to prevent connection timeout errors
+# Recommended: connection_limit=10-20 for production, 5-10 for development
+DATABASE_URL="postgresql://username:password@host:port/database?connection_limit=10&pool_timeout=20"
 DIRECT_URL="postgresql://username:password@host:port/database"
 
 # Clerk Authentication

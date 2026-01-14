@@ -49,3 +49,5 @@ next-env.d.ts
 /.bun
 /bun.lock
 /bun.lockb
+# clerk configuration (can include secrets)
+/.clerk/

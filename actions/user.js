@@ -1,6 +1,6 @@
 "use server";
 
-import { db } from "@/lib/prisma";
+import { db, executeWithRetry } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { generateAIInsights } from "./dashboard";
@@ -12,8 +12,10 @@ export async function updateUser(data) {
       return { success: false, error: "Unauthorized" };
     }
 
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
+    const user = await executeWithRetry(async () => {
+      return await db.user.findUnique({
+        where: { clerkUserId: userId },
+      });
     });
 
     if (!user) {
@@ -21,63 +23,65 @@ export async function updateUser(data) {
     }
 
     // Start a transaction to handle both operations
-    const result = await db.$transaction(
-      async (tx) => {
-        // First check if industry exists
-        let industryInsight = await tx.industryInsight.findUnique({
-          where: {
-            industry: data.industry,
-          },
-        });
-
-        // If industry doesn't exist, create it with default values
-        if (!industryInsight) {
-          let insights = {};
-          try {
-            insights = await generateAIInsights(data.industry);
-          } catch (error) {
-            console.warn("Failed to generate AI insights, using defaults:", error.message);
-            // If insight generation fails, proceed with minimal record
-            insights = {
-              salaryRanges: [],
-              growthRate: 0,
-              demandLevel: "Unknown",
-              topSkills: [],
-              marketOutlook: "Neutral",
-              keyTrends: [],
-              recommendedSkills: [],
-            };
-          }
-
-          industryInsight = await tx.industryInsight.create({
-            data: {
+    const result = await executeWithRetry(async () => {
+      return await db.$transaction(
+        async (tx) => {
+          // First check if industry exists
+          let industryInsight = await tx.industryInsight.findUnique({
+            where: {
               industry: data.industry,
-              ...insights,
-              nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
             },
           });
+
+          // If industry doesn't exist, create it with default values
+          if (!industryInsight) {
+            let insights = {};
+            try {
+              insights = await generateAIInsights(data.industry);
+            } catch (error) {
+              console.warn("Failed to generate AI insights, using defaults:", error.message);
+              // If insight generation fails, proceed with minimal record
+              insights = {
+                salaryRanges: [],
+                growthRate: 0,
+                demandLevel: "Unknown",
+                topSkills: [],
+                marketOutlook: "Neutral",
+                keyTrends: [],
+                recommendedSkills: [],
+              };
+            }
+
+            industryInsight = await tx.industryInsight.create({
+              data: {
+                industry: data.industry,
+                ...insights,
+                nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+              },
+            });
+          }
+
+          // Now update the user
+          const updatedUser = await tx.user.update({
+            where: {
+              id: user.id,
+            },
+            data: {
+              industry: data.industry,
+              experience: data.experience,
+              bio: data.bio,
+              skills: data.skills,
+            },
+          });
+
+          return { updatedUser, industryInsight };
+        },
+        {
+          timeout: 15000, // Increased timeout for AI generation
+          maxWait: 20000,
         }
-
-        // Now update the user
-        const updatedUser = await tx.user.update({
-          where: {
-            id: user.id,
-          },
-          data: {
-            industry: data.industry,
-            experience: data.experience,
-            bio: data.bio,
-            skills: data.skills,
-          },
-        });
-
-        return { updatedUser, industryInsight };
-      },
-      {
-        timeout: 15000, // Increased timeout for AI generation
-        maxWait: 20000,
-      }
-    );
+      );
+    });
 
     revalidatePath("/dashboard");
     revalidatePath("/onboarding");
@@ -104,15 +108,17 @@ export async function getUserOnboardingStatus() {
       return { success: false, isOnboarded: false, error: "Unauthorized" };
     }
 
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-      select: {
-        id: true,
-        industry: true,
-        experience: true,
-        bio: true,
-        skills: true,
-      },
+    const user = await executeWithRetry(async () => {
+      return await db.user.findUnique({
+        where: { clerkUserId: userId },
+        select: {
+          id: true,
+          industry: true,
+          experience: true,
+          bio: true,
+          skills: true,
+        },
+      });
     });
 
     if (!user) {
@@ -129,6 +135,17 @@ export async function getUserOnboardingStatus() {
     };
   } catch (error) {
     console.error("Error checking onboarding status:", error);
+    
+    // If database is unreachable, return a graceful fallback
+    if (error.code === 'P1001' || error.message?.includes("Can't reach database server")) {
+      console.warn("Database server unreachable - this may be a Neon cold start. User will need to complete onboarding.");
+      return { 
+        success: false, 
+        isOnboarded: false, 
+        error: "Database temporarily unavailable. Please try again in a moment." 
+      };
+    }
+    
     return { 
       success: false, 
       isOnboarded: false, 

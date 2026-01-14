@@ -115,30 +115,30 @@ const DashboardView = ({ insights }) => {
   return (
     <div className="min-h-screen space-y-8 pb-12">
       {/* Hero Header Section */}
-      <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-violet-600 via-purple-600 to-indigo-700 p-8 md:p-10 shadow-2xl">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-primary/80 p-8 md:p-10 shadow-2xl border border-primary/20">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE2YzAtMy4zMTQgMi42ODYtNiA2LTZzNi0yLjY4NiA2LTZjMC0zLjMxNC0yLjY4Ni02LTYtNnMtNi0yLjY4Ni02LTZjMC0zLjMxNC0yLjY4Ni02LTYtNnMtNiAyLjY4Ni02IDZjMCAzLjMxNC0yLjY4NiA2LTYgNnMtNiAyLjY4Ni02IDZjMCAzLjMxNCAyLjY4NiA2IDYgNnM2IDIuNjg2IDYgNmMwIDMuMzE0IDIuNjg2IDYgNiA2czYtMi42ODYgNi02eiIvPjwvZz48L2c+PC9zdmc+')] opacity-20"></div>
         <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div className="space-y-2">
-            <h1 className="text-3xl md:text-4xl font-bold text-white flex items-center gap-3">
+          <div className="space-y-3">
+            <h1 className="text-3xl md:text-4xl font-bold text-primary-foreground flex items-center gap-3">
               <Sparkles className="h-8 w-8 text-yellow-300" />
               {user?.firstName ? `Welcome back, ${user.firstName}!` : "Welcome back!"}
             </h1>
-            <p className="text-violet-100 text-lg">
+            <p className="text-primary-foreground/85 text-lg">
               Your personalized {insights.industry} career insights dashboard
             </p>
-            <div className="flex items-center gap-2 pt-2">
-              <Badge className="bg-white/20 text-white backdrop-blur-sm border-white/30 hover:bg-white/30">
-                <Activity className="h-3 w-3 mr-1" />
+            <div className="flex items-center gap-2 pt-1 flex-wrap">
+              <Badge className="bg-white/25 text-primary-foreground backdrop-blur-sm border border-white/40 hover:bg-white/35 transition-colors">
+                <Activity className="h-3 w-3 mr-1.5" />
                 Last updated: {lastUpdatedDate}
               </Badge>
-              <Badge className="bg-white/20 text-white backdrop-blur-sm border-white/30 hover:bg-white/30">
+              <Badge className="bg-white/25 text-primary-foreground backdrop-blur-sm border border-white/40 hover:bg-white/35 transition-colors">
                 {insights.industry}
               </Badge>
             </div>
           </div>
-          <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
             <Link href="/onboarding">
-              <Button size="lg" variant="secondary" className="bg-white text-purple-700 hover:bg-white/90 shadow-lg">
+              <Button size="lg" className="bg-white text-primary hover:bg-white/90 shadow-lg font-semibold">
                 <Edit className="h-4 w-4 mr-2" />
                 Edit Profile
               </Button>
@@ -146,10 +146,10 @@ const DashboardView = ({ insights }) => {
             <Button 
               size="lg" 
               onClick={() => router.refresh()}
-              className="bg-purple-500 hover:bg-purple-400 text-white shadow-lg"
+              className="bg-white/20 hover:bg-white/30 text-primary-foreground border border-white/30 shadow-lg font-semibold backdrop-blur-sm transition-all"
             >
               <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh Insights
+              Refresh
             </Button>
           </div>
         </div>
@@ -158,62 +158,62 @@ const DashboardView = ({ insights }) => {
       {/* KPI Cards - Enhanced Design */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Market Outlook Card */}
-        <Card className="relative overflow-hidden border-2 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-          <div className={`absolute top-0 right-0 w-32 h-32 ${outlookBgColor} rounded-full blur-3xl -mr-16 -mt-16`}></div>
+        <Card className="relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-background to-background/80">
+          <div className={`absolute top-0 right-0 w-32 h-32 ${outlookBgColor} rounded-full blur-3xl -mr-16 -mt-16 opacity-20`}></div>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
             <CardTitle className="text-sm font-semibold text-muted-foreground">
               Market Outlook
             </CardTitle>
-            <div className={`p-3 rounded-xl ${outlookBgColor}`}>
-              <OutlookIcon className={`h-6 w-6 ${outlookColor}`} />
+            <div className={`p-2.5 rounded-lg ${outlookBgColor}`}>
+              <OutlookIcon className={`h-5 w-5 ${outlookColor}`} />
             </div>
           </CardHeader>
           <CardContent className="relative z-10">
-            <div className="text-3xl font-bold mb-1">{insights.marketOutlook}</div>
+            <div className="text-2xl font-bold mb-1">{insights.marketOutlook}</div>
             <p className="text-xs text-muted-foreground mb-3">
               Next update {nextUpdateDistance}
             </p>
-            <Progress value={outlookProgress} className="h-2.5 bg-muted" />
+            <Progress value={outlookProgress} className="h-2 bg-muted" />
           </CardContent>
         </Card>
 
         {/* Industry Growth Card */}
-        <Card className="relative overflow-hidden border-2 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+        <Card className="relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-background to-background/80">
           <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
             <CardTitle className="text-sm font-semibold text-muted-foreground">
               Industry Growth
             </CardTitle>
-            <div className="p-3 rounded-xl bg-emerald-500/10">
-              <TrendingUp className="h-6 w-6 text-emerald-600" />
+            <div className="p-2.5 rounded-lg bg-emerald-500/15">
+              <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
             </div>
           </CardHeader>
           <CardContent className="relative z-10">
-            <div className="text-3xl font-bold mb-1 text-emerald-600">
+            <div className="text-2xl font-bold mb-1 text-emerald-600 dark:text-emerald-400">
               +{insights.growthRate.toFixed(1)}%
             </div>
             <p className="text-xs text-muted-foreground mb-3">Year over year growth</p>
-            <Progress value={insights.growthRate} className="h-2.5 bg-muted" />
+            <Progress value={insights.growthRate} className="h-2 bg-muted" />
           </CardContent>
         </Card>
 
         {/* Demand Level Card */}
-        <Card className="relative overflow-hidden border-2 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+        <Card className="relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-background to-background/80">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
             <CardTitle className="text-sm font-semibold text-muted-foreground">
               Demand Level
             </CardTitle>
-            <div className="p-3 rounded-xl bg-blue-500/10">
-              <BriefcaseIcon className="h-6 w-6 text-blue-600" />
+            <div className="p-2.5 rounded-lg bg-primary/15">
+              <BriefcaseIcon className="h-5 w-5 text-primary" />
             </div>
           </CardHeader>
           <CardContent className="relative z-10">
-            <div className="text-3xl font-bold mb-1">{insights.demandLevel}</div>
+            <div className="text-2xl font-bold mb-1">{insights.demandLevel}</div>
             <p className="text-xs text-muted-foreground mb-3">Current market demand</p>
-            <div className="relative h-2.5 rounded-full bg-muted overflow-hidden">
+            <div className="relative h-2 rounded-full bg-muted overflow-hidden">
               <div 
-                className={`absolute left-0 top-0 h-full rounded-full bg-linear-to-r ${getDemandLevelColor(insights.demandLevel)} transition-all duration-500`}
+                className={`absolute left-0 top-0 h-full rounded-full bg-gradient-to-r ${getDemandLevelColor(insights.demandLevel)} transition-all duration-500`}
                 style={{ width: `${getDemandProgress(insights.demandLevel)}%` }}
               />
             </div>
@@ -221,18 +221,18 @@ const DashboardView = ({ insights }) => {
         </Card>
 
         {/* Top Skills Card */}
-        <Card className="relative overflow-hidden border-2 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+        <Card className="relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-background to-background/80">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16 opacity-50"></div>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
             <CardTitle className="text-sm font-semibold text-muted-foreground">
               Top Skills
             </CardTitle>
-            <div className="p-3 rounded-xl bg-purple-500/10">
-              <Brain className="h-6 w-6 text-purple-600" />
+            <div className="p-2.5 rounded-lg bg-primary/15">
+              <Brain className="h-5 w-5 text-primary" />
             </div>
           </CardHeader>
           <CardContent className="relative z-10">
-            <div className="text-3xl font-bold mb-1">{insights.topSkills.length}</div>
+            <div className="text-2xl font-bold mb-1">{insights.topSkills.length}</div>
             <p className="text-xs text-muted-foreground mb-3">In-demand skills</p>
             <div className="flex flex-wrap gap-1.5">
               {insights.topSkills.slice(0, 3).map((skill) => (
@@ -246,8 +246,8 @@ const DashboardView = ({ insights }) => {
       </div>
 
       {/* Salary Chart - Enhanced Design */}
-      <Card className="shadow-xl border-2 hover:shadow-2xl transition-all duration-300">
-        <CardHeader className="pb-4 border-b">
+      <Card className="shadow-xl border-0 hover:shadow-2xl transition-all duration-300">
+        <CardHeader className="pb-4 border-b bg-gradient-to-r from-primary/5 to-transparent">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <CardTitle className="text-2xl font-bold flex items-center gap-2">
@@ -334,11 +334,11 @@ const DashboardView = ({ insights }) => {
       {/* Bottom Section - Trends, Skills, and Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Key Trends */}
-        <Card className="border-2 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-          <CardHeader className="border-b bg-linear-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30">
+        <Card className="border-0 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 shadow-lg">
+          <CardHeader className="border-b bg-gradient-to-br from-primary/5 via-primary/3 to-transparent">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-blue-500/10">
-                <Zap className="h-5 w-5 text-blue-600" />
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Zap className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <CardTitle className="text-lg">Key Industry Trends</CardTitle>
@@ -353,7 +353,7 @@ const DashboardView = ({ insights }) => {
               {insights.keyTrends.map((trend, index) => (
                 <li key={index} className="flex items-start space-x-3 group">
                   <div className="mt-1 shrink-0">
-                    <div className="h-2 w-2 rounded-full bg-blue-500 group-hover:scale-125 transition-transform" />
+                    <div className="h-2 w-2 rounded-full bg-primary group-hover:scale-125 transition-transform" />
                   </div>
                   <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">
                     {trend}
@@ -365,11 +365,11 @@ const DashboardView = ({ insights }) => {
         </Card>
 
         {/* Recommended Skills */}
-        <Card className="border-2 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-          <CardHeader className="border-b bg-linear-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30">
+        <Card className="border-0 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 shadow-lg">
+          <CardHeader className="border-b bg-gradient-to-br from-primary/5 via-primary/3 to-transparent">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-purple-500/10">
-                <Brain className="h-5 w-5 text-purple-600" />
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Brain className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <CardTitle className="text-lg">Recommended Skills</CardTitle>
@@ -385,7 +385,7 @@ const DashboardView = ({ insights }) => {
                 <Badge 
                   key={skill} 
                   variant="secondary" 
-                  className="px-3 py-1.5 text-sm hover:bg-purple-500 hover:text-white transition-all duration-200 cursor-pointer"
+                  className="px-3 py-1.5 text-sm hover:bg-primary hover:text-primary-foreground transition-all duration-200 cursor-pointer"
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
                   {skill}
@@ -396,11 +396,11 @@ const DashboardView = ({ insights }) => {
         </Card>
 
         {/* Quick Actions */}
-        <Card className="border-2 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-          <CardHeader className="border-b bg-linear-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30">
+        <Card className="border-0 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 shadow-lg">
+          <CardHeader className="border-b bg-gradient-to-br from-primary/5 via-primary/3 to-transparent">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-green-500/10">
-                <Sparkles className="h-5 w-5 text-green-600" />
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Sparkles className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <CardTitle className="text-lg">Quick Actions</CardTitle>

@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -80,7 +79,4 @@ model IndustryInsight {
   lastUpdated       DateTime @default(now())
   nextUpdate        DateTime
   users             User[]
-
-  @@index([industry])
 }
-

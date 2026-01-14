@@ -48,35 +48,52 @@ const OnboardingForm = ({ industries }) => {
     watch,
   } = useForm({
     resolver: zodResolver(onboardingSchema),
+    defaultValues: {
+      industry: "",
+      subIndustry: "",
+      experience: "0",
+      skills: "",
+      bio: "",
+    },
   });
 
   const onSubmit = async (values) => {
     try {
+      console.log("Form values:", values); // Debug log
+      
       // Ensure subIndustry exists before using it
       const formattedIndustry = values.subIndustry 
         ? `${values.industry}-${values.subIndustry.toLowerCase().replace(/ /g, "-")}`
         : values.industry;
 
-      // Add userId or session information if needed by the updateUser function
-      await updateUserFn({
+      const result = await updateUserFn({
         ...values,
         industry: formattedIndustry,
-        // If your updateUser function requires a user ID, make sure it's passed here
-        // userId: currentUser?.id, // Uncomment and adapt based on your auth implementation
       });
+
+      console.log("Update result:", result); // Debug log
+      
+      // Check if there was an error in the result
+      if (result?.error || !result?.success) {
+        toast.error(result?.error || "Failed to update profile. Please try again.");
+      }
     } catch (error) {
       console.error("Onboarding error:", error);
-      toast.error("Failed to update profile. Please try again.");
+      toast.error(error?.message || "Failed to update profile. Please try again.");
     }
   };
 
   useEffect(() => {
-    if (updateResult?.success && !updateLoading) {
-      toast.success("Profile completed successfully!");
-      router.push("/dashboard");
-      router.refresh();
+    if (updateResult && !updateLoading) {
+      if (updateResult.success) {
+        toast.success(updateResult.message || "Profile completed successfully!");
+        router.push("/dashboard");
+        router.refresh();
+      } else if (updateResult.error) {
+        toast.error(updateResult.error);
+      }
     }
-  }, [updateResult, updateLoading]);
+  }, [updateResult, updateLoading, router]);
 
   const watchIndustry = watch("industry");
 

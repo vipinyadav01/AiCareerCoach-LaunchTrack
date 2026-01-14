@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Download, X, Smartphone, Plus, Share, CheckCircle, Sparkles, Zap, Bell } from 'lucide-react';
+import { Download, X, Smartphone, Plus, Share, CheckCircle, Sparkles, Zap, Bell, ArrowUp } from 'lucide-react';
 
 export default function PWAInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -14,6 +14,7 @@ export default function PWAInstallPrompt() {
   const [isMobile, setIsMobile] = useState(false);
   const [showIOSOverlay, setShowIOSOverlay] = useState(false);
   const [installStep, setInstallStep] = useState(0);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
     const userAgent = navigator.userAgent.toLowerCase();
@@ -34,40 +35,44 @@ export default function PWAInstallPrompt() {
       e.preventDefault();
       setDeferredPrompt(e);
 
-      const dismissed = localStorage.getItem('pwa-install-dismissed');
-      const dismissedTime = localStorage.getItem('pwa-install-dismissed-time');
-      const now = Date.now();
-      const threeDays = 3 * 24 * 60 * 60 * 1000; 
+      if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+        const dismissed = localStorage.getItem('pwa-install-dismissed');
+        const dismissedTime = localStorage.getItem('pwa-install-dismissed-time');
+        const now = Date.now();
+        const threeDays = 3 * 24 * 60 * 60 * 1000;
 
-      if (!dismissed || (dismissedTime && now - parseInt(dismissedTime) > threeDays)) {
-        setTimeout(() => {
-          setShowInstallPrompt(true);
-        }, 3000);
+        if (!dismissed || (dismissedTime && now - parseInt(dismissedTime) > threeDays)) {
+          setTimeout(() => {
+            setShowInstallPrompt(true);
+          }, 3000);
+        }
       }
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
     if (iOS && !standalone) {
-      const dismissed = localStorage.getItem('pwa-install-dismissed');
-      const dismissedTime = localStorage.getItem('pwa-install-dismissed-time');
-      const now = Date.now();
-      const oneWeek = 7 * 24 * 60 * 60 * 1000;
+      if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+        const dismissed = localStorage.getItem('pwa-install-dismissed');
+        const dismissedTime = localStorage.getItem('pwa-install-dismissed-time');
+        const now = Date.now();
+        const oneWeek = 7 * 24 * 60 * 60 * 1000;
 
-      if (!dismissed || (dismissedTime && now - parseInt(dismissedTime) > oneWeek)) {
-        const showAfterInteraction = () => {
-          setTimeout(() => {
-            setShowInstallPrompt(true);
-          }, 5000);
+        if (!dismissed || (dismissedTime && now - parseInt(dismissedTime) > oneWeek)) {
+          const showAfterInteraction = () => {
+            setTimeout(() => {
+              setShowInstallPrompt(true);
+            }, 5000);
 
-          document.removeEventListener('scroll', showAfterInteraction);
-          document.removeEventListener('click', showAfterInteraction);
-          document.removeEventListener('touchstart', showAfterInteraction);
-        };
+            document.removeEventListener('scroll', showAfterInteraction);
+            document.removeEventListener('click', showAfterInteraction);
+            document.removeEventListener('touchstart', showAfterInteraction);
+          };
 
-        document.addEventListener('scroll', showAfterInteraction, { once: true });
-        document.addEventListener('click', showAfterInteraction, { once: true });
-        document.addEventListener('touchstart', showAfterInteraction, { once: true });
+          document.addEventListener('scroll', showAfterInteraction, { once: true });
+          document.addEventListener('click', showAfterInteraction, { once: true });
+          document.addEventListener('touchstart', showAfterInteraction, { once: true });
+        }
       }
     }
 
@@ -89,12 +94,13 @@ export default function PWAInstallPrompt() {
         const { outcome } = await deferredPrompt.userChoice;
 
         if (outcome === 'accepted') {
-          setInstallStep(2);
+          setShowSuccess(true);
           setTimeout(() => {
             setDeferredPrompt(null);
             setShowInstallPrompt(false);
             setInstallStep(0);
-          }, 2000);
+            setShowSuccess(false);
+          }, 2500);
         } else {
           setInstallStep(0);
         }
@@ -109,8 +115,10 @@ export default function PWAInstallPrompt() {
     setShowInstallPrompt(false);
     setShowIOSOverlay(false);
     setInstallStep(0);
-    localStorage.setItem('pwa-install-dismissed', 'true');
-    localStorage.setItem('pwa-install-dismissed-time', Date.now().toString());
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      localStorage.setItem('pwa-install-dismissed', 'true');
+      localStorage.setItem('pwa-install-dismissed-time', Date.now().toString());
+    }
   };
 
   if (isStandalone || !showInstallPrompt) {
@@ -122,27 +130,29 @@ export default function PWAInstallPrompt() {
       {/* Mobile Layout - iOS Style */}
       {isIOS && (
         <div className="fixed inset-x-0 bottom-0 z-50 md:hidden">
-          <div className="bg-background/95 backdrop-blur-xl border-t border-border shadow-2xl">
-            <div className="px-4 py-4">
-              <div className="flex items-center gap-4">
-                <div className="shrink-0 w-12 h-12 rounded-2xl bg-primary flex items-center justify-center shadow-lg">
-                  <Sparkles className="h-6 w-6 text-primary-foreground" />
+          <div className="bg-white/95 dark:bg-black/95 backdrop-blur-lg border-t border-black/20 dark:border-white/20 shadow-2xl">
+            <div className="px-4 py-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="shrink-0 w-10 h-10 rounded-2xl bg-black dark:bg-white flex items-center justify-center shadow-md">
+                    <Download className="h-5 w-5 text-white dark:text-black" />
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm text-black dark:text-white">
+                      Add to Home Screen
+                    </h3>
+                    <p className="text-xs text-black/60 dark:text-white/60">
+                      Quick access to this app
+                    </p>
+                  </div>
                 </div>
 
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-base text-foreground mb-1">
-                    Add to Home Screen
-                  </h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Get quick access and a native app experience
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 shrink-0">
                   <Button
                     onClick={() => setShowIOSOverlay(true)}
                     size="sm"
-                    className="font-medium px-4 py-2 rounded-xl text-sm shadow-sm"
+                    className="font-semibold px-4 py-1.5 rounded-lg text-sm bg-black hover:bg-black/90 dark:bg-white dark:hover:bg-white/90 text-white dark:text-black h-auto"
                   >
                     Add
                   </Button>
@@ -150,7 +160,7 @@ export default function PWAInstallPrompt() {
                     onClick={handleDismiss}
                     variant="ghost"
                     size="sm"
-                    className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground rounded-lg"
+                    className="h-7 w-7 p-0 text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white rounded-md"
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -163,29 +173,31 @@ export default function PWAInstallPrompt() {
 
       {/* Mobile Layout - Android Style */}
       {isAndroid && (
-        <div className="fixed inset-x-0 bottom-0 z-50 md:hidden">
-          <div className="bg-background/95 backdrop-blur-xl border-t border-border shadow-2xl">
-            <div className="px-4 py-4">
-              <div className="flex items-center gap-4">
-                <div className="shrink-0 w-12 h-12 rounded-2xl bg-primary flex items-center justify-center shadow-lg">
-                  <Download className="h-6 w-6 text-primary-foreground" />
+        <div className="fixed inset-x-0 bottom-0 z-50 md:hidden animate-in slide-in-from-bottom duration-300">
+          <div className="bg-white dark:bg-black border-t border-black/20 dark:border-white/20 shadow-2xl">
+            <div className="px-4 py-3.5">
+              <div className="flex items-center gap-3">
+                <div className="shrink-0">
+                  <div className="w-10 h-10 rounded-lg bg-black dark:bg-white flex items-center justify-center">
+                    <Download className="h-5 w-5 text-white dark:text-black" />
+                  </div>
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-base text-foreground mb-1">
-                    Install App
+                  <h3 className="font-semibold text-sm text-black dark:text-white leading-tight">
+                    Install app
                   </h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Get offline access & push notifications
+                  <p className="text-xs text-black/60 dark:text-white/60 mt-0.5">
+                    Get offline access & notifications
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 shrink-0">
                   <Button
                     onClick={handleInstallClick}
-                    size="sm"
                     disabled={installStep === 1}
-                    className="font-medium px-4 py-2 rounded-xl text-sm shadow-sm"
+                    size="sm"
+                    className="font-semibold px-3 py-1.5 rounded-lg text-xs bg-black hover:bg-black/90 dark:bg-white dark:hover:bg-white/90 text-white dark:text-black h-auto"
                   >
                     {installStep === 1 ? 'Installing...' : 'Install'}
                   </Button>
@@ -193,7 +205,7 @@ export default function PWAInstallPrompt() {
                     onClick={handleDismiss}
                     variant="ghost"
                     size="sm"
-                    className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground rounded-lg"
+                    className="h-7 w-7 p-0 text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white rounded-md"
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -206,70 +218,73 @@ export default function PWAInstallPrompt() {
 
       {/* Desktop Layout */}
       <div className="hidden md:block fixed bottom-6 right-6 z-50">
-        <Card className="w-96 border bg-background/95 backdrop-blur-xl shadow-2xl rounded-2xl">
-          <CardContent className="p-6">
-            <div className="flex items-start gap-4">
-              <div className="shrink-0 w-12 h-12 rounded-2xl bg-primary flex items-center justify-center shadow-sm">
-                <Sparkles className="h-6 w-6 text-primary-foreground" />
+        <Card className="w-80 border border-black/20 dark:border-white/20 bg-white dark:bg-black shadow-2xl rounded-2xl overflow-hidden">
+          <CardContent className="p-0">
+            <div className="p-6">
+              <div className="flex items-start gap-3 mb-4">
+                <div className="shrink-0 w-12 h-12 rounded-2xl bg-black dark:bg-white flex items-center justify-center shadow-lg">
+                  <Download className="h-6 w-6 text-white dark:text-black" />
+                </div>
+
+                <div className="flex-1">
+                  <h3 className="font-bold text-base text-black dark:text-white mb-1">
+                    Install App
+                  </h3>
+                  <p className="text-xs text-black/60 dark:text-white/60">
+                    Add to your device for quick access
+                  </p>
+                </div>
+
+                <Button
+                  onClick={handleDismiss}
+                  variant="ghost"
+                  size="sm"
+                  className="shrink-0 h-6 w-6 p-0 text-black/60 hover:text-black dark:text-white/60 dark:hover:text-white rounded-md"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
               </div>
 
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-3 mb-4">
-                  <div>
-                    <h3 className="font-semibold text-lg text-foreground mb-3">
-                      Install App
-                    </h3>
-                    <div className="space-y-2 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-2">
-                        <Zap className="h-4 w-4 text-primary" />
-                        <span>Faster loading & offline access</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Bell className="h-4 w-4 text-primary" />
-                        <span>Push notifications</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Smartphone className="h-4 w-4 text-primary" />
-                        <span>Native app experience</span>
-                      </div>
-                    </div>
-                  </div>
-                  <Button
-                    onClick={handleDismiss}
-                    variant="ghost"
-                    size="sm"
-                    className="shrink-0 h-8 w-8 p-0 text-muted-foreground hover:text-foreground rounded-lg"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+              <div className="space-y-2 mb-4 p-3 bg-black/5 dark:bg-white/5 rounded-lg border border-black/10 dark:border-white/10">
+                <div className="flex items-center gap-2 text-xs">
+                  <Zap className="h-3.5 w-3.5 text-black dark:text-white" />
+                  <span className="text-black dark:text-white">Fast, offline-ready</span>
                 </div>
+                <div className="flex items-center gap-2 text-xs">
+                  <Bell className="h-3.5 w-3.5 text-black dark:text-white" />
+                  <span className="text-black dark:text-white">Push notifications</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs">
+                  <Smartphone className="h-3.5 w-3.5 text-black dark:text-white" />
+                  <span className="text-black dark:text-white">Native experience</span>
+                </div>
+              </div>
 
-                <div className="flex gap-3">
-                  <Button
-                    onClick={handleInstallClick}
-                    disabled={installStep === 1}
-                    className="flex-1 font-medium px-4 py-2.5 rounded-xl text-sm shadow-sm"
-                  >
-                    {installStep === 1 ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary-foreground border-t-transparent mr-2"></div>
-                        Installing...
-                      </>
-                    ) : (
-                      <>
-                        <Download className="h-4 w-4 mr-2" />
-                        Install App
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    onClick={handleDismiss}
-                    variant="outline"
-                    className="px-4 py-2.5 rounded-xl text-sm"
-                  >
-                    Later
-                  </Button>
-                </div>
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleInstallClick}
+                  disabled={installStep === 1}
+                  className="flex-1 font-semibold px-4 py-2 rounded-lg text-sm bg-black hover:bg-black/90 dark:bg-white dark:hover:bg-white/90 text-white dark:text-black h-auto"
+                >
+                  {installStep === 1 ? (
+                    <>
+                      <div className="animate-spin rounded-full h-3 w-3 border-2 border-white dark:border-black border-t-transparent mr-2"></div>
+                      Installing...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="h-3.5 w-3.5 mr-1.5" />
+                      Install
+                    </>
+                  )}
+                </Button>
+                <Button
+                  onClick={handleDismiss}
+                  variant="outline"
+                  className="px-4 py-2 rounded-lg text-sm font-medium border border-black/20 dark:border-white/20 text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 h-auto"
+                >
+                  Later
+                </Button>
               </div>
             </div>
           </CardContent>
@@ -278,52 +293,58 @@ export default function PWAInstallPrompt() {
 
       {/* iOS Instruction Overlay */}
       {isIOS && showIOSOverlay && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end justify-center p-4 md:hidden">
-          <div className="bg-background rounded-t-3xl w-full max-w-sm shadow-2xl">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end justify-center p-4 md:hidden animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-black rounded-t-3xl w-full max-w-sm shadow-2xl animate-in slide-in-from-bottom duration-300">
             <div className="p-6">
               <div className="text-center mb-6">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-3xl bg-primary flex items-center justify-center shadow-sm">
-                  <Share className="h-8 w-8 text-primary-foreground" />
+                <div className="w-14 h-14 mx-auto mb-4 rounded-3xl bg-black dark:bg-white flex items-center justify-center shadow-lg">
+                  <Share className="h-6 w-6 text-white dark:text-black" />
                 </div>
-                <h3 className="font-semibold text-xl text-foreground mb-2">
+                <h3 className="font-bold text-lg text-black dark:text-white mb-1">
                   Add to Home Screen
                 </h3>
-                <p className="text-sm text-muted-foreground">
-                  Install the app for quick access and a better experience
+                <p className="text-xs text-black/60 dark:text-white/60">
+                  Get instant access to the app
                 </p>
               </div>
 
-              <div className="space-y-3 mb-6">
-                <div className="flex items-center gap-4 p-3 bg-muted rounded-xl">
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-sm font-medium text-primary-foreground">1</div>
-                  <div className="flex-1">
-                    <p className="font-medium text-foreground text-sm">Tap the Share button</p>
-                    <p className="text-xs text-muted-foreground">In your browser's toolbar below</p>
+              <div className="space-y-2 mb-6">
+                <div className="flex items-start gap-3 p-3 bg-black/5 dark:bg-white/5 rounded-xl border border-black/10 dark:border-white/10">
+                  <div className="w-7 h-7 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">1</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm text-black dark:text-white">Tap the Share button</p>
+                    <p className="text-xs text-black/60 dark:text-white/60 mt-0.5">Look for the square with an arrow at the bottom</p>
                   </div>
-                  <Share className="h-5 w-5 text-primary" />
                 </div>
-                
-                <div className="flex items-center gap-4 p-3 bg-muted rounded-xl">
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-sm font-medium text-primary-foreground">2</div>
-                  <div className="flex-1">
-                    <p className="font-medium text-foreground text-sm">Select "Add to Home Screen"</p>
-                    <p className="text-xs text-muted-foreground">Scroll down if you don't see it</p>
+
+                <div className="flex items-start gap-3 p-3 bg-black/5 dark:bg-white/5 rounded-xl border border-black/10 dark:border-white/10">
+                  <div className="w-7 h-7 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">2</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm text-black dark:text-white">Select "Add to Home Screen"</p>
+                    <p className="text-xs text-black/60 dark:text-white/60 mt-0.5">Scroll down if you don't see it immediately</p>
                   </div>
-                  <Plus className="h-5 w-5 text-primary" />
+                </div>
+
+                <div className="flex items-start gap-3 p-3 bg-black/5 dark:bg-white/5 rounded-xl border border-black/10 dark:border-white/10">
+                  <div className="w-7 h-7 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">3</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm text-black dark:text-white">Tap "Add"</p>
+                    <p className="text-xs text-black/60 dark:text-white/60 mt-0.5">The app will be added to your home screen</p>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 <Button
                   onClick={handleDismiss}
-                  className="flex-1 font-medium py-3 rounded-xl"
+                  className="flex-1 font-semibold py-2.5 rounded-lg bg-black hover:bg-black/90 dark:bg-white dark:hover:bg-white/90 text-white dark:text-black"
                 >
-                  Got it
+                  Done
                 </Button>
                 <Button
                   onClick={handleDismiss}
                   variant="outline"
-                  className="px-4 py-3 rounded-xl"
+                  className="flex-1 py-2.5 rounded-lg border border-black/20 dark:border-white/20 text-black dark:text-white font-medium"
                 >
                   Later
                 </Button>
@@ -334,21 +355,21 @@ export default function PWAInstallPrompt() {
       )}
 
       {/* Success State */}
-      {installStep === 2 && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-background rounded-2xl w-full max-w-sm p-6 text-center shadow-2xl">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary flex items-center justify-center shadow-sm">
-              <CheckCircle className="h-8 w-8 text-primary-foreground" />
+      {showSuccess && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-black rounded-2xl w-full max-w-sm p-6 text-center shadow-2xl animate-in zoom-in duration-300">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-black dark:bg-white flex items-center justify-center shadow-lg">
+              <CheckCircle className="h-8 w-8 text-white dark:text-black" />
             </div>
-            <h3 className="font-semibold text-xl text-foreground mb-2">
+            <h3 className="font-bold text-lg text-black dark:text-white mb-1">
               Installation Complete!
             </h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              The app has been installed successfully. You can now access it from your home screen or app drawer.
+            <p className="text-sm text-black/60 dark:text-white/60 mb-4">
+              The app is now installed. Find it on your home screen or app drawer.
             </p>
             <Button
               onClick={handleDismiss}
-              className="font-medium px-6 py-3 rounded-xl"
+              className="font-semibold px-6 py-2 rounded-lg bg-black hover:bg-black/90 dark:bg-white dark:hover:bg-white/90 text-white dark:text-black"
             >
               Continue
             </Button>

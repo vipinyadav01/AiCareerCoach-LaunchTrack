@@ -1,9 +1,7 @@
-import { checkUser } from '@/lib/checkUser'
 import Header from './header'
 
-const HeaderWrapper = async () => {
-  await checkUser();
-  
+
+const HeaderWrapper = () => {
   return <Header />
 }
 

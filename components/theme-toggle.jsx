@@ -6,10 +6,27 @@ import { useTheme } from "next-themes"
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
   const isDark = theme === "dark"
 
   const toggleTheme = () => {
     setTheme(isDark ? "light" : "dark")
+  }
+
+  // Don't render until hydrated to avoid hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="flex items-center lg:gap-3 gap-1.5 sm:px-4 px-3 py-2.5 rounded-lg border border-transparent">
+        <div className="p-1.5 rounded-md bg-gray-200 dark:bg-gray-700">
+          <Moon className="w-4 h-4 text-gray-400" />
+        </div>
+      </div>
+    )
   }
 
   return (

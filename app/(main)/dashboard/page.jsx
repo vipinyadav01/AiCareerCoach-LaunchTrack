@@ -2,15 +2,20 @@ import { getIndustryInsights } from "@/actions/dashboard";
 import DashboardView from "./_components/dashboard-view";
 import { getUserOnboardingStatus } from "@/actions/user";
 import { redirect } from "next/navigation";
-import { auth } from "@clerk/nextjs/server";
+import { checkUser } from "@/lib/checkUser";
+
+export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
   try {
-    const { userId } = await auth();
-    
-    if (!userId) {
+    // Ensure user exists in DB and clerkUserId is synced
+    const user = await checkUser();
+
+    if (!user) {
       redirect("/sign-in");
     }
+
+    // Now check onboarding status (after ensuring clerkUserId is synced)
     const { isOnboarded } = await getUserOnboardingStatus();
 
     if (!isOnboarded) {
@@ -23,7 +28,7 @@ export default async function DashboardPage() {
       redirect(insights.redirect);
     }
     const dashboardData = insights?.data || insights;
-    
+
     if (!dashboardData || !dashboardData.salaryRanges || !dashboardData.industry) {
       redirect("/onboarding");
     }
@@ -37,6 +42,6 @@ export default async function DashboardPage() {
     if (error?.digest?.startsWith('NEXT_REDIRECT')) {
       throw error;
     }
-        redirect("/onboarding");
+    redirect("/onboarding");
   }
 }

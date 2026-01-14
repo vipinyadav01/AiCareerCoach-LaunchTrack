@@ -2,54 +2,27 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Loader2 } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 
-const SplashScreen = ({ onComplete }) => {
+const SplashScreen = ({ onComplete, progress = 0, statusMessage = 'Initializing...' }) => {
   const [loading, setLoading] = useState(true);
-  const [progress, setProgress] = useState(0);
-
-  // Predefined positions to avoid hydration mismatch
-  const particlePositions = [
-    { left: 15, top: 20, duration: 3.5, delay: 0.2 },
-    { left: 85, top: 15, duration: 4.2, delay: 0.8 },
-    { left: 25, top: 80, duration: 3.8, delay: 1.1 },
-    { left: 70, top: 25, duration: 4.5, delay: 0.5 },
-    { left: 90, top: 70, duration: 3.2, delay: 1.5 },
-    { left: 40, top: 90, duration: 4.0, delay: 0.3 },
-    { left: 60, top: 45, duration: 3.7, delay: 1.2 },
-    { left: 10, top: 60, duration: 4.1, delay: 0.9 },
-  ];
+  const [startTime] = useState(() => Date.now());
 
   useEffect(() => {
-    const minSplashTime = 2000; 
-    const startTime = Date.now();
-    
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        const elapsed = Date.now() - startTime;
-        const minProgress = Math.min((elapsed / minSplashTime) * 100, 90);
-        
-        if (prev >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
-            setLoading(false);
-            setTimeout(() => {
-              onComplete?.();
-            }, 500);
-          }, 200);
-          return 100;
-        }
-        
-        const newProgress = Math.max(prev + Math.random() * 10, minProgress);
-        return Math.min(newProgress, 100);
-      });
-  }, 300);
+    // When progress reaches 100%, ensure minimum 5 seconds display time
+    if (progress >= 100) {
+      const minDisplayTime = 5000; // 5 seconds
+      const elapsedTime = Date.now() - startTime;
+      const remainingTime = Math.max(0, minDisplayTime - elapsedTime);
 
-    return () => clearInterval(interval);
-  }, [onComplete]);
+      const timer = setTimeout(() => {
+        setLoading(false);
+        setTimeout(() => {
+          onComplete?.();
+        }, 400);
+      }, remainingTime + 200);
+      return () => clearTimeout(timer);
+    }
+  }, [progress, onComplete, startTime]);
 
   return (
     <AnimatePresence>
@@ -57,8 +30,8 @@ const SplashScreen = ({ onComplete }) => {
         <motion.div
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-linear-to-br from-primary/10 via-background/80 to-primary/20"
+          transition={{ duration: 0.4, ease: "easeInOut" }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-white dark:bg-black"
           style={{
             height: '100dvh',
             width: '100dvw',
@@ -68,98 +41,147 @@ const SplashScreen = ({ onComplete }) => {
             right: 0,
             bottom: 0,
             touchAction: 'none',
-            WebkitOverflowScrolling: 'touch',
           }}
         >
-          <div className="absolute inset-0 bg-linear-to-br from-primary/20 via-background/60 to-primary/10 blur-xl opacity-70"></div>
-          <div className="relative flex flex-col items-center justify-center space-y-10 px-4">
+          {/* Minimal grid pattern background */}
+          <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.05]">
+            <div className="absolute inset-0" style={{
+              backgroundImage: `
+                linear-gradient(to right, currentColor 1px, transparent 1px),
+                linear-gradient(to bottom, currentColor 1px, transparent 1px)
+              `,
+              backgroundSize: '40px 40px',
+              color: 'currentColor',
+            }} />
+          </div>
+
+          <div className="relative flex flex-col items-center justify-center space-y-8 px-4 max-w-md w-full">
+            {/* Logo */}
             <motion.div
-              initial={{ scale: 0, opacity: 0 }}
+              initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="relative"
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="relative mb-4"
             >
-              <Card className="relative w-28 h-28 bg-card/80 backdrop-blur-xl border-2 border-primary/30 shadow-2xl flex items-center justify-center">
-                <img 
-                  src="/android-chrome-512x512.png" 
-                  alt="LaunchTrack Logo" 
-                  className="w-16 h-16 object-contain drop-shadow-lg"
+              <div className="relative w-20 h-20 flex items-center justify-center">
+                <img
+                  src="/android-chrome-512x512.png"
+                  alt="LaunchTrack Logo"
+                  className="w-full h-full object-contain"
                   style={{
                     imageRendering: 'crisp-edges',
                     WebkitImageRendering: 'crisp-edges',
-                    maxWidth: '100%',
-                    maxHeight: '100%',
                   }}
                 />
+                {/* Subtle pulse ring */}
                 <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                  className="absolute inset-0 border-4 border-primary/40 border-t-primary/80 rounded-full pointer-events-none"
-                  style={{ boxShadow: '0 0 32px 8px rgba(80,80,255,0.12)' }}
+                  className="absolute inset-0 border-2 border-black dark:border-white rounded-full"
+                  animate={{
+                    scale: [1, 1.1, 1],
+                    opacity: [0.3, 0.1, 0.3],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
                 />
-              </Card>
+              </div>
             </motion.div>
 
+            {/* Brand Name */}
             <motion.div
-              initial={{ y: 20, opacity: 0 }}
+              initial={{ y: 10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="text-center space-y-2"
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="text-center space-y-3"
             >
-              <h1 className="text-5xl font-extrabold bg-linear-to-r from-primary via-foreground to-primary bg-clip-text text-transparent tracking-tight drop-shadow-lg">
+              <h1 className="text-4xl md:text-5xl font-black text-black dark:text-white tracking-tight">
                 LaunchTrack
               </h1>
-              <Badge variant="secondary" className="text-lg px-5 py-2 rounded-xl shadow-md">
+              <p className="text-sm md:text-base text-black/60 dark:text-white/60 font-medium tracking-wide uppercase">
                 AI Career Platform
-              </Badge>
+              </p>
             </motion.div>
 
+            {/* Progress Section */}
             <motion.div
               initial={{ width: 0, opacity: 0 }}
               animate={{ width: "100%", opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-              className="w-72 space-y-3"
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="w-full space-y-4 pt-4"
             >
-              <div className="flex justify-between text-base text-muted-foreground font-medium">
-                <span>Loading...</span>
-                <span>{Math.round(progress)}%</span>
+              {/* Status Text */}
+              <div className="flex items-center justify-between text-xs md:text-sm">
+                <span className="text-black/70 dark:text-white/70 font-medium uppercase tracking-wider">
+                  {statusMessage}
+                </span>
+                <span className="text-black dark:text-white font-bold tabular-nums">
+                  {Math.round(progress)}%
+                </span>
               </div>
-              <Progress value={progress} className="h-3 rounded-full bg-primary/10" />
+
+              {/* Progress Bar */}
+              <div className="relative w-full h-1 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden">
+                <motion.div
+                  className="absolute inset-y-0 left-0 bg-black dark:bg-white rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                />
+                {/* Shimmer effect */}
+                {progress < 100 && (
+                  <motion.div
+                    className="absolute inset-y-0 w-20 bg-gradient-to-r from-transparent via-white/30 dark:via-black/30 to-transparent"
+                    animate={{
+                      x: ['-100%', '400%'],
+                    }}
+                    transition={{
+                      duration: 1.5,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
+                  />
+                )}
+              </div>
             </motion.div>
 
+            {/* Loading Indicator */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.9 }}
-              className="flex items-center space-x-2 text-muted-foreground text-base"
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="flex items-center gap-2 text-xs text-black/50 dark:text-white/50 uppercase tracking-wider"
             >
-              <Loader2 className="w-5 h-5 animate-spin" />
-              <span>Preparing your experience...</span>
+              <div className="flex gap-1">
+                {[0, 1, 2].map((i) => (
+                  <motion.div
+                    key={i}
+                    className="w-1.5 h-1.5 bg-black dark:bg-white rounded-full"
+                    animate={{
+                      opacity: [0.3, 1, 0.3],
+                      scale: [0.8, 1, 0.8],
+                    }}
+                    transition={{
+                      duration: 1.2,
+                      repeat: Infinity,
+                      delay: i * 0.2,
+                      ease: "easeInOut",
+                    }}
+                  />
+                ))}
+              </div>
+              <span className="ml-2">{progress < 100 ? 'Loading' : 'Ready'}</span>
             </motion.div>
-
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              {particlePositions.map((particle, i) => (
-                <motion.div
-                  key={i}
-                  className="absolute w-3 h-3 bg-primary/30 rounded-full shadow-lg"
-                  style={{
-                    left: `${particle.left}%`,
-                    top: `${particle.top}%`,
-                  }}
-                  animate={{
-                    y: [0, -40, 0],
-                    opacity: [0.1, 0.7, 0.1],
-                    scale: [0.7, 1.3, 0.7],
-                  }}
-                  transition={{
-                    duration: particle.duration,
-                    repeat: Infinity,
-                    delay: particle.delay,
-                  }}
-                />
-              ))}
-            </div>
           </div>
+
+          {/* Bottom decorative line */}
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: '60%' }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="absolute bottom-12 left-1/2 -translate-x-1/2 h-px bg-black/20 dark:bg-white/20"
+          />
         </motion.div>
       )}
     </AnimatePresence>

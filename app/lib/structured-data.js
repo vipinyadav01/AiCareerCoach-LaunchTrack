@@ -42,7 +42,7 @@ export function StructuredData() {
             "screenshot": "https://launchtrack.vercel.app/android-chrome-512x512.png",
             "softwareVersion": "1.0.0",
             "datePublished": "2024-01-01",
-            "dateModified": new Date().toISOString().split('T')[0]
+            "dateModified": "2024-01-01"
           })
         }}
       />

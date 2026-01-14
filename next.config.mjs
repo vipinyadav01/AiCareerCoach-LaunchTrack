@@ -7,19 +7,18 @@ const __dirname = path.dirname(__filename);
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['images.unsplash.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+    ],
   },
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   output: 'standalone',
-  webpack: (config) => {
-    config.resolve.alias['@'] = path.resolve(__dirname, '.');
-    return config;
-  },
+  turbopack: {},
 };
 
 export default nextConfig;

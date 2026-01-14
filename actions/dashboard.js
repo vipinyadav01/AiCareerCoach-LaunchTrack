@@ -1,6 +1,6 @@
 "use server";
 
-import { db } from "@/lib/prisma";
+import { db, executeWithRetry } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { redirect } from "next/navigation";
@@ -21,13 +21,15 @@ export async function checkUserAndRedirect() {
       redirect("/sign-in");
     }
 
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-      select: {
-        industry: true,
-        experienceLevel: true,
-        location: true,
-      },
+    const user = await executeWithRetry(async () => {
+      return await db.user.findUnique({
+        where: { clerkUserId: userId },
+        select: {
+          industry: true,
+          experienceLevel: true,
+          location: true,
+        },
+      });
     });
 
     if (!user || !user.industry) {
@@ -45,11 +47,13 @@ export async function getIndustryInsights() {
   if (!userId) throw new Error("Unauthorized");
 
   try {
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-      include: {
-        industryInsight: true,
-      },
+    const user = await executeWithRetry(async () => {
+      return await db.user.findUnique({
+        where: { clerkUserId: userId },
+        include: {
+          industryInsight: true,
+        },
+      });
     });
 
     if (!user) {
@@ -72,12 +76,14 @@ export async function getIndustryInsights() {
       try {
         const insights = await generateAIInsights(user.industry);
 
-        const industryInsight = await db.industryInsight.create({
-          data: {
-            industry: user.industry,
-            ...insights,
-            nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-          },
+        const industryInsight = await executeWithRetry(async () => {
+          return await db.industryInsight.create({
+            data: {
+              industry: user.industry,
+              ...insights,
+              nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+            },
+          });
         });
 
         return { data: industryInsight, redirect: null };
