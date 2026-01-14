@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { getCoverLetters } from "@/actions/cover-letter";
 import Link from "next/link";
 import { Plus } from "lucide-react";

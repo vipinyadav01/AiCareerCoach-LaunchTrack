@@ -1,14 +1,14 @@
 "use server";
 
 import { db } from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
+import { getUserId } from "@/lib/neon-auth-server";
 import { getGeminiModel } from "@/lib/gemini";
 
 export async function generateQuiz() {
-  const { userId } = await auth();
+  const userId = await getUserId();
   if (!userId) throw new Error("Unauthorized");
   const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
+    where: { neonUserId: userId },
   });
   if (!user) throw new Error("User not found");
 
@@ -59,10 +59,10 @@ export async function generateQuiz() {
 }
 
 export async function saveQuizResult(questions, answers, score) {
-  const { userId } = await auth();
+  const userId = await getUserId();
   if (!userId) throw new Error("Unauthorized");
   const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
+    where: { neonUserId: userId },
   });
   if (!user) throw new Error("User not found");
 
@@ -138,11 +138,11 @@ export async function saveQuizResult(questions, answers, score) {
 }
 
 export async function getAssessments() {
-  const {userId } = await auth();
+  const userId = await getUserId();
   if (!userId) throw new Error("Unauthorized");
 
   const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
+    where: { neonUserId: userId },
   });
   if (!user) throw new Error("User not found");
 

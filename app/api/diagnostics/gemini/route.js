@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { getUserId } from "@/lib/neon-auth-server";
 import { GoogleGenAI } from "@google/genai";
 
 export async function GET() {
@@ -13,7 +13,7 @@ export async function GET() {
 
   try {
     // Check authentication
-    const { userId } = await auth();
+    const userId = await getUserId();
     if (!userId) {
       return NextResponse.json(
         {

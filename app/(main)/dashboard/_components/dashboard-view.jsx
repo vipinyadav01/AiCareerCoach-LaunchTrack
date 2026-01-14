@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { useUser } from "@clerk/nextjs";
+import React, { useState, useEffect } from "react";
+import { useNeonUser } from "@/hooks/use-neon-auth";
 import { useRouter } from "next/navigation";
 import {
   BarChart,
@@ -144,13 +144,18 @@ const DashboardView = ({ insights }) => {
   const outlookProgress = getMarketOutlookInfo(safeInsights.marketOutlook).progress;
   const outlookBorderColor = getMarketOutlookInfo(safeInsights.marketOutlook).borderColor;
 
-  const lastUpdatedDate = format(new Date(safeInsights.lastUpdated), "dd/MM/yyyy");
-  const nextUpdateDistance = formatDistanceToNow(
-    new Date(safeInsights.nextUpdate),
-    { addSuffix: true }
-  );
+  // Use useState to prevent hydration mismatch with date formatting
+  const [lastUpdatedDate, setLastUpdatedDate] = useState("");
+  const [nextUpdateDistance, setNextUpdateDistance] = useState("");
 
-  const { user } = useUser();
+  useEffect(() => {
+    setLastUpdatedDate(format(new Date(safeInsights.lastUpdated), "dd/MM/yyyy"));
+    setNextUpdateDistance(
+      formatDistanceToNow(new Date(safeInsights.nextUpdate), { addSuffix: true })
+    );
+  }, [safeInsights.lastUpdated, safeInsights.nextUpdate]);
+
+  const { user } = useNeonUser();
   const router = useRouter();
 
   const handleRefresh = async () => {
@@ -176,7 +181,7 @@ const DashboardView = ({ insights }) => {
                 <Sparkles className="h-6 w-6 md:h-8 md:w-8 text-yellow-300 animate-pulse" />
               </div>
               <h1 className="text-3xl md:text-5xl font-bold text-primary-foreground tracking-tight">
-                {user?.firstName ? `Welcome back, ${user.firstName}!` : "Welcome back!"}
+                {user?.name || user?.email?.split('@')[0] ? `Welcome back, ${user?.name || user?.email?.split('@')[0]}!` : "Welcome back!"}
               </h1>
             </div>
             <p className="text-primary-foreground/90 text-lg md:text-xl font-medium max-w-2xl">
@@ -185,7 +190,7 @@ const DashboardView = ({ insights }) => {
             <div className="flex items-center gap-3 pt-2 flex-wrap">
               <Badge className="bg-white/20 text-primary-foreground backdrop-blur-md border border-white/30 hover:bg-white/30 transition-all duration-200 px-3 py-1.5 text-sm font-medium">
                 <Activity className="h-3.5 w-3.5 mr-1.5" />
-                Last updated: {lastUpdatedDate}
+                Last updated: {lastUpdatedDate || format(new Date(safeInsights.lastUpdated), "dd/MM/yyyy")}
               </Badge>
               <Badge className="bg-white/20 text-primary-foreground backdrop-blur-md border border-white/30 hover:bg-white/30 transition-all duration-200 px-3 py-1.5 text-sm font-medium">
                 <BriefcaseIcon className="h-3.5 w-3.5 mr-1.5" />
@@ -389,7 +394,7 @@ const DashboardView = ({ insights }) => {
                     color: "#8b5cf6",
                   },
                 }}
-                className="h-[400px] md:h-[450px] w-full"
+                className="h-[400px] md:h-[450px] w-full min-w-0"
               >
                 <BarChart data={salaryData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" className="opacity-20 stroke-muted" />
@@ -590,7 +595,7 @@ const DashboardView = ({ insights }) => {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </div>z
     </div>
   );
 };

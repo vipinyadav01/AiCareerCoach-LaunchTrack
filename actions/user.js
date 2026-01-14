@@ -1,21 +1,21 @@
 "use server";
 
 import { db, executeWithRetry } from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
+import { getUserId } from "@/lib/neon-auth-server";
 import { revalidatePath } from "next/cache";
 import { generateAIInsights } from "./dashboard";
 import { cache } from "react";
 
 export async function updateUser(data) {
   try {
-    const { userId } = await auth();
+    const userId = await getUserId();
     if (!userId) {
       return { success: false, error: "Unauthorized" };
     }
 
     const user = await executeWithRetry(async () => {
       return await db.user.findUnique({
-        where: { clerkUserId: userId },
+        where: { neonUserId: userId },
       });
     });
 
@@ -103,7 +103,7 @@ export async function updateUser(data) {
 
 const getUserOnboardingStatusImpl = async () => {
   try {
-    const { userId } = await auth();
+    const userId = await getUserId();
     
     if (!userId) {
       return { success: false, isOnboarded: false, error: "Unauthorized" };
@@ -111,7 +111,7 @@ const getUserOnboardingStatusImpl = async () => {
 
     const user = await executeWithRetry(async () => {
       return await db.user.findUnique({
-        where: { clerkUserId: userId },
+        where: { neonUserId: userId },
         select: {
           id: true,
           industry: true,
@@ -126,13 +126,25 @@ const getUserOnboardingStatusImpl = async () => {
       return { success: false, isOnboarded: false, error: "User not found" };
     }
 
-    // Consider user onboarded if they have industry set
-    const isOnboarded = !!user.industry;
+    // Check if user has completed onboarding by validating all required fields
+    // Required fields: industry, experience, skills
+    // Optional fields: bio
+    const hasIndustry = !!user.industry && user.industry.trim().length > 0;
+    const hasExperience = user.experience !== null && user.experience !== undefined;
+    const hasSkills = Array.isArray(user.skills) && user.skills.length > 0;
+    
+    // User is considered onboarded only if all required fields are present
+    const isOnboarded = hasIndustry && hasExperience && hasSkills;
 
     return {
       success: true,
       isOnboarded,
       user: isOnboarded ? user : null,
+      missingFields: isOnboarded ? [] : [
+        !hasIndustry && 'industry',
+        !hasExperience && 'experience',
+        !hasSkills && 'skills'
+      ].filter(Boolean),
     };
   } catch (error) {
     console.error("Error checking onboarding status:", error);

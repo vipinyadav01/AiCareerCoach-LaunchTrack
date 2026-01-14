@@ -1,6 +1,7 @@
 "use client"
 
-import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
+import { useNeonAuth } from '@/hooks/use-neon-auth'
+import { NeonUserButton } from './neon-user-button'
 import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -17,6 +18,7 @@ const Header = () => {
   const [hoveredLink, setHoveredLink] = React.useState(null)
   const scrolled = useScroll(10)
   const pathname = usePathname()
+  const { isSignedIn } = useNeonAuth()
 
   React.useEffect(() => {
     if (open) {
@@ -82,7 +84,7 @@ const Header = () => {
           }
         )}>
         {/* Logo */}
-        <SignedOut>
+        {!isSignedIn ? (
           <Link
             href="/"
             className="flex items-center gap-2 group transition-all duration-200 hover:scale-105"
@@ -100,8 +102,7 @@ const Header = () => {
               Launch Track
             </span>
           </Link>
-        </SignedOut>
-        <SignedIn>
+        ) : (
           <Link
             href="/dashboard"
             className="flex items-center gap-2 group transition-all duration-200 hover:scale-105"
@@ -119,123 +120,107 @@ const Header = () => {
               Launch Track
             </span>
           </Link>
-        </SignedIn>
+        )}
 
         {/* Desktop Navigation */}
         <div className="hidden items-center gap-2 md:flex">
-          <SignedIn>
-            {signedInLinks.map((link) => {
-              const Icon = link.icon
-              const isActive = pathname === link.href || pathname.startsWith(link.href + '/')
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={cn(
-                    buttonVariants({ variant: 'ghost' }),
-                    'relative transition-all duration-200 group',
-                    isActive && 'text-primary font-semibold',
-                    'hover:scale-105 hover:text-primary'
-                  )}
-                  onMouseEnter={() => setHoveredLink(link.href)}
-                  onMouseLeave={() => setHoveredLink(null)}
+          {isSignedIn && (
+            <>
+              {signedInLinks.map((link) => {
+                const Icon = link.icon
+                const isActive = pathname === link.href || pathname.startsWith(link.href + '/')
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={cn(
+                      buttonVariants({ variant: 'ghost' }),
+                      'relative transition-all duration-200 group',
+                      isActive && 'text-primary font-semibold',
+                      'hover:scale-105 hover:text-primary'
+                    )}
+                    onMouseEnter={() => setHoveredLink(link.href)}
+                    onMouseLeave={() => setHoveredLink(null)}
+                  >
+                    <Icon className={cn(
+                      "w-4 h-4 mr-2 transition-all duration-200",
+                      isActive && "scale-110",
+                      hoveredLink === link.href && "scale-110 rotate-12"
+                    )} />
+                    {link.label}
+                    {isActive && (
+                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+                    )}
+                  </Link>
+                )
+              })}
+              <span className="mx-1 w-px h-6 bg-border/40 rounded-full" aria-hidden="true"></span>
+              <ThemeToggle />
+              <div className="flex items-center gap-2 ml-2">
+                <NeonUserButton />
+                <div className="hidden lg:flex items-center gap-1">
+                  <Github className="w-4 h-4 text-muted-foreground" />
+                  <GitHubStars className="text-muted-foreground" showIcon={false} />
+                </div>
+              </div>
+            </>
+          )}
+          {!isSignedIn && (
+            <>
+              {signedOutLinks.map((link) => {
+                const Icon = link.icon
+                const isActive = pathname === link.href
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={cn(
+                      buttonVariants({ variant: 'ghost' }),
+                      'relative transition-all duration-200 group',
+                      isActive && 'text-primary font-semibold',
+                      'hover:scale-105 hover:text-primary'
+                    )}
+                    onMouseEnter={() => setHoveredLink(link.href)}
+                    onMouseLeave={() => setHoveredLink(null)}
+                  >
+                    <Icon className={cn(
+                      "w-4 h-4 mr-2 transition-all duration-200",
+                      isActive && "scale-110",
+                      hoveredLink === link.href && "scale-110 rotate-12"
+                    )} />
+                    {link.label}
+                    {isActive && (
+                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+                    )}
+                  </Link>
+                )
+              })}
+              <Link href="/sign-in">
+                <Button
+                  variant="outline"
+                  className="transition-all duration-200 hover:scale-105 hover:shadow-md"
                 >
-                  <Icon className={cn(
-                    "w-4 h-4 mr-2 transition-all duration-200",
-                    isActive && "scale-110",
-                    hoveredLink === link.href && "scale-110 rotate-12"
-                  )} />
-                  {link.label}
-                  {isActive && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
-                  )}
-                </Link>
-              )
-            })}
-            <span className="mx-1 w-px h-6 bg-border/40 rounded-full" aria-hidden="true"></span>
-            <ThemeToggle />
-            <div className="flex items-center gap-2 ml-2">
-              <UserButton
-                appearance={{
-                  elements: {
-                    avatarBox: "w-8 h-8 relative z-10",
-                    userButtonPopoverCard: "bg-background/95 backdrop-blur-xl border border-border shadow-2xl rounded-xl",
-                    userButtonPopoverActionButton: "text-foreground hover:bg-primary/10 p-3 rounded-lg transition-all duration-200 font-nav",
-                    userPreviewMainIdentifier: "font-medium font-nav text-foreground text-sm",
-                    userPreviewSecondaryIdentifier: "text-muted-foreground text-xs font-nav"
-                  }
-                }}
-              />
-              <div className="hidden lg:flex items-center gap-1">
+                  Sign In
+                </Button>
+              </Link>
+              <span className="mx-1 w-px h-6 bg-border/40 rounded-full" aria-hidden="true"></span>
+              <ThemeToggle />
+              <div className="hidden lg:flex items-center gap-1 ml-2">
                 <Github className="w-4 h-4 text-muted-foreground" />
                 <GitHubStars className="text-muted-foreground" showIcon={false} />
               </div>
-            </div>
-          </SignedIn>
-          <SignedOut>
-            {signedOutLinks.map((link) => {
-              const Icon = link.icon
-              const isActive = pathname === link.href
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={cn(
-                    buttonVariants({ variant: 'ghost' }),
-                    'relative transition-all duration-200 group',
-                    isActive && 'text-primary font-semibold',
-                    'hover:scale-105 hover:text-primary'
-                  )}
-                  onMouseEnter={() => setHoveredLink(link.href)}
-                  onMouseLeave={() => setHoveredLink(null)}
-                >
-                  <Icon className={cn(
-                    "w-4 h-4 mr-2 transition-all duration-200",
-                    isActive && "scale-110",
-                    hoveredLink === link.href && "scale-110 rotate-12"
-                  )} />
-                  {link.label}
-                  {isActive && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
-                  )}
-                </Link>
-              )
-            })}
-            <Link href="/sign-in">
-              <Button
-                variant="outline"
-                className="transition-all duration-200 hover:scale-105 hover:shadow-md"
-              >
-                Sign In
-              </Button>
-            </Link>
-            <span className="mx-1 w-px h-6 bg-border/40 rounded-full" aria-hidden="true"></span>
-            <ThemeToggle />
-            <div className="hidden lg:flex items-center gap-1 ml-2">
-              <Github className="w-4 h-4 text-muted-foreground" />
-              <GitHubStars className="text-muted-foreground" showIcon={false} />
-            </div>
-          </SignedOut>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Toggle */}
         <div className="flex items-center gap-2 md:hidden">
           <ThemeToggle />
-          <SignedIn>
+          {isSignedIn && (
             <div className="flex items-center gap-2">
-              <UserButton
-                appearance={{
-                  elements: {
-                    avatarBox: "w-8 h-8 relative z-10",
-                    userButtonPopoverCard: "bg-background/95 backdrop-blur-xl border border-border shadow-2xl rounded-xl",
-                    userButtonPopoverActionButton: "text-foreground hover:bg-primary/10 p-3 rounded-lg transition-all duration-200 font-nav",
-                    userPreviewMainIdentifier: "font-medium font-nav text-foreground text-sm",
-                    userPreviewSecondaryIdentifier: "text-muted-foreground text-xs font-nav"
-                  }
-                }}
-              />
+              <NeonUserButton />
             </div>
-          </SignedIn>
+          )}
           <Button
             size="icon"
             variant="outline"
@@ -259,67 +244,71 @@ const Header = () => {
             'flex h-full w-full flex-col justify-between gap-y-2 p-4'
           )}>
           <div className="grid gap-y-2">
-            <SignedIn>
-              {signedInLinks.map((link) => {
-                const Icon = link.icon
-                const isActive = pathname === link.href || pathname.startsWith(link.href + '/')
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setOpen(false)}
-                    className={cn(
-                      buttonVariants({
-                        variant: 'ghost',
-                        className: 'justify-start transition-all duration-200',
-                      }),
-                      isActive && 'bg-primary/10 text-primary font-semibold',
-                      'hover:bg-primary/5 hover:scale-[1.02]'
-                    )}>
-                    <Icon className={cn(
-                      "w-4 h-4 mr-2 transition-all duration-200",
-                      isActive && "scale-110"
-                    )} />
-                    {link.label}
-                  </Link>
-                )
-              })}
-            </SignedIn>
-            <SignedOut>
-              {signedOutLinks.map((link) => {
-                const Icon = link.icon
-                const isActive = pathname === link.href
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setOpen(false)}
-                    className={cn(
-                      buttonVariants({
-                        variant: 'ghost',
-                        className: 'justify-start transition-all duration-200',
-                      }),
-                      isActive && 'bg-primary/10 text-primary font-semibold',
-                      'hover:bg-primary/5 hover:scale-[1.02]'
-                    )}>
-                    <Icon className={cn(
-                      "w-4 h-4 mr-2 transition-all duration-200",
-                      isActive && "scale-110"
-                    )} />
-                    {link.label}
-                  </Link>
-                )
-              })}
-            </SignedOut>
+            {isSignedIn && (
+              <>
+                {signedInLinks.map((link) => {
+                  const Icon = link.icon
+                  const isActive = pathname === link.href || pathname.startsWith(link.href + '/')
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setOpen(false)}
+                      className={cn(
+                        buttonVariants({
+                          variant: 'ghost',
+                          className: 'justify-start transition-all duration-200',
+                        }),
+                        isActive && 'bg-primary/10 text-primary font-semibold',
+                        'hover:bg-primary/5 hover:scale-[1.02]'
+                      )}>
+                      <Icon className={cn(
+                        "w-4 h-4 mr-2 transition-all duration-200",
+                        isActive && "scale-110"
+                      )} />
+                      {link.label}
+                    </Link>
+                  )
+                })}
+              </>
+            )}
+            {!isSignedIn && (
+              <>
+                {signedOutLinks.map((link) => {
+                  const Icon = link.icon
+                  const isActive = pathname === link.href
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setOpen(false)}
+                      className={cn(
+                        buttonVariants({
+                          variant: 'ghost',
+                          className: 'justify-start transition-all duration-200',
+                        }),
+                        isActive && 'bg-primary/10 text-primary font-semibold',
+                        'hover:bg-primary/5 hover:scale-[1.02]'
+                      )}>
+                      <Icon className={cn(
+                        "w-4 h-4 mr-2 transition-all duration-200",
+                        isActive && "scale-110"
+                      )} />
+                      {link.label}
+                    </Link>
+                  )
+                })}
+              </>
+            )}
           </div>
           <div className="flex flex-col gap-2">
-            <SignedOut>
+            {!isSignedIn && (
               <Link href="/sign-in" onClick={() => setOpen(false)}>
                 <Button variant="outline" className="w-full transition-all duration-200 hover:scale-105">
                   Sign In
                 </Button>
               </Link>
-            </SignedOut>
+            )}
             <div className="flex items-center justify-center gap-2 pt-2">
               <Github className="w-4 h-4 text-muted-foreground" />
               <GitHubStars className="text-muted-foreground" />

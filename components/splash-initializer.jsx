@@ -1,35 +1,22 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { useUser, useAuth } from "@clerk/nextjs";
-import { useRouter, usePathname } from "next/navigation";
-import { getUserOnboardingStatus } from "@/actions/user";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { useNeonAuth, useNeonUser } from "@/hooks/use-neon-auth";
+import { usePathname } from "next/navigation";
 
-/**
- * Splash Screen Initialization Logic
- * 
- * Purpose:
- * - Show branding while app initializes
- * - Load essential resources
- * - Check authentication state
- * - Prepare app environment
- * 
- * Flow:
- * 1. Show splash (2-3 seconds minimum)
- * 2. Run parallel initialization tasks
- * 3. Check authentication state
- * 4. Navigate based on state
- */
+
 export function useSplashInitializer() {
-  const { isLoaded: clerkLoaded, isSignedIn, userId } = useAuth();
-  const { user, isLoaded: userLoaded } = useUser();
-  const router = useRouter();
+  const { isLoaded: neonAuthLoaded, isSignedIn, userId } = useNeonAuth();
+  const { user, isLoaded: userLoaded } = useNeonUser();
   const pathname = usePathname();
 
   const [appState, setAppState] = useState('loading'); // 'loading' | 'ready' | 'authenticated' | 'guest'
   const [progress, setProgress] = useState(0);
   const [statusMessage, setStatusMessage] = useState('Initializing...');
   const [initializationComplete, setInitializationComplete] = useState(false);
+
+  // Use ref to prevent multiple initializations
+  const hasInitialized = useRef(false);
 
   // Helper function to delay execution
   const delay = useCallback((ms) => {
@@ -67,8 +54,8 @@ export function useSplashInitializer() {
 
   // Check authentication status
   const checkAuthStatus = useCallback(async () => {
-    // Wait for Clerk to be fully loaded
-    if (!clerkLoaded) {
+    // Wait for Neon Auth to be fully loaded
+    if (!neonAuthLoaded) {
       return { authenticated: false, firstTime: false, loading: true };
     }
 
@@ -77,30 +64,23 @@ export function useSplashInitializer() {
       return { authenticated: false, firstTime: true, loading: false };
     }
 
-    // User is signed in, check onboarding status
-    try {
-      const onboardingStatus = await getUserOnboardingStatus();
-      return {
-        authenticated: true,
-        firstTime: false,
-        loading: false,
-        isOnboarded: onboardingStatus?.success && onboardingStatus?.isOnboarded || false,
-      };
-    } catch (error) {
-      console.error('Error checking onboarding status:', error);
-      // On error, assume authenticated but not onboarded
-      return {
-        authenticated: true,
-        firstTime: false,
-        loading: false,
-        isOnboarded: false,
-      };
-    }
-  }, [clerkLoaded, isSignedIn, userId]);
+    return {
+      authenticated: true,
+      firstTime: false,
+      loading: false,
+      isOnboarded: false, // Will be determined by server-side pages
+    };
+  }, [neonAuthLoaded, isSignedIn, userId]);
 
   // Initialize app with parallel tasks
   const initializeApp = useCallback(async () => {
-    const minDisplayTime = 5000; // 5 seconds minimum
+    // Prevent multiple initializations
+    if (hasInitialized.current) {
+      return;
+    }
+    hasInitialized.current = true;
+
+    const minDisplayTime = 2000; // 2 seconds minimum
     const startTime = Date.now();
 
     try {
@@ -178,47 +158,19 @@ export function useSplashInitializer() {
   }, [checkNetworkConnection, checkAuthStatus, preloadAssets, delay]);
 
   useEffect(() => {
-    // Only start initialization when Clerk is loaded
+    // Only start initialization when Neon Auth is loaded and hasn't been initialized yet
     // This ensures we have accurate auth state before proceeding
-    if (clerkLoaded) {
+    if (neonAuthLoaded && !hasInitialized.current) {
       initializeApp();
-    } else {
-      // Show initial loading state while Clerk loads
+    } else if (!neonAuthLoaded) {
+      // Show initial loading state while Neon Auth loads
       setProgress(5);
       setStatusMessage('Loading authentication...');
     }
-  }, [clerkLoaded, initializeApp]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [neonAuthLoaded]); // Only depend on neonAuthLoaded to prevent loops
 
-  // Handle navigation based on app state after splash completes
-  useEffect(() => {
-    if (!initializationComplete) return;
-
-    const publicRoutes = ['/', '/sign-in', '/sign-up'];
-    const isPublicRoute = publicRoutes.includes(pathname);
-
-    // If user is not authenticated and not on a public route, navigate to home
-    if (appState === 'guest' && !isPublicRoute) {
-      router.push('/');
-      return;
-    }
-
-    // If user is authenticated but on sign-in/sign-up page, let Clerk handle redirect
-    // (Clerk will automatically redirect authenticated users away from auth pages)
-    if (appState === 'authenticated' && (pathname === '/sign-in' || pathname === '/sign-up')) {
-      // Clerk middleware will handle redirect to dashboard/onboarding
-      return;
-    }
-
-    // If user is guest and on home page, stay on home page
-    if (appState === 'guest' && pathname === '/') {
-      return; // Already on home page
-    }
-
-    // If user is authenticated and on protected route, stay there
-    if (appState === 'authenticated' && !isPublicRoute) {
-      return; // Already on a protected route
-    }
-  }, [appState, initializationComplete, pathname, router]);
+  // Removed empty useEffect that was causing unnecessary re-renders
 
   return {
     appState,

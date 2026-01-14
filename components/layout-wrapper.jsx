@@ -4,8 +4,16 @@ import { useState, useEffect } from "react";
 import SplashScreen from "./splash-screen";
 import { useSplashInitializer } from "./splash-initializer";
 
+const SPLASH_SHOWN_KEY = 'launchtrack_splash_shown';
+
 export default function LayoutWrapper({ children }) {
-  const [showSplash, setShowSplash] = useState(true);
+  // Check if splash has already been shown in this session
+  const [showSplash, setShowSplash] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    // Only show splash if it hasn't been shown in this session
+    return !sessionStorage.getItem(SPLASH_SHOWN_KEY);
+  });
+
   const [isLoaded, setIsLoaded] = useState(false);
   const [splashStartTime] = useState(() => Date.now());
 
@@ -16,23 +24,34 @@ export default function LayoutWrapper({ children }) {
     initializationComplete,
   } = useSplashInitializer();
 
-  // Always show splash for minimum 5 seconds
+  // Always show splash for minimum 2 seconds (only if it hasn't been shown)
   useEffect(() => {
-    if (initializationComplete && progress >= 100) {
-      const minDisplayTime = 5000; // 5 seconds
+    if (showSplash && initializationComplete && progress >= 100) {
+      const minDisplayTime = 2000; // 2 seconds
       const elapsedTime = Date.now() - splashStartTime;
       const remainingTime = Math.max(0, minDisplayTime - elapsedTime);
 
       const timer = setTimeout(() => {
+        // Mark splash as shown in sessionStorage
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem(SPLASH_SHOWN_KEY, 'true');
+        }
         setShowSplash(false);
         setTimeout(() => setIsLoaded(true), 100);
       }, remainingTime + 300); // Add small buffer for fade out
 
       return () => clearTimeout(timer);
+    } else if (!showSplash) {
+      // If splash was already shown, load immediately
+      setIsLoaded(true);
     }
-  }, [initializationComplete, progress, splashStartTime]);
+  }, [showSplash, initializationComplete, progress, splashStartTime]);
 
   const handleSplashComplete = () => {
+    // Mark splash as shown in sessionStorage
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem(SPLASH_SHOWN_KEY, 'true');
+    }
     setShowSplash(false);
     setTimeout(() => setIsLoaded(true), 100);
   };

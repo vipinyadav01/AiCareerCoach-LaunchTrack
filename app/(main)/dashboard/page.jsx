@@ -19,23 +19,22 @@ export default async function DashboardPage() {
     const user = await checkUser();
 
     if (!user) {
-      redirect("/sign-in");
+      redirect("/auth/sign-in");
     }
 
     // Now check onboarding status (after ensuring clerkUserId is synced)
     // Use cached version to prevent duplicate calls
-    const { isOnboarded } = await getCachedOnboardingStatus();
+    const onboardingStatus = await getCachedOnboardingStatus();
 
-    if (!isOnboarded) {
+    if (!onboardingStatus.isOnboarded) {
+      // Missing onboarding fields (logging removed)
       redirect("/onboarding");
     }
 
     const insights = await getIndustryInsights();
 
     // Handle errors gracefully - don't redirect on errors to prevent loops
-    if (insights?.error) {
-      console.error("Dashboard insights error:", insights.error);
-    }
+    // Dashboard insights error (logging removed)
 
     // Only redirect if explicitly requested (user not onboarded)
     // Don't redirect on AI/data errors to prevent loops
@@ -47,9 +46,9 @@ export default async function DashboardPage() {
 
     // Validate data exists before rendering - be more lenient to prevent redirect loops
     if (!dashboardData || !dashboardData.industry) {
-      // If we have an error or warning, log it but don't redirect (prevents loops)
+      // If we have an error or warning, don't redirect (prevents loops)
       if (insights?.error || insights?.warning) {
-        console.warn("Dashboard data unavailable, but user is onboarded:", insights.error || insights.warning);
+        // Dashboard data unavailable (logging removed)
         // Render with minimal default data instead of redirecting
         const defaultData = {
           industry: user?.industry || "Unknown",
@@ -73,10 +72,7 @@ export default async function DashboardPage() {
       redirect("/onboarding");
     }
 
-    // Log warnings if present
-    if (insights?.warning) {
-      console.warn("Dashboard insights warning:", insights.warning);
-    }
+    // Dashboard insights warning (logging removed)
 
     return (
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -88,7 +84,7 @@ export default async function DashboardPage() {
     if (error?.digest?.startsWith('NEXT_REDIRECT')) {
       throw error;
     }
-    console.error("Dashboard page error:", error);
+    // Dashboard page error (logging removed)
     redirect("/onboarding");
   }
 }

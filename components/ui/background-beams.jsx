@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 
@@ -58,6 +58,22 @@ export const BackgroundBeams = React.memo(({
     "M-44 -573C-44 -573 24 -168 488 -41C952 86 1020 491 1020 491",
     "M-37 -581C-37 -581 31 -176 495 -49C959 78 1027 483 1027 483",
   ];
+
+  // Generate random values only on client to prevent hydration mismatch
+  const [isMounted, setIsMounted] = useState(false);
+  const [randomValues, setRandomValues] = useState([]);
+
+  useEffect(() => {
+    setIsMounted(true);
+    // Generate random values for each path on client side only
+    const values = paths.map(() => ({
+      y2: 93 + Math.random() * 8,
+      duration: Math.random() * 10 + 10,
+      delay: Math.random() * 10,
+    }));
+    setRandomValues(values);
+  }, []);
+
   return (
     <div
       className={cn(
@@ -76,7 +92,7 @@ export const BackgroundBeams = React.memo(({
           stroke="url(#paint0_radial_242_278)"
           strokeOpacity="0.05"
           strokeWidth="0.5"></path>
-        {paths.map((path, index) => (
+        {isMounted && paths.map((path, index) => (
           <motion.path
             key={`path-` + index}
             d={path}
@@ -85,34 +101,41 @@ export const BackgroundBeams = React.memo(({
             strokeWidth="0.5"></motion.path>
         ))}
         <defs>
-          {paths.map((path, index) => (
-            <motion.linearGradient
-              id={`linearGradient-${index}`}
-              key={`gradient-${index}`}
-              initial={{
-                x1: "0%",
-                x2: "0%",
-                y1: "0%",
-                y2: "0%",
-              }}
-              animate={{
-                x1: ["0%", "100%"],
-                x2: ["0%", "95%"],
-                y1: ["0%", "100%"],
-                y2: ["0%", `${93 + Math.random() * 8}%`],
-              }}
-              transition={{
-                duration: Math.random() * 10 + 10,
-                ease: "easeInOut",
-                repeat: Infinity,
-                delay: Math.random() * 10,
-              }}>
-              <stop stopColor="#18CCFC" stopOpacity="0"></stop>
-              <stop stopColor="#18CCFC"></stop>
-              <stop offset="32.5%" stopColor="#6344F5"></stop>
-              <stop offset="100%" stopColor="#AE48FF" stopOpacity="0"></stop>
-            </motion.linearGradient>
-          ))}
+          {isMounted && paths.map((path, index) => {
+            const randomValue = randomValues[index] || {
+              y2: 93,
+              duration: 15,
+              delay: 0,
+            };
+            return (
+              <motion.linearGradient
+                id={`linearGradient-${index}`}
+                key={`gradient-${index}`}
+                initial={{
+                  x1: "0%",
+                  x2: "0%",
+                  y1: "0%",
+                  y2: "0%",
+                }}
+                animate={{
+                  x1: ["0%", "100%"],
+                  x2: ["0%", "95%"],
+                  y1: ["0%", "100%"],
+                  y2: ["0%", `${randomValue.y2}%`],
+                }}
+                transition={{
+                  duration: randomValue.duration,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                  delay: randomValue.delay,
+                }}>
+                <stop stopColor="#18CCFC" stopOpacity="0"></stop>
+                <stop stopColor="#18CCFC"></stop>
+                <stop offset="32.5%" stopColor="#6344F5"></stop>
+                <stop offset="100%" stopColor="#AE48FF" stopOpacity="0"></stop>
+              </motion.linearGradient>
+            );
+          })}
 
           <radialGradient
             id="paint0_radial_242_278"

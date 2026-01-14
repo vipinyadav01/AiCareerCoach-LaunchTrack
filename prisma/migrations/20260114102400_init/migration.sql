@@ -1,7 +1,7 @@
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
-    "clerkUserId" TEXT NOT NULL,
+    "neonUserId" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "name" TEXT,
     "imageUrl" TEXT,
@@ -75,7 +75,7 @@ CREATE TABLE "IndustryInsight" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_clerkUserId_key" ON "User"("clerkUserId");
+CREATE UNIQUE INDEX "User_neonUserId_key" ON "User"("neonUserId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");

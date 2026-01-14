@@ -21,19 +21,22 @@ export function ThemeToggle() {
   // Don't render until hydrated to avoid hydration mismatch
   if (!mounted) {
     return (
-      <div className="flex items-center lg:gap-3 gap-1.5 sm:px-4 px-3 py-2.5 rounded-lg border border-transparent">
-        <div className="p-1.5 rounded-md bg-gray-200 dark:bg-gray-700">
-          <Moon className="w-4 h-4 text-gray-400" />
-        </div>
-      </div>
+      <button
+        className="relative p-2 rounded-lg border border-transparent bg-gray-100 dark:bg-gray-800 transition-colors"
+        aria-label="Toggle theme"
+        disabled
+      >
+        <Moon className="w-5 h-5 text-gray-400" />
+      </button>
     )
   }
 
   return (
-    <div 
+    <button
       onClick={toggleTheme}
-      className="flex items-center lg:gap-3 gap-1.5 sm:px-4 px-3 py-2.5 rounded-lg hover:bg-amber-50 dark:hover:bg-indigo-900/30 transition-all duration-200 group border border-transparent hover:border-amber-100 dark:hover:border-indigo-800 hover:shadow-sm dark:hover:shadow-indigo-900/20 cursor-pointer"
+      className="relative p-2.5 rounded-lg transition-all duration-300 group border border-transparent hover:border-amber-200 dark:hover:border-indigo-700/50 hover:bg-amber-50 dark:hover:bg-indigo-900/20 hover:shadow-md dark:hover:shadow-indigo-900/30 cursor-pointer active:scale-95"
       role="button"
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -42,20 +45,21 @@ export function ThemeToggle() {
         }
       }}
     >
-      <div className={`p-1.5 rounded-md transition-colors ${
-        isDark 
-          ? "bg-indigo-900/50 group-hover:bg-indigo-800/60" 
-          : "bg-amber-100 group-hover:bg-amber-200"
-      }`}>
+      <div className={`relative transition-all duration-300 ${isDark
+          ? "rotate-0 scale-100"
+          : "rotate-180 scale-100"
+        }`}>
         {isDark ? (
-          <Sun className="w-4 h-4 text-indigo-300" />
+          <Sun className="w-5 h-5 text-amber-400 group-hover:text-amber-500 transition-colors" />
         ) : (
-          <Moon className="w-4 h-4 text-amber-600" />
+          <Moon className="w-5 h-5 text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors" />
         )}
       </div>
-      <span className="lg:text-sm text-xs max-sm:hidden font-medium font-nav text-gray-700 dark:text-gray-300 group-hover:text-amber-700 dark:group-hover:text-indigo-300 transition-colors">
-        {isDark ? "Light" : "Dark"}
-      </span>
-    </div>
+      {/* Subtle glow effect */}
+      <div className={`absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${isDark
+          ? "bg-gradient-to-br from-indigo-500/10 to-purple-500/10"
+          : "bg-gradient-to-br from-amber-500/10 to-orange-500/10"
+        }`} />
+    </button>
   )
 }

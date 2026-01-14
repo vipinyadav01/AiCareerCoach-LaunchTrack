@@ -1,15 +1,15 @@
 "use server";
 
 import { db } from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
+import { getUserId } from "@/lib/neon-auth-server";
 import { getGeminiModel } from "@/lib/gemini";
 
 export async function generateCoverLetter(data) {
-  const { userId } = await auth();
+  const userId = await getUserId();
   if (!userId) throw new Error("Unauthorized");
 
   const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
+    where: { neonUserId: userId },
   });
 
   if (!user) throw new Error("User not found");
@@ -68,11 +68,11 @@ const prompt = `
 }
 
 export async function getCoverLetters() {
-  const { userId } = await auth();
+  const userId = await getUserId();
   if (!userId) throw new Error("Unauthorized");
 
   const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
+    where: { neonUserId: userId },
   });
 
   if (!user) throw new Error("User not found");
@@ -88,11 +88,11 @@ export async function getCoverLetters() {
 }
 
 export async function getCoverLetter(id) {
-  const { userId } = await auth();
+  const userId = await getUserId();
   if (!userId) throw new Error("Unauthorized");
 
   const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
+    where: { neonUserId: userId },
   });
 
   if (!user) throw new Error("User not found");
@@ -106,11 +106,11 @@ export async function getCoverLetter(id) {
 }
 
 export async function getCoverLetterById(id) {
-  const { userId } = await auth();
+  const userId = await getUserId();
   if (!userId) throw new Error("Unauthorized");
 
   const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
+    where: { neonUserId: userId },
   });
 
   if (!user) throw new Error("User not found");
@@ -124,11 +124,11 @@ export async function getCoverLetterById(id) {
 }
 
 export async function updateCoverLetter(id, data) {
-  const { userId } = await auth();
+  const userId = await getUserId();
   if (!userId) throw new Error("Unauthorized");
 
   const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
+    where: { neonUserId: userId },
   });
 
   if (!user) throw new Error("User not found");
@@ -158,11 +158,11 @@ export async function updateCoverLetter(id, data) {
 }
 
 export async function deleteCoverLetter(id) {
-  const { userId } = await auth();
+  const userId = await getUserId();
   if (!userId) throw new Error("Unauthorized");
 
   const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
+    where: { neonUserId: userId },
   });
 
   if (!user) throw new Error("User not found");
