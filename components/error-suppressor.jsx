@@ -14,12 +14,14 @@ export function ErrorSuppressor() {
 
     const suppressNeonAuth404 = (...args) => {
       const message = args.join(' ');
-      // Suppress 404 errors for display-name endpoints (known Neon Auth bug)
+      // Suppress 404 errors for Neon Auth endpoints and related display-name helpers
       if (
-        message.includes('404') &&
-        (message.includes('/display-name/value-of') ||
+        message.includes('404') && (
+          message.includes('/display-name/value-of') ||
           message.includes('/display-name/to-string') ||
-          message.includes('api/auth/display-name'))
+          message.includes('api/auth/display-name') ||
+          message.includes('/api/auth')
+        )
       ) {
         return; // Silently ignore
       }

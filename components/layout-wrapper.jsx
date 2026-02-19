@@ -8,11 +8,15 @@ const SPLASH_SHOWN_KEY = 'launchtrack_splash_shown';
 
 export default function LayoutWrapper({ children }) {
   // Check if splash has already been shown in this session
-  const [showSplash, setShowSplash] = useState(() => {
-    if (typeof window === 'undefined') return true;
-    // Only show splash if it hasn't been shown in this session
-    return !sessionStorage.getItem(SPLASH_SHOWN_KEY);
-  });
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const hasShownSplash = sessionStorage.getItem(SPLASH_SHOWN_KEY);
+    if (hasShownSplash) {
+      setShowSplash(false);
+      setIsLoaded(true);
+    }
+  }, []);
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [splashStartTime] = useState(() => Date.now());

@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { Star } from 'lucide-react'
 
-export function GitHubStars({ className = "", showIcon = true, repoUrl = "vipinyadav01/AiCareerCoach" }) {
+export function GitHubStars({ className = "", showIcon = true, repoUrl = "vipinyadav01/AiCareerCoach", asLink = true }) {
   const [starsCount, setStarsCount] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -50,12 +50,17 @@ export function GitHubStars({ className = "", showIcon = true, repoUrl = "vipiny
     )
   }
 
+  const Component = asLink ? 'a' : 'div'
+  const linkProps = asLink ? {
+    href: `https://github.com/${repoUrl}`,
+    target: "_blank",
+    rel: "noopener noreferrer"
+  } : {}
+
   return (
-    <a 
-      href={`https://github.com/${repoUrl}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`flex items-center gap-1 sm:gap-1.5 hover:scale-105 transition-transform duration-200 ${className}`}
+    <Component 
+      {...linkProps}
+      className={`flex items-center gap-1 sm:gap-1.5 ${asLink ? 'hover:scale-105 transition-transform duration-200 cursor-pointer' : ''} ${className}`}
       title={`Star us on GitHub! Currently ${starsCount?.toLocaleString() || '3'} stars`}
     >
       {showIcon && (
@@ -66,6 +71,6 @@ export function GitHubStars({ className = "", showIcon = true, repoUrl = "vipiny
       <span className={`text-xs sm:text-sm font-semibold font-nav transition-colors ${error ? 'text-gray-500 dark:text-gray-400' : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'}`}>
         {starsCount?.toLocaleString() || '3'}
       </span>
-    </a>
+    </Component>
   )
 }

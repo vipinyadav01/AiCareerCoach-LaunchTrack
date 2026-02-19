@@ -8,12 +8,13 @@ import { ToasterWrapper } from "@/components/toaster-wrapper";
 import { authClient } from "@/lib/auth/client";
 import { NeonAuthUIProvider } from '@neondatabase/auth/react';
 import { BackgroundBeams } from "@/components/ui/background-beams";
-import { ErrorSuppressor } from "@/components/error-suppressor";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import PerfScrollOptimizer from "@/components/perf-scroll-optimizer";
 import { HeadMeta } from "./lib/head-meta";
 import { StructuredData } from "./lib/structured-data";
 import { Footer } from "components/Footer";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import SmoothScroll from "@/components/smooth-scroll";
 
 export { metadata, viewport } from "./lib/metadata";
 
@@ -32,7 +33,7 @@ export default function RootLayout({ children }) {
         suppressHydrationWarning={true}
         data-suppress-hydration-warning
       >
-        <ErrorSuppressor />
+        <ErrorBoundary>
         <NeonAuthUIProvider
           authClient={authClient}
           redirectTo="/onboarding"
@@ -43,23 +44,26 @@ export default function RootLayout({ children }) {
         >
           <LayoutWrapper>
             <ThemeProvider>
-              {/* Global animated background */}
-              <BackgroundBeams className="fixed inset-0 -z-10 pointer-events-none" />
-              <PerfScrollOptimizer />
-              {/* Header */}
-              <HeaderWrapper />
-              <main className="min-h-screen">
-                {children}
-              </main>
-              <PWAInstallPrompt />
-              <PWAStatus />
-              <ToasterWrapper richColors />
-              {/* Footer */}
-              <Footer />
-              <SpeedInsights />
+              <SmoothScroll>
+                {/* Global animated background */}
+                <BackgroundBeams className="fixed inset-0 -z-10 pointer-events-none" />
+                <PerfScrollOptimizer />
+                {/* Header */}
+                <HeaderWrapper />
+                <main className="min-h-screen">
+                  {children}
+                </main>
+                <PWAInstallPrompt />
+                <PWAStatus />
+                <ToasterWrapper richColors />
+                {/* Footer */}
+                <Footer />
+                <SpeedInsights />
+              </SmoothScroll>
             </ThemeProvider>
           </LayoutWrapper>
         </NeonAuthUIProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

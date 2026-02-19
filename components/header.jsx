@@ -7,316 +7,188 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button, buttonVariants } from './ui/button'
 import { cn } from '@/lib/utils'
-import { FileText, GraduationCap, Home, PenBox, Github } from 'lucide-react'
+import { FileText, GraduationCap, Home, PenBox, Github, Menu, X, Youtube } from 'lucide-react'
 import { ThemeToggle } from './theme-toggle'
 import { GitHubStars } from './github-stars'
-import { MenuToggleIcon } from './menu-toggle-icon'
 import { useScroll } from './use-scroll'
 
 const Header = () => {
   const [open, setOpen] = React.useState(false)
   const [hoveredLink, setHoveredLink] = React.useState(null)
+  const [mounted, setMounted] = React.useState(false)
   const scrolled = useScroll(10)
   const pathname = usePathname()
   const { isSignedIn } = useNeonAuth()
 
   React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Prevent scroll when mobile menu is open
+  React.useEffect(() => {
     if (open) {
-      // Disable scroll
       document.body.style.overflow = 'hidden'
     } else {
-      // Re-enable scroll
       document.body.style.overflow = ''
     }
-
-    // Cleanup when component unmounts (important for Next.js)
     return () => {
       document.body.style.overflow = ''
     }
   }, [open])
 
   const signedInLinks = [
-    {
-      label: 'Dashboard',
-      href: '/dashboard',
-      icon: Home,
-    },
-    {
-      label: 'Resume',
-      href: '/resume',
-      icon: FileText,
-    },
-    {
-      label: 'Cover Letter',
-      href: '/ai-cover-letter',
-      icon: PenBox,
-    },
-    {
-      label: 'Interview',
-      href: '/interview',
-      icon: GraduationCap,
-    },
+    { label: 'Dashboard', href: '/dashboard', icon: Home },
+    { label: 'Resume', href: '/resume', icon: FileText },
+    { label: 'Cover Letter', href: '/ai-cover-letter', icon: PenBox },
+    { label: 'Interview', href: '/interview', icon: GraduationCap },
   ]
 
   const signedOutLinks = [
-    {
-      label: 'Home',
-      href: '/',
-      icon: Home,
-    },
+    { label: 'Home', href: '/', icon: Home },
   ]
 
+  // Show only signed-out links during SSR/initial mount to prevent hydration mismatch
+  const links = (mounted && isSignedIn) ? signedInLinks : signedOutLinks
+  
+  // Also only show Logo redirect and auth buttons after mount
+  const logoHref = (mounted && isSignedIn) ? "/dashboard" : "/"
+  const showUserButton = mounted && isSignedIn
+  const showSignInButton = mounted && !isSignedIn
+
   return (
-    <header
-      className={cn(
-        'sticky top-0 z-50 mx-auto w-full max-w-5xl border-b border-transparent md:rounded-md md:border md:transition-all md:ease-out',
-        {
-          'bg-background/95 supports-backdrop-filter:bg-background/50 border-border backdrop-blur-lg md:top-4 md:max-w-4xl md:shadow':
-            scrolled && !open,
-          'bg-background/90': open,
-        }
-      )}>
-      <nav
+    <div className="fixed top-4 left-0 right-0 z-50 flex items-center justify-center px-4">
+      <header
         className={cn(
-          'flex h-14 w-full items-center justify-between px-4 md:h-12 md:transition-all md:ease-out',
+          "flex items-center justify-between px-6 py-3 shadow-lg max-w-5xl rounded-full mx-auto w-full transition-all duration-300 border border-border/40",
           {
-            'md:px-2': scrolled,
+            "bg-background/80 backdrop-blur-md": !scrolled && !open,
+            "bg-background/95 backdrop-blur-xl": scrolled,
+            "bg-background": open
           }
-        )}>
-        {/* Logo */}
-        {!isSignedIn ? (
-          <Link
-            href="/"
-            className="flex items-center gap-2 group transition-all duration-200 hover:scale-105"
-            onMouseEnter={() => setHoveredLink('logo')}
-            onMouseLeave={() => setHoveredLink(null)}
-          >
-            <div className="h-8 w-8 flex items-center justify-center rounded-md transition-all duration-200 group-hover:rotate-12 group-hover:shadow-lg">
-              <img
-                src="/favicon-32x32.png"
-                alt="Launch Track Logo"
-                className="h-6 w-6 object-contain transition-transform duration-200 group-hover:scale-110"
-              />
-            </div>
-            <span className="text-foreground text-sm font-bold font-nav tracking-tight hidden sm:block transition-colors duration-200 group-hover:text-primary">
-              Launch Track
-            </span>
-          </Link>
-        ) : (
-          <Link
-            href="/dashboard"
-            className="flex items-center gap-2 group transition-all duration-200 hover:scale-105"
-            onMouseEnter={() => setHoveredLink('logo')}
-            onMouseLeave={() => setHoveredLink(null)}
-          >
-            <div className="h-8 w-8 flex items-center justify-center rounded-md transition-all duration-200 group-hover:rotate-12 group-hover:shadow-lg">
-              <img
-                src="/favicon-32x32.png"
-                alt="Launch Track Logo"
-                className="h-6 w-6 object-contain transition-transform duration-200 group-hover:scale-110"
-              />
-            </div>
-            <span className="text-foreground text-sm font-bold font-nav tracking-tight hidden sm:block transition-colors duration-200 group-hover:text-primary">
-              Launch Track
-            </span>
-          </Link>
         )}
+      >
+        {/* Logo */}
+        <div className="shrink-0">
+          <Link
+            href={logoHref}
+            className="flex items-center gap-2 group"
+          >
+            <div className="relative h-8 w-8 flex items-center justify-center">
+               <img
+                src="/favicon-32x32.png"
+                alt="Launch Track Logo"
+                className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-110"
+              />
+            </div>
+            <span className="hidden sm:block text-foreground text-sm font-bold tracking-tight transition-colors duration-200 group-hover:text-primary">
+              Launch Track
+            </span>
+          </Link>
+        </div>
 
         {/* Desktop Navigation */}
-        <div className="hidden items-center gap-2 md:flex">
-          {isSignedIn && (
-            <>
-              {signedInLinks.map((link) => {
-                const Icon = link.icon
-                const isActive = pathname === link.href || pathname.startsWith(link.href + '/')
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={cn(
-                      buttonVariants({ variant: 'ghost' }),
-                      'relative transition-all duration-200 group',
-                      isActive && 'text-primary font-semibold',
-                      'hover:scale-105 hover:text-primary'
-                    )}
-                    onMouseEnter={() => setHoveredLink(link.href)}
-                    onMouseLeave={() => setHoveredLink(null)}
-                  >
-                    <Icon className={cn(
-                      "w-4 h-4 mr-2 transition-all duration-200",
-                      isActive && "scale-110",
-                      hoveredLink === link.href && "scale-110 rotate-12"
-                    )} />
-                    {link.label}
-                    {isActive && (
-                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
-                    )}
-                  </Link>
-                )
-              })}
-              <span className="mx-1 w-px h-6 bg-border/40 rounded-full" aria-hidden="true"></span>
-              <ThemeToggle />
-              <div className="flex items-center gap-2 ml-2">
+        <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+          {links.map((link) => {
+             const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href))
+             return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                  "transition-colors hover:text-primary",
+                  isActive ? "text-primary font-semibold" : "text-muted-foreground"
+                )}
+              >
+                {link.label}
+              </Link>
+             )
+          })}
+        </nav>
+
+        {/* Right Actions */}
+        <div className="flex items-center gap-3">
+            {/* Socials (Desktop only) */}
+            <div className="hidden md:flex items-center gap-2 pr-3 border-r border-border/40">
+              <a
+                href="https://github.com/vipinyadav01/AiCareerCoach-LaunchTrack"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+                title="Star on GitHub"
+              >
+                 <GitHubStars showIcon={true} showCount={false} className="gap-0!" repoUrl="vipinyadav01/AiCareerCoach-LaunchTrack" asLink={false} />
+              </a>
+            </div>
+
+            <ThemeToggle />
+
+            {/* Auth Buttons */}
+            {showUserButton ? (
                 <NeonUserButton />
-                <div className="hidden lg:flex items-center gap-1">
-                  <Github className="w-4 h-4 text-muted-foreground" />
-                  <GitHubStars className="text-muted-foreground" showIcon={false} />
-                </div>
-              </div>
-            </>
-          )}
-          {!isSignedIn && (
-            <>
-              {signedOutLinks.map((link) => {
-                const Icon = link.icon
-                const isActive = pathname === link.href
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={cn(
-                      buttonVariants({ variant: 'ghost' }),
-                      'relative transition-all duration-200 group',
-                      isActive && 'text-primary font-semibold',
-                      'hover:scale-105 hover:text-primary'
-                    )}
-                    onMouseEnter={() => setHoveredLink(link.href)}
-                    onMouseLeave={() => setHoveredLink(null)}
-                  >
-                    <Icon className={cn(
-                      "w-4 h-4 mr-2 transition-all duration-200",
-                      isActive && "scale-110",
-                      hoveredLink === link.href && "scale-110 rotate-12"
-                    )} />
-                    {link.label}
-                    {isActive && (
-                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
-                    )}
-                  </Link>
-                )
-              })}
-              <Link href="/sign-in">
-                <Button
-                  variant="outline"
-                  className="transition-all duration-200 hover:scale-105 hover:shadow-md"
-                >
-                  Sign In
-                </Button>
-              </Link>
-              <span className="mx-1 w-px h-6 bg-border/40 rounded-full" aria-hidden="true"></span>
-              <ThemeToggle />
-              <div className="hidden lg:flex items-center gap-1 ml-2">
-                <Github className="w-4 h-4 text-muted-foreground" />
-                <GitHubStars className="text-muted-foreground" showIcon={false} />
-              </div>
-            </>
-          )}
-        </div>
+            ) : showSignInButton ? (
+                <Link href="/sign-in" className="hidden md:flex">
+                    <Button size="sm" className="rounded-full px-5 h-9">
+                        Get Started
+                    </Button>
+                </Link>
+            ) : null}
 
-        {/* Mobile Menu Toggle */}
-        <div className="flex items-center gap-2 md:hidden">
-          <ThemeToggle />
-          {isSignedIn && (
-            <div className="flex items-center gap-2">
-              <NeonUserButton />
-            </div>
-          )}
-          <Button
-            size="icon"
-            variant="outline"
-            onClick={() => setOpen(!open)}
-            className="md:hidden">
-            <MenuToggleIcon open={open} className="size-5" duration={300} />
-          </Button>
+            {/* Mobile Menu Toggle */}
+             <button
+                onClick={() => setOpen(!open)}
+                className="md:hidden text-muted-foreground hover:text-foreground transition-colors p-1"
+                aria-label="Toggle menu"
+            >
+                {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
         </div>
-      </nav>
+      </header>
 
-      {/* Mobile Menu */}
-      <div
-        className={cn(
-          'bg-background/90 fixed top-14 right-0 bottom-0 left-0 z-50 flex flex-col overflow-hidden border-y md:hidden',
-          open ? 'block' : 'hidden'
-        )}>
-        <div
-          data-slot={open ? 'open' : 'closed'}
-          className={cn(
-            'data-[slot=open]:animate-in data-[slot=open]:zoom-in-95 data-[slot=closed]:animate-out data-[slot=closed]:zoom-out-95 ease-out',
-            'flex h-full w-full flex-col justify-between gap-y-2 p-4'
-          )}>
-          <div className="grid gap-y-2">
-            {isSignedIn && (
-              <>
-                {signedInLinks.map((link) => {
-                  const Icon = link.icon
-                  const isActive = pathname === link.href || pathname.startsWith(link.href + '/')
-                  return (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={() => setOpen(false)}
-                      className={cn(
-                        buttonVariants({
-                          variant: 'ghost',
-                          className: 'justify-start transition-all duration-200',
-                        }),
-                        isActive && 'bg-primary/10 text-primary font-semibold',
-                        'hover:bg-primary/5 hover:scale-[1.02]'
-                      )}>
-                      <Icon className={cn(
-                        "w-4 h-4 mr-2 transition-all duration-200",
-                        isActive && "scale-110"
-                      )} />
-                      {link.label}
-                    </Link>
-                  )
+      {/* Mobile Menu Content - Floating below */}
+      {open && (
+         <div className="absolute top-full left-4 right-4 mt-2 p-4 rounded-3xl bg-background/95 backdrop-blur-xl border border-border/40 shadow-xl md:hidden animate-in slide-in-from-top-2 fade-in-0 flex flex-col gap-4 max-w-5xl mx-auto">
+            <nav className="flex flex-col gap-2">
+                {links.map((link) => {
+                    const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href))
+                    const Icon = link.icon
+                    return (
+                        <Link
+                            key={link.href}
+                            href={link.href}
+                            onClick={() => setOpen(false)}
+                            className={cn(
+                                "flex items-center gap-3 p-3 rounded-xl transition-colors",
+                                isActive ? "bg-primary/10 text-primary font-medium" : "hover:bg-accent text-muted-foreground hover:text-foreground"
+                            )}
+                        >
+                            <Icon className="w-5 h-5" />
+                            {link.label}
+                        </Link>
+                    )
                 })}
-              </>
-            )}
-            {!isSignedIn && (
-              <>
-                {signedOutLinks.map((link) => {
-                  const Icon = link.icon
-                  const isActive = pathname === link.href
-                  return (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={() => setOpen(false)}
-                      className={cn(
-                        buttonVariants({
-                          variant: 'ghost',
-                          className: 'justify-start transition-all duration-200',
-                        }),
-                        isActive && 'bg-primary/10 text-primary font-semibold',
-                        'hover:bg-primary/5 hover:scale-[1.02]'
-                      )}>
-                      <Icon className={cn(
-                        "w-4 h-4 mr-2 transition-all duration-200",
-                        isActive && "scale-110"
-                      )} />
-                      {link.label}
+            </nav>
+            
+            <div className="h-px bg-border/50 w-full" />
+            
+            <div className="flex flex-col gap-3">
+                 <div className="flex items-center justify-between px-2">
+                    <span className="text-sm font-medium text-muted-foreground">Follow us</span>
+                    <div className="flex items-center gap-4">
+                        <a href="https://github.com/vipinyadav01/AiCareerCoach-LaunchTrack" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-foreground">
+                            <Github className="w-5 h-5" />
+                        </a>
+                    </div>
+                 </div>
+                 
+                 {showSignInButton && (
+                    <Link href="/sign-in" onClick={() => setOpen(false)}>
+                        <Button className="w-full rounded-xl" size="lg">Get Started</Button>
                     </Link>
-                  )
-                })}
-              </>
-            )}
-          </div>
-          <div className="flex flex-col gap-2">
-            {!isSignedIn && (
-              <Link href="/sign-in" onClick={() => setOpen(false)}>
-                <Button variant="outline" className="w-full transition-all duration-200 hover:scale-105">
-                  Sign In
-                </Button>
-              </Link>
-            )}
-            <div className="flex items-center justify-center gap-2 pt-2">
-              <Github className="w-4 h-4 text-muted-foreground" />
-              <GitHubStars className="text-muted-foreground" />
+                 )}
             </div>
-          </div>
-        </div>
-      </div>
-    </header>
+         </div>
+      )}
+    </div>
   )
 }
 

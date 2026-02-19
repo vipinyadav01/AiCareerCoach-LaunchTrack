@@ -1,6 +1,13 @@
 import { authApiHandler } from '@neondatabase/auth/next/server';
 
-// Handle all Neon Auth API requests
-// The catch-all route [...path] will match all paths under /api/auth/*
-// This handles endpoints like /api/auth/session, /api/auth/sign-in, etc.
-export const { GET, POST } = authApiHandler();
+export const GET = async (request, context) => {
+  console.log('Auth GET request:', request.url);
+  const handler = authApiHandler();
+  return handler.GET(request, context);
+};
+
+export const POST = async (request, context) => {
+  console.log('Auth POST request:', request.url);
+  const handler = authApiHandler();
+  return handler.POST(request, context);
+};
