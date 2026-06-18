@@ -1,3 +1,5 @@
+'use client';
+
 import { cn } from "@/lib/utils";
 import {
   IconBrain,
@@ -10,8 +12,8 @@ import {
   IconCertificate,
 } from "@tabler/icons-react";
 import { features } from "@/data/features";
+import { motion } from "motion/react";
 
-// Icon mapping object to convert string names to actual icon components
 const iconMap = {
   IconBrain,
   IconBriefcase,
@@ -25,8 +27,8 @@ const iconMap = {
 
 export function FeatureSection() {
   return (
-    <div className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 relative z-10 gap-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {features.map((feature, index) => (
           <Feature key={feature.id} {...feature} index={index} />
         ))}
@@ -35,35 +37,40 @@ export function FeatureSection() {
   );
 }
 
-const Feature = ({
-  title,
-  description,
-  icon,
-  index
-}) => {
+const Feature = ({ title, description, icon, index }) => {
   const IconComponent = iconMap[icon];
-  
+
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.15 }}
+      transition={{
+        duration: 0.5,
+        delay: (index % 4) * 0.07,
+        ease: [0.16, 1, 0.3, 1],
+      }}
       className={cn(
-        "flex flex-col py-8 px-6 relative group/feature bg-transparent rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 hover:shadow-lg"
-      )}>
-      <div
-        className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-gradient-to-t from-blue-50 dark:from-blue-900/20 to-transparent pointer-events-none rounded-xl" />
-      
-      <div className="mb-4 relative z-10 text-blue-600 dark:text-blue-400">
-        {IconComponent && <IconComponent />}
+        "group/feature relative flex flex-col gap-4 p-5 rounded-xl",
+        "border border-border bg-card/40 backdrop-blur-sm",
+        "hover:border-primary/25 hover:bg-card/70 hover:-translate-y-1",
+        "transition-all duration-300 hover:shadow-md"
+      )}
+    >
+      <div className="absolute inset-0 rounded-xl bg-linear-to-t from-muted/30 to-transparent opacity-0 group-hover/feature:opacity-100 transition-opacity duration-300 pointer-events-none" />
+
+      <div className="relative z-10 w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground group-hover/feature:bg-primary group-hover/feature:text-primary-foreground transition-all duration-300 shrink-0">
+        {IconComponent && <IconComponent size={20} stroke={1.5} />}
       </div>
-      
-      <div className="text-lg font-bold mb-3 relative z-10">
-        <span className="text-gray-900 dark:text-gray-100">
+
+      <div className="relative z-10 space-y-1.5">
+        <h3 className="text-sm font-semibold text-foreground leading-snug">
           {title}
-        </span>
+        </h3>
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          {description}
+        </p>
       </div>
-      
-      <p className="text-sm text-gray-600 dark:text-gray-300 relative z-10 leading-relaxed">
-        {description}
-      </p>
-    </div>
+    </motion.div>
   );
 };

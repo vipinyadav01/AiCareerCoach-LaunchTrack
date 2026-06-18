@@ -5,16 +5,16 @@ import { NeonUserButton } from './neon-user-button'
 import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Button, buttonVariants } from './ui/button'
+import { Button } from './ui/button'
 import { cn } from '@/lib/utils'
-import { FileText, GraduationCap, Home, PenBox, Github, Menu, X, Youtube } from 'lucide-react'
+import { FileText, GraduationCap, Home, PenBox, Menu, X } from 'lucide-react'
+import { IconBrandGithub } from '@tabler/icons-react'
 import { ThemeToggle } from './theme-toggle'
 import { GitHubStars } from './github-stars'
 import { useScroll } from './use-scroll'
 
 const Header = () => {
   const [open, setOpen] = React.useState(false)
-  const [hoveredLink, setHoveredLink] = React.useState(null)
   const [mounted, setMounted] = React.useState(false)
   const scrolled = useScroll(10)
   const pathname = usePathname()
@@ -24,7 +24,6 @@ const Header = () => {
     setMounted(true)
   }, [])
 
-  // Prevent scroll when mobile menu is open
   React.useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden'
@@ -47,146 +46,152 @@ const Header = () => {
     { label: 'Home', href: '/', icon: Home },
   ]
 
-  // Show only signed-out links during SSR/initial mount to prevent hydration mismatch
   const links = (mounted && isSignedIn) ? signedInLinks : signedOutLinks
-  
-  // Also only show Logo redirect and auth buttons after mount
   const logoHref = (mounted && isSignedIn) ? "/dashboard" : "/"
   const showUserButton = mounted && isSignedIn
   const showSignInButton = mounted && !isSignedIn
 
   return (
-    <div className="fixed top-4 left-0 right-0 z-50 flex items-center justify-center px-4">
+    <div className="fixed top-3 left-0 right-0 z-50 px-4">
       <header
         className={cn(
-          "flex items-center justify-between px-6 py-3 shadow-lg max-w-5xl rounded-full mx-auto w-full transition-all duration-300 border border-border/40",
-          {
-            "bg-background/80 backdrop-blur-md": !scrolled && !open,
-            "bg-background/95 backdrop-blur-xl": scrolled,
-            "bg-background": open
-          }
+          "flex items-center justify-between px-4 py-2.5 max-w-5xl rounded-2xl mx-auto w-full transition-all duration-300 border",
+          scrolled || open
+            ? "bg-background/98 backdrop-blur-xl border-border/70 shadow-[0_4px_32px_rgba(0,0,0,0.10)] dark:shadow-[0_4px_32px_rgba(0,0,0,0.40)]"
+            : "bg-background/70 backdrop-blur-md border-border/35 shadow-[0_2px_12px_rgba(0,0,0,0.05)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.20)]"
         )}
       >
         {/* Logo */}
-        <div className="shrink-0">
-          <Link
-            href={logoHref}
-            className="flex items-center gap-2 group"
-          >
-            <div className="relative h-8 w-8 flex items-center justify-center">
-               <img
-                src="/favicon-32x32.png"
-                alt="Launch Track Logo"
-                className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-110"
-              />
-            </div>
-            <span className="hidden sm:block text-foreground text-sm font-bold tracking-tight transition-colors duration-200 group-hover:text-primary">
-              Launch Track
-            </span>
-          </Link>
-        </div>
+        <Link href={logoHref} className="flex items-center gap-2.5 group shrink-0">
+          <div className="h-7 w-7 flex items-center justify-center rounded-lg overflow-hidden shrink-0">
+            <img
+              src="/favicon-32x32.png"
+              alt="Launch Track"
+              className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-110"
+            />
+          </div>
+          <span className="hidden sm:block text-sm font-semibold text-foreground tracking-tight transition-colors duration-200 group-hover:text-primary">
+            Launch Track
+          </span>
+        </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+        {/* Desktop Nav */}
+        <nav className="hidden md:flex items-center gap-0.5 text-sm">
           {links.map((link) => {
-             const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href))
-             return (
+            const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href))
+            return (
               <Link
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "transition-colors hover:text-primary",
-                  isActive ? "text-primary font-semibold" : "text-muted-foreground"
+                  "relative px-3 py-1.5 rounded-lg font-medium transition-all duration-200",
+                  isActive
+                    ? "text-foreground bg-accent"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
                 )}
               >
                 {link.label}
+                {isActive && (
+                  <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
+                )}
               </Link>
-             )
+            )
           })}
         </nav>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-3">
-            {/* Socials (Desktop only) */}
-            <div className="hidden md:flex items-center gap-2 pr-3 border-r border-border/40">
-              <a
-                href="https://github.com/vipinyadav01/AiCareerCoach-LaunchTrack"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-                title="Star on GitHub"
-              >
-                 <GitHubStars showIcon={true} showCount={false} className="gap-0!" repoUrl="vipinyadav01/AiCareerCoach-LaunchTrack" asLink={false} />
-              </a>
-            </div>
-
-            <ThemeToggle />
-
-            {/* Auth Buttons */}
-            {showUserButton ? (
-                <NeonUserButton />
-            ) : showSignInButton ? (
-                <Link href="/sign-in" className="hidden md:flex">
-                    <Button size="sm" className="rounded-full px-5 h-9">
-                        Get Started
-                    </Button>
-                </Link>
-            ) : null}
-
-            {/* Mobile Menu Toggle */}
-             <button
-                onClick={() => setOpen(!open)}
-                className="md:hidden text-muted-foreground hover:text-foreground transition-colors p-1"
-                aria-label="Toggle menu"
+        <div className="flex items-center gap-1.5">
+          <div className="hidden md:flex items-center">
+            <a
+              href="https://github.com/vipinyadav01/AiCareerCoach-LaunchTrack"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-200"
+              title="Star on GitHub"
             >
-                {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
+              <GitHubStars
+                showIcon={true}
+                showCount={false}
+                className="gap-0!"
+                repoUrl="vipinyadav01/AiCareerCoach-LaunchTrack"
+                asLink={false}
+              />
+            </a>
+          </div>
+
+          <ThemeToggle />
+
+          {showUserButton && <NeonUserButton />}
+
+          {showSignInButton && (
+            <Link href="/sign-in" className="hidden md:flex">
+              <Button size="sm" className="rounded-xl px-4 h-8 text-xs font-semibold">
+                Get Started
+              </Button>
+            </Link>
+          )}
+
+          <button
+            onClick={() => setOpen(!open)}
+            className="md:hidden w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-200"
+            aria-label="Toggle menu"
+          >
+            {open ? <X size={18} /> : <Menu size={18} />}
+          </button>
         </div>
       </header>
 
-      {/* Mobile Menu Content - Floating below */}
+      {/* Mobile Menu */}
       {open && (
-         <div className="absolute top-full left-4 right-4 mt-2 p-4 rounded-3xl bg-background/95 backdrop-blur-xl border border-border/40 shadow-xl md:hidden animate-in slide-in-from-top-2 fade-in-0 flex flex-col gap-4 max-w-5xl mx-auto">
-            <nav className="flex flex-col gap-2">
-                {links.map((link) => {
-                    const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href))
-                    const Icon = link.icon
-                    return (
-                        <Link
-                            key={link.href}
-                            href={link.href}
-                            onClick={() => setOpen(false)}
-                            className={cn(
-                                "flex items-center gap-3 p-3 rounded-xl transition-colors",
-                                isActive ? "bg-primary/10 text-primary font-medium" : "hover:bg-accent text-muted-foreground hover:text-foreground"
-                            )}
-                        >
-                            <Icon className="w-5 h-5" />
-                            {link.label}
-                        </Link>
-                    )
-                })}
-            </nav>
-            
-            <div className="h-px bg-border/50 w-full" />
-            
-            <div className="flex flex-col gap-3">
-                 <div className="flex items-center justify-between px-2">
-                    <span className="text-sm font-medium text-muted-foreground">Follow us</span>
-                    <div className="flex items-center gap-4">
-                        <a href="https://github.com/vipinyadav01/AiCareerCoach-LaunchTrack" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-foreground">
-                            <Github className="w-5 h-5" />
-                        </a>
-                    </div>
-                 </div>
-                 
-                 {showSignInButton && (
-                    <Link href="/sign-in" onClick={() => setOpen(false)}>
-                        <Button className="w-full rounded-xl" size="lg">Get Started</Button>
-                    </Link>
-                 )}
-            </div>
-         </div>
+        <div className="absolute top-full left-4 right-4 mt-1.5 p-3 rounded-2xl bg-background/98 backdrop-blur-xl border border-border/50 shadow-[0_8px_40px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.45)] md:hidden animate-in slide-in-from-top-2 fade-in-0 duration-200 max-w-5xl mx-auto">
+          <nav className="flex flex-col gap-0.5 mb-3">
+            {links.map((link) => {
+              const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href))
+              const Icon = link.icon
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setOpen(false)}
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
+                    isActive
+                      ? "bg-accent text-foreground"
+                      : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                  )}
+                >
+                  <Icon size={16} strokeWidth={isActive ? 2.5 : 2} />
+                  <span>{link.label}</span>
+                  {isActive && (
+                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                  )}
+                </Link>
+              )
+            })}
+          </nav>
+
+          <div className="h-px bg-border/40 mb-3" />
+
+          <div className="flex items-center justify-between px-1">
+            <a
+              href="https://github.com/vipinyadav01/AiCareerCoach-LaunchTrack"
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1"
+            >
+              <IconBrandGithub size={15} />
+              GitHub
+            </a>
+
+            {showSignInButton && (
+              <Link href="/sign-in" onClick={() => setOpen(false)}>
+                <Button size="sm" className="rounded-xl px-4 h-8 text-xs font-semibold">
+                  Get Started
+                </Button>
+              </Link>
+            )}
+          </div>
+        </div>
       )}
     </div>
   )

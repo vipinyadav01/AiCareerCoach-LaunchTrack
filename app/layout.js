@@ -5,8 +5,6 @@ import PWAInstallPrompt from "@/components/pwa-install-prompt";
 import PWAStatus from "@/components/pwa-status";
 import LayoutWrapper from "@/components/layout-wrapper";
 import { ToasterWrapper } from "@/components/toaster-wrapper";
-import { authClient } from "@/lib/auth/client";
-import { NeonAuthUIProvider } from '@neondatabase/auth/react';
 import { BackgroundBeams } from "@/components/ui/background-beams";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import PerfScrollOptimizer from "@/components/perf-scroll-optimizer";
@@ -15,6 +13,7 @@ import { StructuredData } from "./lib/structured-data";
 import { Footer } from "components/Footer";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import SmoothScroll from "@/components/smooth-scroll";
+import AuthProviderWrapper from "@/components/auth-provider-loader";
 
 export { metadata, viewport } from "./lib/metadata";
 
@@ -34,14 +33,7 @@ export default function RootLayout({ children }) {
         data-suppress-hydration-warning
       >
         <ErrorBoundary>
-        <NeonAuthUIProvider
-          authClient={authClient}
-          redirectTo="/onboarding"
-          emailOTP
-          social={{
-            providers: ['google']
-          }}
-        >
+        <AuthProviderWrapper>
           <LayoutWrapper>
             <ThemeProvider>
               <SmoothScroll>
@@ -62,7 +54,7 @@ export default function RootLayout({ children }) {
               </SmoothScroll>
             </ThemeProvider>
           </LayoutWrapper>
-        </NeonAuthUIProvider>
+        </AuthProviderWrapper>
         </ErrorBoundary>
       </body>
     </html>
