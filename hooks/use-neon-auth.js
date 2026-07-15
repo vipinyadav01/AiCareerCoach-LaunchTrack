@@ -10,7 +10,7 @@ export function useNeonAuth() {
   const sessionResult = authClient.useSession();
 
   const data = sessionResult?.data ?? null;
-  const isLoading = sessionResult?.isLoading ?? true;
+  const isLoading = sessionResult?.isPending ?? true;
   const user = data?.user || null;
   const session = data?.session || null;
   const isSignedIn = !!session && !!user;
@@ -35,7 +35,7 @@ export function useNeonUser() {
   const sessionResult = authClient.useSession();
 
   const data = sessionResult?.data ?? null;
-  const isLoading = sessionResult?.isLoading ?? true;
+  const isLoading = sessionResult?.isPending ?? true;
   const user = data?.user || null;
 
   return {
