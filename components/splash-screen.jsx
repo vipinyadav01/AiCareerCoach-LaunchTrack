@@ -8,9 +8,10 @@ const SplashScreen = ({ onComplete, progress = 0, statusMessage = 'Initializing.
   const [startTime] = useState(() => Date.now());
 
   useEffect(() => {
-    // When progress reaches 100%, ensure minimum 5 seconds display time
+    // When progress reaches 100%, keep a brief minimum display so the brand
+    // animation reads without artificially blocking first paint.
     if (progress >= 100) {
-      const minDisplayTime = 5000; // 5 seconds
+      const minDisplayTime = 1200; // 1.2 seconds
       const elapsedTime = Date.now() - startTime;
       const remainingTime = Math.max(0, minDisplayTime - elapsedTime);
 

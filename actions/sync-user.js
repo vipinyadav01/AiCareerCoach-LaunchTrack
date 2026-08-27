@@ -20,9 +20,11 @@ export async function syncUserToDatabase() {
       return { success: false, error: 'User has no email address' };
     }
 
-    // Extract user information from Neon Auth
+    // Extract user information from Neon Auth.
+    // Better Auth exposes the avatar as `image` (fall back to `imageUrl` for safety).
     const name = neonUser.name || neonUser.email?.split('@')[0] || 'User';
     const email = neonUser.email;
+    const imageUrl = neonUser.image ?? neonUser.imageUrl ?? null;
 
     try {
       // Force create/update user in database
@@ -32,13 +34,13 @@ export async function syncUserToDatabase() {
           update: {
             name,
             email,
-            imageUrl: neonUser.imageUrl || null,
+            imageUrl,
           },
           create: {
             neonUserId: neonUser.id,
             name,
             email,
-            imageUrl: neonUser.imageUrl || null,
+            imageUrl,
             skills: [],
           },
         });
@@ -67,7 +69,7 @@ export async function syncUserToDatabase() {
                 data: {
                   neonUserId: neonUser.id,
                   name,
-                  imageUrl: neonUser.imageUrl || null,
+                  imageUrl,
                 },
               });
             });

@@ -79,8 +79,7 @@ export async function checkUserAndRedirect() {
         where: { neonUserId: userId },
         select: {
           industry: true,
-          experienceLevel: true,
-          location: true,
+          experience: true,
         },
       });
     });

@@ -5,15 +5,17 @@ import { NextResponse } from 'next/server';
 
 /**
  * Auth callback handler
- * Called after successful signup/signin to sync user and redirect appropriately
+ * Called after successful signup/signin to sync user and redirect appropriately.
+ * Redirects are built relative to the incoming request origin so they work in
+ * every environment (local, preview, production) without extra configuration.
  */
-export async function GET() {
+export async function GET(request: Request) {
   try {
     // Get current user from Neon Auth
     const { user, session } = await neonAuth();
 
     if (!user || !session) {
-      return NextResponse.redirect(new URL('/auth/sign-in', process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'));
+      return NextResponse.redirect(new URL('/auth/sign-in', request.url));
     }
 
     // Sync user to database
@@ -23,14 +25,12 @@ export async function GET() {
     const { isOnboarded } = await getUserOnboardingStatus();
 
     // Redirect based on onboarding status
-    if (isOnboarded) {
-      return NextResponse.redirect(new URL('/dashboard', process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'));
-    } else {
-      return NextResponse.redirect(new URL('/onboarding', process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'));
-    }
+    return NextResponse.redirect(
+      new URL(isOnboarded ? '/dashboard' : '/onboarding', request.url)
+    );
   } catch (error) {
     console.error('Auth callback error:', error);
     // On error, redirect to sign-in
-    return NextResponse.redirect(new URL('/auth/sign-in', process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'));
+    return NextResponse.redirect(new URL('/auth/sign-in', request.url));
   }
 }

@@ -1,0 +1,14 @@
+{
+  "id": "session-1787849673130",
+  "startedAt": "2026-08-27T16:54:33.130Z",
+  "cwd": "/home/vipin-yadav/DEV/Personal Project/REPO/AiCareerCoach-LaunchTrack",
+  "context": {},
+  "metrics": {
+    "edits": 0,
+    "commands": 0,
+    "tasks": 0,
+    "errors": 0
+  },
+  "endedAt": "2026-08-27T16:54:33.273Z",
+  "duration": 143
+}

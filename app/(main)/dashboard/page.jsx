@@ -14,16 +14,14 @@ export const revalidate = 0;
 
 export default async function DashboardPage() {
   try {
-    // Ensure user exists in DB and clerkUserId is synced
-    // checkUser is already cached with React cache
+    // Ensure the Neon Auth user exists in the DB (checkUser is React-cached)
     const user = await checkUser();
 
     if (!user) {
       redirect("/auth/sign-in");
     }
 
-    // Now check onboarding status (after ensuring clerkUserId is synced)
-    // Use cached version to prevent duplicate calls
+    // Now check onboarding status (uses the cached version to avoid duplicate calls)
     const onboardingStatus = await getCachedOnboardingStatus();
 
     if (!onboardingStatus.isOnboarded) {

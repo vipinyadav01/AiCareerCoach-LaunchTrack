@@ -7,12 +7,10 @@
     "dev:turbo": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "postinstall": "prisma generate"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.36.5",
-    "@clerk/themes": "^2.4.46",
     "@ducanh2912/next-pwa": "^10.2.9",
     "@google/genai": "^1.35.0",
     "@google/generative-ai": "^0.24.1",
@@ -52,7 +50,6 @@
     "react-spinners": "^0.17.0",
     "recharts": "^3.6.0",
     "sonner": "^2.0.7",
-    "svix": "^1.84.1",
     "tailwind-merge": "^3.4.0",
     "zod": "^4.2.1"
   },
