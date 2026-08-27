@@ -1,197 +1,207 @@
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import { memo } from "react";
-import { Button } from "@/components/ui/button";
-import { Check, Users, Target, Trophy, ArrowRight } from "lucide-react";
+import { Quote } from "lucide-react";
+import { NsButton } from "@/components/ui/ns-button";
 import { testimonials } from "@/data/testimonials";
-import { whyChooseUs } from "@/data/whyChooseUs";
 import { faqs } from "../data/faq";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion"
+} from "@/components/ui/accordion";
 
-// Lazy load heavy components below the fold
+// Lazy load heavy, below-the-fold pieces
 const HeroSection = dynamic(() => import("@/components/hero"), {
-  loading: () => <div className="h-screen" />,
+  loading: () => <div className="mx-4 h-[520px] rounded-[16px] bg-[#1c32ff] sm:h-[620px] lg:h-[700px]" />,
   ssr: true,
 });
 
-const FeatureSection = dynamic(() => import("@/components/feature").then(mod => ({ default: mod.FeatureSection })), {
-  loading: () => <div className="h-96" />,
-});
+const FeatureSection = dynamic(
+  () => import("@/components/feature").then((mod) => ({ default: mod.FeatureSection })),
+  { loading: () => <div className="h-96 rounded-[4px] border border-black/10" /> }
+);
 
-const iconMap = {
-  Check,
-  Users,
-  Target,
-  Trophy,
-};
+const stats = [
+  { value: "95%", label: "Land a job within 6 months" },
+  { value: "50,000+", label: "Professionals in the community" },
+  { value: "3x", label: "More interview calls with AI resumes" },
+  { value: "24/7", label: "Career support, whenever you need it" },
+];
 
-// Memoized components to prevent unnecessary re-renders
-const WhyChooseCard = memo(({ item, IconComponent }) => (
-  <div
-    className="group/feature flex flex-col items-center justify-center space-y-6 p-8 bg-transparent backdrop-blur-md rounded-lg border border-gray-300 dark:border-white hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-xl transition-all duration-300 hover:scale-105 relative"
-  >
-    <div className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-gradient-to-t from-blue-50 dark:from-blue-900/20 to-transparent pointer-events-none rounded-lg" />
-    <div className="flex items-center justify-center w-16 h-16 rounded-lg bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 group-hover/feature:bg-blue-500 group-hover/feature:text-white transition-all duration-300 relative z-10 shadow-lg group-hover/feature:shadow-blue-500/25">
-      {IconComponent && <IconComponent className="w-8 h-8" />}
-    </div>
-    <h3 className="text-xl font-bold text-center text-gray-900 dark:text-white relative z-10">
-      {item.title}
-    </h3>
-    <p className="text-sm text-gray-700 dark:text-gray-200 text-center leading-relaxed relative z-10">
-      {item.description}
+// Vertical mono section index label (Namespace-style), pinned right on desktop
+const SideLabel = memo(({ children }) => (
+  <div className="absolute bottom-0 right-3 top-0 z-10 hidden lg:block">
+    <p className="sticky top-24 whitespace-nowrap font-mono text-[14px] uppercase leading-[1.1] tracking-[-0.02em] text-[#0b0b12] [writing-mode:vertical-rl]">
+      {children}
     </p>
   </div>
 ));
+SideLabel.displayName = "SideLabel";
 
-WhyChooseCard.displayName = "WhyChooseCard";
+const SectionHeading = memo(({ children, className = "" }) => (
+  <h2 className={`font-heading text-[32px] font-medium leading-[1.1] tracking-[-0.02em] text-[#0b0b12] sm:text-[38px] lg:text-[44px] lg:tracking-[-0.88px] ${className}`}>
+    {children}
+  </h2>
+));
+SectionHeading.displayName = "SectionHeading";
 
-const TestimonialCard = memo(({ testimonial }) => (
-  <div className="group/feature bg-transparent backdrop-blur-md border border-gray-300 dark:border-white p-6 hover:shadow-xl transition-all duration-300 rounded-lg relative">
-    <div className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-gradient-to-t from-blue-50 dark:from-blue-900/20 to-transparent pointer-events-none rounded-lg" />
-    <div className="relative z-10">
-      <div className="flex items-center mb-4">
+const TestimonialCard = memo(({ testimonial }) => {
+  const [lead, ...rest] = testimonial.comment.split(/(?<=\.)\s+/);
+  const tail = rest.join(" ");
+  return (
+    <figure className="flex h-full flex-col border border-black/10 bg-[#faf9f4] p-8 sm:p-10">
+      <Quote className="h-8 w-8 shrink-0 rotate-180 text-[#1c32ff]" aria-hidden="true" />
+      <blockquote className="mt-6 flex-1 text-[20px] font-normal leading-[1.3] tracking-[-0.01em] text-[#0b0b12] sm:text-[22px]">
+        <span className="text-[#1c32ff]">{lead}</span>
+        {tail ? ` ${tail}` : ""}
+      </blockquote>
+      <figcaption className="mt-8 flex items-center gap-4">
         <img
           src={testimonial.image}
           alt={testimonial.name}
-          className="w-12 h-12 object-cover border-2 border-gray-300 dark:border-white/50 rounded-lg"
+          className="h-12 w-12 rounded-full object-cover"
           loading="lazy"
           decoding="async"
         />
-        <div className="ml-4">
-          <h4 className="font-semibold text-gray-900 dark:text-white">{testimonial.name}</h4>
-          <p className="text-sm text-gray-600 dark:text-gray-300">{testimonial.role}</p>
+        <div className="text-[14px] leading-[1.6] text-[#5c6070]">
+          <p className="text-[16px] font-semibold text-[#0b0b12]">{testimonial.name}</p>
+          <p>{testimonial.role}</p>
         </div>
-      </div>
-      <p className="text-gray-700 dark:text-gray-200 text-sm leading-relaxed italic">
-        "{testimonial.comment}"
-      </p>
-      <div className="flex text-yellow-400 mt-4">
-        {'⭐'.repeat(testimonial.rating)}
-      </div>
-    </div>
-  </div>
-));
-
+      </figcaption>
+    </figure>
+  );
+});
 TestimonialCard.displayName = "TestimonialCard";
 
 export default function Home() {
   return (
-    <div className="relative min-h-screen">
-      <div className="relative z-10">
+    <div className="bg-white">
+      {/* Hero */}
+      <div className="mt-1">
         <HeroSection />
+      </div>
 
-        <section id="features" className="w-full py-20 md:py-32">
-          <div className="container mx-auto px-4 md:px-6 lg:px-8">
-            <div className="text-center mb-20">
-              <h2 className="text-4xl md:text-6xl font-extrabold text-center mb-8 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-                Powerful Features For Your Career Growth
-              </h2>
-              <p className="text-muted-foreground text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
-                We offer a wide range of features to help you grow your career with cutting-edge AI technology.
-              </p>
-            </div>
+      {/* Results / stats band */}
+      <section className="mt-[39px] px-6 lg:px-10">
+        <div className="mx-auto max-w-[1464px]">
+          <p className="text-center font-mono text-[14px] uppercase leading-[1.1] tracking-[-0.02em] text-[#0b0b12]">
+            Trusted by professionals building better careers
+          </p>
+          <div className="mt-10 grid grid-cols-2 gap-2 lg:grid-cols-4">
+            {stats.map((stat) => (
+              <div
+                key={stat.label}
+                className="flex flex-col items-center justify-center gap-2 rounded-[4px] bg-[#1c32ff08] px-4 py-10 text-center"
+              >
+                <p className="font-heading text-[40px] font-medium leading-none tracking-[-0.02em] text-[#1c32ff] lg:text-[48px]">
+                  {stat.value}
+                </p>
+                <p className="max-w-[180px] font-mono text-[12px] uppercase leading-[1.2] tracking-[-0.02em] text-[#5c6070]">
+                  {stat.label}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features */}
+      <section id="features" className="mt-24 md:mt-40">
+        <div className="relative mx-auto max-w-[1464px] px-6 lg:px-10">
+          <SideLabel>01 — Features</SideLabel>
+          <div className="max-w-[760px]">
+            <SectionHeading>Everything you need to grow your career</SectionHeading>
+            <p className="mt-6 text-[18px] leading-[1.4] text-[#5c6070]">
+              One platform, from resume to offer letter — AI-built resumes,
+              interview practice, live market insight, and a roadmap that keeps
+              you moving.
+            </p>
+          </div>
+          <div className="mt-12 md:mt-16">
             <FeatureSection />
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="w-full py-16 md:py-24 bg-transparent ">
-          <div className="container mx-auto px-4 md:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h3 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent">
-                Why Choose Our Platform?
-              </h3>
-              <p className="text-gray-700 dark:text-gray-200 max-w-3xl mx-auto text-lg">
-                Join thousands of professionals who have accelerated their careers with our AI-powered platform.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-              {whyChooseUs.map((item) => {
-                const IconComponent = iconMap[item.icon];
-                return <WhyChooseCard key={item.id} item={item} IconComponent={IconComponent} />;
-              })}
-            </div>
+      {/* Testimonials */}
+      <section id="testimonials" className="mt-24 md:mt-40">
+        <div className="relative mx-auto max-w-[1464px] px-6 lg:px-10">
+          <SideLabel>02 — Success stories</SideLabel>
+          <div className="max-w-[760px]">
+            <SectionHeading>The results speak for themselves</SectionHeading>
+            <p className="mt-6 text-[18px] leading-[1.4] text-[#5c6070]">
+              People use Launch Track to change roles, level up, and land offers
+              sooner. Here is what a few of them said.
+            </p>
           </div>
-        </section>
+          <div className="mt-12 grid gap-2 md:mt-16 lg:grid-cols-3">
+            {testimonials.map((testimonial) => (
+              <TestimonialCard key={testimonial.id} testimonial={testimonial} />
+            ))}
+          </div>
+        </div>
+      </section>
 
-        <section id="testimonials" className="w-full py-16 md:py-24">
-          <div className="container mx-auto px-4 md:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h3 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent">
-                Success Stories
-              </h3>
-              <p className="text-gray-700 dark:text-gray-200 max-w-3xl mx-auto text-lg">
-                Hear from professionals who have transformed their careers with our AI-powered platform.
+      {/* FAQ */}
+      <section id="faq" className="mt-24 md:mt-40">
+        <div className="relative mx-auto max-w-[1464px] px-6 lg:px-10">
+          <SideLabel>03 — FAQ</SideLabel>
+          <div className="grid gap-12 lg:grid-cols-[minmax(0,360px)_1fr] lg:gap-20">
+            <div>
+              <SectionHeading>Frequently asked questions</SectionHeading>
+              <p className="mt-6 text-[18px] leading-[1.4] text-[#5c6070]">
+                Everything you need to know about the platform, pricing, and your
+                data.
               </p>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-              {testimonials.map((testimonial) => (
-                <TestimonialCard key={testimonial.id} testimonial={testimonial} />
+            <Accordion type="single" collapsible className="w-full">
+              {faqs.map((faq, index) => (
+                <AccordionItem key={index} value={`item-${index}`} className="border-b border-black/10">
+                  <AccordionTrigger className="py-5 text-left font-heading text-[17px] font-medium tracking-[-0.01em] text-[#0b0b12] hover:no-underline">
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-5 text-[15px] leading-[1.6] text-[#5c6070]">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
               ))}
+            </Accordion>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA band */}
+      <div className="relative z-10 mx-auto mt-24 max-w-[1384px] px-6 md:px-0 lg:mt-40">
+        <div className="relative flex min-h-[360px] items-center justify-center overflow-hidden bg-[#1c32ff] px-6 py-16 lg:py-0">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.12]"
+            style={{
+              backgroundImage:
+                "linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)",
+              backgroundSize: "56px 56px",
+              maskImage: "radial-gradient(100% 100% at 50% 50%, #000 30%, transparent 75%)",
+              WebkitMaskImage: "radial-gradient(100% 100% at 50% 50%, #000 30%, transparent 75%)",
+            }}
+          />
+          <div className="relative flex max-w-[841px] flex-col items-center gap-9 text-center">
+            <h2 className="font-heading max-w-[720px] text-[36px] font-medium leading-[1.05] tracking-[-0.02em] text-white sm:text-[44px] lg:text-[56px] lg:tracking-[-1.2px]">
+              Ready to accelerate your career?
+            </h2>
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              <NsButton href="/dashboard" variant="white">
+                Get started free
+              </NsButton>
+              <NsButton href="#features" variant="outlineWhite" arrow={false}>
+                Explore features
+              </NsButton>
             </div>
           </div>
-        </section>
-
-        {/* Frequently Asked Questions */}
-        <section id="faq" className="w-full py-16 md:py-24 bg-transparent ">
-          <div className="container mx-auto px-4 md:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h3 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent">
-                Frequently Asked Questions
-              </h3>
-              <p className="text-gray-700 dark:text-gray-200 max-w-3xl mx-auto text-lg">
-                Find answers to common questions about our platform
-              </p>
-            </div>
-            <div className="max-w-6xl mx-auto bg-transparent backdrop-blur-md border border-gray-300 dark:border-white/50 rounded-lg p-6">
-              <Accordion type="single" collapsible className="w-full">
-                {faqs.map((faq, index) => (
-                  <AccordionItem key={index} value={`item-${index}`} className="border-b border-gray-200 dark:border-gray-700">
-                    <AccordionTrigger className="text-gray-900 dark:text-white">{faq.question}</AccordionTrigger>
-                    <AccordionContent className="text-gray-700 dark:text-gray-200">{faq.answer}</AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </div>
-          </div>
-        </section>
-        {/* CTA Section */}
-        <section className="w-full py-20 md:py-32">
-          <div className="mx-auto px-4 md:px-6 lg:px-8">
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/90 via-primary to-primary/80 p-12 md:p-20 shadow-2xl">
-              <div className="absolute inset-0 bg-grid-white/[0.05] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]" />
-
-              <div className="relative z-10 flex flex-col items-center justify-center space-y-8 text-center max-w-4xl mx-auto">
-                <h2 className="text-4xl font-extrabold tracking-tight text-primary-foreground sm:text-5xl md:text-6xl">
-                  Ready to Accelerate Your Career?
-                </h2>
-                <p className="text-xl md:text-2xl text-primary-foreground/90 max-w-2xl leading-relaxed">
-                  Join thousands of professionals who are advancing their careers with AI-powered guidance.
-                </p>
-                <Link href="/dashboard" passHref>
-                  <Button
-                    size="lg"
-                    variant="secondary"
-                    className="h-14 px-8 text-lg font-semibold rounded-xl shadow -xl hover:shadow-2xl transition-all duration-300 hover:scale-110 group mt-4"
-                  >
-                    Start Your Journey Today
-                    <ArrowRight className="ml-3 h-5 w-5 transition-transform group-hover:translate-x-2" />
-                  </Button>
-                </Link>
-              </div>
-
-              <div className="absolute top-10 right-10 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
-              <div className="absolute bottom-10 left-10 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
-            </div>
-          </div>
-        </section>
+        </div>
+        {/* Decorative stacked borders */}
+        <div className="mx-2 h-[10px] border-x border-b border-[#1c32ff]" />
+        <div className="mx-[22px] h-[10px] border-x border-b border-[#1c32ff]" />
       </div>
     </div>
   );
-}                  
+}

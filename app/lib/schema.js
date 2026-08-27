@@ -1,30 +1,29 @@
 import { z } from "zod";
 
 export const onboardingSchema = z.object({
-  industry: z.string({
-    required_error: "Please select an industry",
-  }),
-  subIndustry: z.string({
-    required_error: "Please select a specialization",
-  }),
-  bio: z.string().max(500).optional(),
+  industry: z.string({ error: "Please select an industry" }).min(1, "Please select an industry"),
+  subIndustry: z.string({ error: "Please select a specialization" }).min(1, "Please select a specialization"),
+  bio: z.string().max(500, "Bio must be 500 characters or fewer").optional(),
   experience: z
     .string()
+    .min(1, "Please enter your years of experience")
     .transform((val) => parseInt(val, 10))
     .pipe(
       z
-        .number()
+        .number("Experience must be a number")
+        .int("Experience must be a whole number")
         .min(0, "Experience must be at least 0 years")
         .max(50, "Experience cannot exceed 50 years")
     ),
-  skills: z.string().transform((val) =>
-    val
-      ? val
-          .split(",")
-          .map((skill) => skill.trim())
-          .filter(Boolean)
-      : undefined
-  ),
+  skills: z
+    .string()
+    .min(1, "Please add at least one skill")
+    .transform((val) =>
+      val
+        .split(",")
+        .map((skill) => skill.trim())
+        .filter(Boolean)
+    ),
 });
 
 export const contactSchema = z.object({

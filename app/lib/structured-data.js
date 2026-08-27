@@ -1,8 +1,11 @@
+import Script from 'next/script';
+
 export function StructuredData() {
   return (
     <>
       {/* WebApplication Schema */}
-      <script
+      <Script
+        id="schema-webapplication"
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
@@ -48,7 +51,8 @@ export function StructuredData() {
       />
       
       {/* Organization Schema */}
-      <script
+      <Script
+        id="schema-organization"
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({

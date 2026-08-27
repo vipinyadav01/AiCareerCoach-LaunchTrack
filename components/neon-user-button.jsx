@@ -1,7 +1,2 @@
-"use client";
-
-import { UserButton } from '@neondatabase/auth/react';
-
-export function NeonUserButton() {
-  return <UserButton size="icon" />;
-}
+// Re-export the client-only, provider-wrapped user button.
+export { NeonUserButton } from './neon-auth-ui-client';

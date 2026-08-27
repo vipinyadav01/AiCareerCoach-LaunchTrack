@@ -53,13 +53,14 @@ export function EmailVerification({ email, onVerified, onCancel }) {
     setMessage('');
 
     try {
-      const { error } = await authClient.sendVerificationEmail({
+      // Send a fresh OTP *code* (not a magic link) for the email-verification flow.
+      const { error } = await authClient.emailOtp.sendVerificationOtp({
         email,
-        callbackURL: typeof window !== 'undefined' ? window.location.origin + '/' : '/',
+        type: 'email-verification',
       });
 
       if (error) throw error;
-      setMessage('Verification email sent! Check your inbox.');
+      setMessage('A new code has been sent! Check your inbox.');
     } catch (error) {
       setMessage(error?.message || 'Failed to resend verification email. Please try again.');
     } finally {

@@ -13,27 +13,25 @@ import { StructuredData } from "./lib/structured-data";
 import { Footer } from "components/Footer";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import SmoothScroll from "@/components/smooth-scroll";
-import AuthProviderWrapper from "@/components/auth-provider-wrapper";
 
 export { metadata, viewport } from "./lib/metadata";
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="light" style={{ colorScheme: "light" }} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
         <HeadMeta />
         <StructuredData />
       </head>
       <body
-        className="open-sans antialiased"
+        className="antialiased"
         suppressHydrationWarning={true}
         data-suppress-hydration-warning
       >
         <ErrorBoundary>
-        <AuthProviderWrapper>
           <LayoutWrapper>
             <ThemeProvider>
               <SmoothScroll>
@@ -54,7 +52,6 @@ export default function RootLayout({ children }) {
               </SmoothScroll>
             </ThemeProvider>
           </LayoutWrapper>
-        </AuthProviderWrapper>
         </ErrorBoundary>
       </body>
     </html>

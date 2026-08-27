@@ -12,7 +12,6 @@ import {
   IconCertificate,
 } from "@tabler/icons-react";
 import { features } from "@/data/features";
-import { motion } from "motion/react";
 
 const iconMap = {
   IconBrain,
@@ -27,50 +26,31 @@ const iconMap = {
 
 export function FeatureSection() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {features.map((feature, index) => (
-          <Feature key={feature.id} {...feature} index={index} />
-        ))}
-      </div>
+    <div className="grid grid-cols-1 gap-[2px] overflow-hidden rounded-[4px] border border-black/10 bg-black/10 sm:grid-cols-2 lg:grid-cols-4">
+      {features.map((feature, index) => (
+        <Feature key={feature.id} {...feature} index={index} />
+      ))}
     </div>
   );
 }
 
-const Feature = ({ title, description, icon, index }) => {
+const Feature = ({ title, description, icon }) => {
   const IconComponent = iconMap[icon];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.15 }}
-      transition={{
-        duration: 0.5,
-        delay: (index % 4) * 0.07,
-        ease: [0.16, 1, 0.3, 1],
-      }}
-      className={cn(
-        "group/feature relative flex flex-col gap-4 p-5 rounded-xl",
-        "border border-border bg-card/40 backdrop-blur-sm",
-        "hover:border-primary/25 hover:bg-card/70 hover:-translate-y-1",
-        "transition-all duration-300 hover:shadow-md"
-      )}
-    >
-      <div className="absolute inset-0 rounded-xl bg-linear-to-t from-muted/30 to-transparent opacity-0 group-hover/feature:opacity-100 transition-opacity duration-300 pointer-events-none" />
-
-      <div className="relative z-10 w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground group-hover/feature:bg-primary group-hover/feature:text-primary-foreground transition-all duration-300 shrink-0">
-        {IconComponent && <IconComponent size={20} stroke={1.5} />}
+    <div className={cn("group flex flex-col gap-5 bg-white p-6 transition-colors hover:bg-[#fbfbff] sm:p-7")}>
+      <div className="flex h-11 w-11 items-center justify-center rounded-[4px] bg-[#f0f3ff] text-[#1c32ff] transition-colors group-hover:bg-[#1c32ff] group-hover:text-white">
+        {IconComponent && <IconComponent size={20} stroke={1.75} />}
       </div>
 
-      <div className="relative z-10 space-y-1.5">
-        <h3 className="text-sm font-semibold text-foreground leading-snug">
+      <div className="space-y-2">
+        <h3 className="font-heading text-[17px] font-medium leading-[1.25] tracking-[-0.01em] text-[#0b0b12]">
           {title}
         </h3>
-        <p className="text-xs text-muted-foreground leading-relaxed">
+        <p className="text-[14px] leading-[1.5] text-[#5c6070]">
           {description}
         </p>
       </div>
-    </motion.div>
+    </div>
   );
 };

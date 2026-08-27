@@ -4,12 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
-import {
-  IconBriefcase,
-  IconSparkles,
-  IconChevronRight,
-} from "@tabler/icons-react";
+import { Loader2, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -24,11 +19,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { LogoMark } from "@/components/logo";
 import useFetch from "@/hooks/use-fetch";
 import { onboardingSchema } from "@/app/lib/schema";
 import { updateUser } from "@/actions/user";
-
-const STEPS = ["Industry", "Experience", "Skills", "Bio"];
 
 const OnboardingForm = ({ industries }) => {
   const router = useRouter();
@@ -67,46 +61,47 @@ const OnboardingForm = ({ industries }) => {
 
   useEffect(() => {
     if (updateResult?.success && !updateLoading) {
-      toast.success("Profile completed successfully!");
+      toast.success("Profile completed");
       router.push("/dashboard");
       router.refresh();
     }
   }, [updateResult, updateLoading]);
 
   const watchIndustry = watch("industry");
+  const labelCls = "text-[13px] font-medium text-[#0b0b12]";
+  const errCls = "mt-1 text-[12px] text-[#e5484d]";
+  const fieldCls =
+    "h-11 rounded-[8px] border-black/15 bg-white text-[#0b0b12] focus-visible:ring-[#1c32ff]/30";
 
   return (
-    <div className="w-full max-w-lg mx-auto">
+    <div className="mx-auto w-full max-w-lg">
       {/* Header */}
-      <div className="text-center mb-8 space-y-3">
-        <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary text-primary-foreground mb-2">
-          <IconSparkles size={22} stroke={1.5} />
+      <div className="mb-8 flex flex-col items-center gap-3 text-center">
+        <LogoMark size={40} />
+        <div className="space-y-1.5">
+          <h1 className="font-heading text-[28px] font-medium tracking-[-0.02em] text-[#0b0b12]">
+            Set up your profile
+          </h1>
+          <p className="mx-auto max-w-sm text-[14px] leading-relaxed text-[#5c6070]">
+            Tell us about yourself so we can personalize your career guidance.
+          </p>
         </div>
-        <h1 className="text-2xl font-bold text-foreground tracking-tight">
-          Set up your profile
-        </h1>
-        <p className="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
-          Tell us about yourself so we can personalize your career guidance.
-        </p>
       </div>
 
       {/* Card */}
-      <div className="rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm shadow-sm p-6 space-y-5">
+      <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-[0_16px_40px_-28px_rgba(11,11,18,0.28)] sm:p-7">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-
           {/* Industry */}
           <div className="space-y-1.5">
-            <Label htmlFor="industry" className="text-sm font-medium">
-              Industry
-            </Label>
+            <Label htmlFor="industry" className={labelCls}>Industry</Label>
             <Select
               onValueChange={(value) => {
-                setValue("industry", value);
+                setValue("industry", value, { shouldValidate: true });
                 setSelectedIndustry(industries.find((ind) => ind.id === value));
                 setValue("subIndustry", "");
               }}
             >
-              <SelectTrigger id="industry" className="h-10 rounded-xl border-border/60">
+              <SelectTrigger id="industry" className={fieldCls}>
                 <SelectValue placeholder="Select your industry" />
               </SelectTrigger>
               <SelectContent>
@@ -120,19 +115,15 @@ const OnboardingForm = ({ industries }) => {
                 </SelectGroup>
               </SelectContent>
             </Select>
-            {errors.industry && (
-              <p className="text-xs text-destructive mt-1">{errors.industry.message}</p>
-            )}
+            {errors.industry && <p className={errCls}>{errors.industry.message}</p>}
           </div>
 
-          {/* Specialization - shown only after industry is selected */}
+          {/* Specialization */}
           {watchIndustry && (
             <div className="space-y-1.5">
-              <Label htmlFor="subIndustry" className="text-sm font-medium">
-                Specialization
-              </Label>
-              <Select onValueChange={(value) => setValue("subIndustry", value)}>
-                <SelectTrigger id="subIndustry" className="h-10 rounded-xl border-border/60">
+              <Label htmlFor="subIndustry" className={labelCls}>Specialization</Label>
+              <Select onValueChange={(value) => setValue("subIndustry", value, { shouldValidate: true })}>
+                <SelectTrigger id="subIndustry" className={fieldCls}>
                   <SelectValue placeholder="Select your specialization" />
                 </SelectTrigger>
                 <SelectContent>
@@ -146,71 +137,56 @@ const OnboardingForm = ({ industries }) => {
                   </SelectGroup>
                 </SelectContent>
               </Select>
-              {errors.subIndustry && (
-                <p className="text-xs text-destructive mt-1">{errors.subIndustry.message}</p>
-              )}
+              {errors.subIndustry && <p className={errCls}>{errors.subIndustry.message}</p>}
             </div>
           )}
 
-          {/* Separator */}
-          <div className="h-px bg-border/40" />
+          <div className="h-px bg-black/[0.07]" />
 
           {/* Experience */}
           <div className="space-y-1.5">
-            <Label htmlFor="experience" className="text-sm font-medium">
-              Years of Experience
-            </Label>
+            <Label htmlFor="experience" className={labelCls}>Years of experience</Label>
             <Input
               id="experience"
               type="number"
               min="0"
               max="50"
-              placeholder="0"
-              className="h-10 rounded-xl border-border/60"
+              placeholder="e.g. 3"
+              className={fieldCls}
               {...register("experience")}
             />
-            {errors.experience && (
-              <p className="text-xs text-destructive mt-1">{errors.experience.message}</p>
-            )}
+            {errors.experience && <p className={errCls}>{errors.experience.message}</p>}
           </div>
 
           {/* Skills */}
           <div className="space-y-1.5">
-            <Label htmlFor="skills" className="text-sm font-medium">
-              Skills
-            </Label>
+            <Label htmlFor="skills" className={labelCls}>Skills</Label>
             <Input
               id="skills"
               placeholder="Python, JavaScript, Project Management..."
-              className="h-10 rounded-xl border-border/60"
+              className={fieldCls}
               {...register("skills")}
             />
-            <p className="text-xs text-muted-foreground">Separate multiple skills with commas</p>
-            {errors.skills && (
-              <p className="text-xs text-destructive mt-1">{errors.skills.message}</p>
-            )}
+            <p className="text-[12px] text-[#5c6070]">Separate multiple skills with commas.</p>
+            {errors.skills && <p className={errCls}>{errors.skills.message}</p>}
           </div>
 
           {/* Bio */}
           <div className="space-y-1.5">
-            <Label htmlFor="bio" className="text-sm font-medium">
-              Professional Bio
-            </Label>
+            <Label htmlFor="bio" className={labelCls}>Professional bio</Label>
             <Textarea
               id="bio"
               placeholder="Briefly describe your professional background and goals..."
-              className="min-h-25 rounded-xl border-border/60 resize-none"
+              className="min-h-24 rounded-[8px] border-black/15 bg-white text-[#0b0b12] resize-none focus-visible:ring-[#1c32ff]/30"
               {...register("bio")}
             />
-            {errors.bio && (
-              <p className="text-xs text-destructive mt-1">{errors.bio.message}</p>
-            )}
+            {errors.bio && <p className={errCls}>{errors.bio.message}</p>}
           </div>
 
           {/* Submit */}
           <Button
             type="submit"
-            className="w-full h-10 rounded-xl font-semibold text-sm group"
+            className="group h-11 w-full rounded-[8px] text-[15px] font-medium"
             disabled={updateLoading}
           >
             {updateLoading ? (
@@ -220,19 +196,15 @@ const OnboardingForm = ({ industries }) => {
               </>
             ) : (
               <>
-                Complete Profile
-                <IconChevronRight
-                  size={16}
-                  className="ml-1.5 transition-transform group-hover:translate-x-0.5"
-                />
+                Complete profile
+                <ArrowRight className="ml-1.5 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </>
             )}
           </Button>
         </form>
       </div>
 
-      {/* Footer note */}
-      <p className="text-center text-xs text-muted-foreground mt-4">
+      <p className="mt-4 text-center text-[12px] text-[#5c6070]">
         You can update these details anytime from your profile settings.
       </p>
     </div>

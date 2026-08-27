@@ -1,4 +1,4 @@
-import { AccountView } from '@neondatabase/auth/react';
+import { NeonAccountView } from '@/components/neon-auth-ui-client';
 import { accountViewPaths } from '@neondatabase/auth/react/ui/server';
 
 export const dynamicParams = false;
@@ -12,7 +12,7 @@ export default async function AccountPage({ params }: { params: Promise<{ path: 
 
   return (
     <main className="container p-4 md:p-6">
-      <AccountView path={path} />
+      <NeonAccountView path={path} />
     </main>
   );
 }

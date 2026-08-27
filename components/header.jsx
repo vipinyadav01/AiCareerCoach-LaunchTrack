@@ -1,17 +1,29 @@
 "use client"
 
-import { useNeonAuth } from '@/hooks/use-neon-auth'
-import { NeonUserButton } from './neon-user-button'
 import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Button } from './ui/button'
-import { cn } from '@/lib/utils'
-import { FileText, GraduationCap, Home, PenBox, Menu, X } from 'lucide-react'
-import { IconBrandGithub } from '@tabler/icons-react'
-import { ThemeToggle } from './theme-toggle'
-import { GitHubStars } from './github-stars'
+import { Menu, X } from 'lucide-react'
+import { useNeonAuth } from '@/hooks/use-neon-auth'
+import { NeonUserButton } from './neon-user-button'
+import { NsButton } from './ui/ns-button'
+import { Logo } from './logo'
 import { useScroll } from './use-scroll'
+import { cn } from '@/lib/utils'
+
+const NavLink = ({ href, label, active, onClick }) => (
+  <Link
+    href={href}
+    onClick={onClick}
+    className={cn(
+      "relative font-medium text-[15px] text-[#0b0b12] transition-colors hover:text-[#1c32ff]",
+      "after:absolute after:inset-x-0 after:-bottom-2 after:h-[1.5px] after:origin-left after:bg-[#1c32ff] after:transition-transform after:duration-300 after:ease-out hover:after:scale-x-100",
+      active ? "text-[#1c32ff] after:scale-x-100" : "after:scale-x-0"
+    )}
+  >
+    {label}
+  </Link>
+)
 
 const Header = () => {
   const [open, setOpen] = React.useState(false)
@@ -20,180 +32,112 @@ const Header = () => {
   const pathname = usePathname()
   const { isSignedIn } = useNeonAuth()
 
-  React.useEffect(() => {
-    setMounted(true)
-  }, [])
+  React.useEffect(() => { setMounted(true) }, [])
 
   React.useEffect(() => {
-    if (open) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-    }
-    return () => {
-      document.body.style.overflow = ''
-    }
+    document.body.style.overflow = open ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
   }, [open])
 
-  const signedInLinks = [
-    { label: 'Dashboard', href: '/dashboard', icon: Home },
-    { label: 'Resume', href: '/resume', icon: FileText },
-    { label: 'Cover Letter', href: '/ai-cover-letter', icon: PenBox },
-    { label: 'Interview', href: '/interview', icon: GraduationCap },
-  ]
+  const signedIn = mounted && isSignedIn
 
-  const signedOutLinks = [
-    { label: 'Home', href: '/', icon: Home },
-  ]
+  const links = signedIn
+    ? [
+      { label: 'Dashboard', href: '/dashboard' },
+      { label: 'Resume', href: '/resume' },
+      { label: 'Cover Letter', href: '/ai-cover-letter' },
+      { label: 'Interview', href: '/interview' },
+    ]
+    : [
+      { label: 'Features', href: '/#features' },
+      { label: 'Success stories', href: '/#testimonials' },
+      { label: 'FAQ', href: '/#faq' },
+    ]
 
-  const links = (mounted && isSignedIn) ? signedInLinks : signedOutLinks
-  const logoHref = (mounted && isSignedIn) ? "/dashboard" : "/"
-  const showUserButton = mounted && isSignedIn
-  const showSignInButton = mounted && !isSignedIn
+  const isActive = (href) => {
+    const path = href.replace('/#', '#')
+    if (path.startsWith('#')) return false
+    return pathname === href || (href !== '/' && pathname.startsWith(href))
+  }
 
   return (
-    <div className="fixed top-3 left-0 right-0 z-50 px-4">
-      <header
-        className={cn(
-          "flex items-center justify-between px-4 py-2.5 max-w-5xl rounded-2xl mx-auto w-full transition-all duration-300 border",
-          scrolled || open
-            ? "bg-background/98 backdrop-blur-xl border-border/70 shadow-[0_4px_32px_rgba(0,0,0,0.10)] dark:shadow-[0_4px_32px_rgba(0,0,0,0.40)]"
-            : "bg-background/70 backdrop-blur-md border-border/35 shadow-[0_2px_12px_rgba(0,0,0,0.05)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.20)]"
-        )}
-      >
+    <header
+      className={cn(
+        "sticky top-0 z-50 mx-auto w-[calc(100%-2rem)] max-w-7xl rounded-b-md bg-white transition-shadow",
+        scrolled || open ? "shadow-[0_8px_30px_rgba(11,11,18,0.08)]" : "lg:shadow-lg"
+      )}
+    >
+      <div className="flex h-[72px] items-center justify-between px-6 xl:px-10">
         {/* Logo */}
-        <Link href={logoHref} className="flex items-center gap-2.5 group shrink-0">
-          <div className="h-7 w-7 flex items-center justify-center rounded-lg overflow-hidden shrink-0">
-            <img
-              src="/favicon-32x32.png"
-              alt="Launch Track"
-              className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-110"
-            />
-          </div>
-          <span className="hidden sm:block text-sm font-semibold text-foreground tracking-tight transition-colors duration-200 group-hover:text-primary">
-            Launch Track
-          </span>
-        </Link>
+        <Logo href={signedIn ? '/dashboard' : '/'} />
 
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-0.5 text-sm">
-          {links.map((link) => {
-            const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href))
-            return (
+        {/* Desktop nav */}
+        <nav className="hidden items-center gap-10 lg:flex">
+          {links.map((link) => (
+            <NavLink key={link.href} href={link.href} label={link.label} active={isActive(link.href)} />
+          ))}
+        </nav>
+
+        {/* Desktop actions */}
+        <div className="hidden items-center gap-2 lg:flex">
+          {signedIn ? (
+            <NeonUserButton />
+          ) : (
+            <>
+              <Link
+                href="/sign-in"
+                className="flex h-[44px] items-center justify-center px-5 text-[15px] font-medium text-[#0b0b12] transition-colors hover:bg-black/[0.05] rounded-sm"
+              >
+                Log in
+              </Link>
+              <NsButton href="/dashboard">Get started</NsButton>
+            </>
+          )}
+        </div>
+
+        {/* Mobile toggle */}
+        <button
+          onClick={() => setOpen(!open)}
+          className="flex h-11 w-11 items-center justify-center rounded-sm text-[#0b0b12] transition-colors hover:bg-black/[0.05] lg:hidden"
+          aria-label="Toggle navigation menu"
+          aria-expanded={open}
+        >
+          {open ? <X size={22} /> : <Menu size={22} />}
+        </button>
+      </div>
+
+      {/* Mobile menu */}
+      {open && (
+        <div className="border-t border-black/10 bg-white px-6 pb-6 pt-2 lg:hidden">
+          <nav className="flex flex-col">
+            {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={cn(
-                  "relative px-3 py-1.5 rounded-lg font-medium transition-all duration-200",
-                  isActive
-                    ? "text-foreground bg-accent"
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
-                )}
+                onClick={() => setOpen(false)}
+                className="border-b border-black/[0.06] py-3.5 text-[15px] font-medium text-[#0b0b12] hover:text-[#1c32ff]"
               >
                 {link.label}
-                {isActive && (
-                  <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
-                )}
               </Link>
-            )
-          })}
-        </nav>
-
-        {/* Right Actions */}
-        <div className="flex items-center gap-1.5">
-          <div className="hidden md:flex items-center">
-            <a
-              href="https://github.com/vipinyadav01/AiCareerCoach-LaunchTrack"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-200"
-              title="Star on GitHub"
-            >
-              <GitHubStars
-                showIcon={true}
-                showCount={false}
-                className="gap-0!"
-                repoUrl="vipinyadav01/AiCareerCoach-LaunchTrack"
-                asLink={false}
-              />
-            </a>
-          </div>
-
-          <ThemeToggle />
-
-          {showUserButton && <NeonUserButton />}
-
-          {showSignInButton && (
-            <Link href="/sign-in" className="hidden md:flex">
-              <Button size="sm" className="rounded-xl px-4 h-8 text-xs font-semibold">
-                Get Started
-              </Button>
-            </Link>
-          )}
-
-          <button
-            onClick={() => setOpen(!open)}
-            className="md:hidden w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-200"
-            aria-label="Toggle menu"
-          >
-            {open ? <X size={18} /> : <Menu size={18} />}
-          </button>
-        </div>
-      </header>
-
-      {/* Mobile Menu */}
-      {open && (
-        <div className="absolute top-full left-4 right-4 mt-1.5 p-3 rounded-2xl bg-background/98 backdrop-blur-xl border border-border/50 shadow-[0_8px_40px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.45)] md:hidden animate-in slide-in-from-top-2 fade-in-0 duration-200 max-w-5xl mx-auto">
-          <nav className="flex flex-col gap-0.5 mb-3">
-            {links.map((link) => {
-              const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href))
-              const Icon = link.icon
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setOpen(false)}
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
-                    isActive
-                      ? "bg-accent text-foreground"
-                      : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
-                  )}
-                >
-                  <Icon size={16} strokeWidth={isActive ? 2.5 : 2} />
-                  <span>{link.label}</span>
-                  {isActive && (
-                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                  )}
-                </Link>
-              )
-            })}
+            ))}
           </nav>
-
-          <div className="h-px bg-border/40 mb-3" />
-
-          <div className="flex items-center justify-between px-1">
-            <a
-              href="https://github.com/vipinyadav01/AiCareerCoach-LaunchTrack"
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1"
-            >
-              <IconBrandGithub size={15} />
-              GitHub
-            </a>
-
-            {showSignInButton && (
-              <Link href="/sign-in" onClick={() => setOpen(false)}>
-                <Button size="sm" className="rounded-xl px-4 h-8 text-xs font-semibold">
-                  Get Started
-                </Button>
+          {!signedIn && (
+            <div className="mt-5 flex flex-col gap-3">
+              <Link
+                href="/sign-in"
+                onClick={() => setOpen(false)}
+                className="flex h-[44px] items-center justify-center rounded-sm border border-black/15 text-[15px] font-medium text-[#0b0b12] hover:bg-black/[0.04]"
+              >
+                Log in
               </Link>
-            )}
-          </div>
+              <NsButton href="/dashboard" className="justify-center" onClick={() => setOpen(false)}>
+                Get started
+              </NsButton>
+            </div>
+          )}
         </div>
       )}
-    </div>
+    </header>
   )
 }
 

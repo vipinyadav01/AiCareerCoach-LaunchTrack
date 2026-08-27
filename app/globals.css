@@ -2,45 +2,42 @@
 @import "tw-animate-css";
 @import "@neondatabase/auth/ui/tailwind";
 
-@custom-variant dark (&:is(.dark *));
+/* This app is committed to a single light theme (Namespace-inspired). The
+   `dark:` variant is intentionally neutered so it never matches — no stray
+   `.dark` class on <html> can flip the design into an inconsistent dark state. */
+@custom-variant dark (&:where(.__dark_disabled__ *));
 
-/* Custom Font Declarations */
-@font-face {
-  font-family: "FontNav";
-  src: url("/fonts/font-nav.otf") format("opentype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
+/* ------------------------------------------------------------------ */
+/* Fonts                                                               */
+/* Body: Inter · Headings: Apfel Grotezk (falls back to Schibsted     */
+/* Grotesk, then Inter). Fonts are loaded from Google Fonts in the     */
+/* root layout <head>.                                                 */
+/* ------------------------------------------------------------------ */
+
+.font-heading {
+  font-family: "Apfel Grotezk", "Schibsted Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 500;
+  letter-spacing: -0.02em;
 }
 
-/* Custom Font Utility Classes */
-.font-nav {
-  font-family: "FontNav", "Inter", ui-sans-serif, system-ui, sans-serif;
-}
-
-/* Open Sans Font Utility Class */
-.open-sans {
-  font-family: "Open Sans", sans-serif;
-  font-optical-sizing: auto;
-  font-style: normal;
-  font-variation-settings: "wdth" 100;
-}
-
-/* Override classes for specific use cases */
+/* Legacy utility classes kept for backwards compatibility, repointed
+   to the new type system so older markup stays consistent. */
+.open-sans,
 .font-main-content {
-  font-family: "Open Sans", sans-serif;
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
+.font-nav,
 .font-navigation {
-  font-family: "FontNav", "Inter", ui-sans-serif, system-ui, sans-serif;
+  font-family: "Schibsted Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Open Sans", sans-serif;
-  --font-inter: "Open Sans", sans-serif;
-  --font-mono: "Open Sans", sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Apfel Grotezk", "Schibsted Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "Berkeley Mono", Menlo, monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -76,106 +73,89 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* ------------------------------------------------------------------ */
+/* Design tokens — light (Namespace-inspired: white canvas, single     */
+/* #1c32ff accent, near-black text, flat surfaces).                    */
+/* ------------------------------------------------------------------ */
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0.5rem; /* button (md) = 6px, card = rounded-2xl 16px */
+
+  --background: #ffffff;
+  --foreground: #0b0b12;
+
+  --card: #ffffff;
+  --card-foreground: #0b0b12;
+  --popover: #ffffff;
+  --popover-foreground: #0b0b12;
+
+  --primary: #1c32ff;
+  --primary-foreground: #ffffff;
+
+  --secondary: #f0f3ff;
+  --secondary-foreground: #1c32ff;
+
+  --muted: #f5f6f9;
+  --muted-foreground: #5c6070;
+
+  --accent: #f0f3ff;
+  --accent-foreground: #1c32ff;
+
+  --destructive: #e5484d;
+
+  --border: #ececef;
+  --input: #e3e4e9;
+  --ring: #1c32ff;
+
+  --chart-1: #1c32ff;
+  --chart-2: #4f63ff;
+  --chart-3: #64688d;
+  --chart-4: #8ea0ff;
+  --chart-5: #b9c3ff;
+
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0b0b12;
+  --sidebar-primary: #1c32ff;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f0f3ff;
+  --sidebar-accent-foreground: #1c32ff;
+  --sidebar-border: #ececef;
+  --sidebar-ring: #1c32ff;
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-}
+/* Note: no `.dark { … }` token overrides — this app ships a single light
+   theme, so a `.dark` class on the root never changes any color. */
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
-}
 
-.grid-background {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background:
-    linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-  background-size: 50px 50px;
-  pointer-events: none;
-  z-index: -1;
-}
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
 
-.grid-background::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle, transparent, rgba(0, 0, 0, 0.9));
+  h1, h2 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Blue text-selection to match the brand accent */
+  ::selection {
+    background: color-mix(in srgb, var(--primary) 18%, transparent);
+    color: var(--foreground);
+  }
 }
 
 .reduce-blur [class*="backdrop-blur"] {

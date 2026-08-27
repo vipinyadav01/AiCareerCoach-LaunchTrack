@@ -51,3 +51,6 @@ next-env.d.ts
 /bun.lockb
 # clerk configuration (can include secrets)
 /.clerk/
+/.agents
+/.claude
+/.claude-flow

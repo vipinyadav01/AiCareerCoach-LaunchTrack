@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { AuthView } from '@neondatabase/auth/react';
+import { NeonAuthView } from '@/components/neon-auth-ui-client';
 import { useNeonAuth } from '@/hooks/use-neon-auth';
+import { LogoMark } from '@/components/logo';
 import { useEffect } from 'react';
 
 export default function SignUpPage() {
@@ -15,38 +16,34 @@ export default function SignUpPage() {
     }
   }, [isLoaded, isSignedIn]);
 
-  // Use auth state as key so AuthView remounts on transition instead of re-rendering
-  // with a different internal hook count (which would crash the component)
   const authKey = isLoaded ? (isSignedIn ? 'signed-in' : 'signed-out') : 'loading';
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-7">
       {/* Branding */}
-      <div className="text-center space-y-2">
-        <Link href="/" className="inline-flex items-center justify-center">
-          <img
-            src="/favicon-32x32.png"
-            alt="Launch Track"
-            className="h-9 w-9 object-contain"
-          />
+      <div className="flex flex-col items-center gap-3 text-center">
+        <Link href="/" aria-label="Launch Track home">
+          <LogoMark size={40} />
         </Link>
-        <h1 className="text-2xl font-bold text-foreground tracking-tight">
-          Create your account
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Start your AI-powered career journey
-        </p>
+        <div className="space-y-1.5">
+          <h1 className="font-heading text-[26px] font-medium tracking-[-0.02em] text-[#0b0b12]">
+            Create your account
+          </h1>
+          <p className="text-[14px] text-[#5c6070]">
+            Start your AI-powered career journey
+          </p>
+        </div>
       </div>
 
       {/* Auth form */}
-      <div className="rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-1 shadow-sm">
-        <AuthView key={authKey} path="sign-up" />
+      <div className="rounded-2xl border border-black/10 bg-white p-2 shadow-[0_16px_40px_-24px_rgba(11,11,18,0.25)]">
+        <NeonAuthView key={authKey} path="sign-up" />
       </div>
 
       {/* Footer link */}
-      <p className="text-center text-xs text-muted-foreground">
+      <p className="text-center text-[13px] text-[#5c6070]">
         Already have an account?{' '}
-        <Link href="/sign-in" className="text-foreground font-medium hover:underline underline-offset-4">
+        <Link href="/sign-in" className="font-medium text-[#1c32ff] hover:underline underline-offset-4">
           Sign in
         </Link>
       </p>

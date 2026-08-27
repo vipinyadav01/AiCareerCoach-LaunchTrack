@@ -1,75 +1,112 @@
 import React from 'react'
 import Link from 'next/link'
 import { Github, Linkedin, Mail } from 'lucide-react'
+import { Logo } from './logo'
+
+const columns = [
+  {
+    title: 'Product',
+    links: [
+      { label: 'Dashboard', href: '/dashboard' },
+      { label: 'AI Resume', href: '/resume' },
+      { label: 'Cover Letter', href: '/ai-cover-letter' },
+      { label: 'Interview Prep', href: '/interview' },
+    ],
+  },
+  {
+    title: 'Resources',
+    links: [
+      { label: 'Features', href: '/#features' },
+      { label: 'Success stories', href: '/#testimonials' },
+      { label: 'FAQ', href: '/#faq' },
+      { label: 'GitHub', href: 'https://github.com/vipinyadav01/AiCareerCoach-LaunchTrack', external: true },
+    ],
+  },
+  {
+    title: 'Company',
+    links: [
+      { label: 'Sign in', href: '/sign-in' },
+      { label: 'Get started', href: '/dashboard' },
+      { label: 'Onboarding', href: '/onboarding' },
+    ],
+  },
+  {
+    title: 'Legal',
+    links: [
+      { label: 'Privacy Policy', href: '#' },
+      { label: 'Terms of Service', href: '#' },
+      { label: 'Cookie Policy', href: '#' },
+    ],
+  },
+]
 
 export const Footer = () => {
   return (
-    <footer className="bg-muted/30 backdrop-blur-md border-t border-border/40 py-16">
-      <div className="container mx-auto px-4 md:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-          {/* Brand Section */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-bold text-foreground">LaunchTrack</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              AI-powered career platform helping professionals accelerate their career growth with personalized guidance.
-            </p>
-            <div className="flex gap-4">
-              <Link href="https://github.com/vipinyadav01" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
-                <Github size={20} />
-              </Link>
-              <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                <Linkedin size={20} />
-              </Link>
-              <Link href="mailto:contact@launchtrack.com" className="text-muted-foreground hover:text-primary transition-colors">
-                <Mail size={20} />
-              </Link>
-            </div>
-          </div>
-
-          {/* Product Links */}
-          <div className="space-y-4">
-            <h4 className="text-sm font-semibold text-foreground uppercase tracking-wider">Product</h4>
-            <ul className="space-y-3">
-              <li><Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Dashboard</Link></li>
-              <li><Link href="/resume" className="text-sm text-muted-foreground hover:text-foreground transition-colors">AI Resume</Link></li>
-              <li><Link href="/ai-cover-letter" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Cover Letter</Link></li>
-              <li><Link href="/interview" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Interview Prep</Link></li>
-            </ul>
-          </div>
-
-          {/* Company Links */}
-          <div className="space-y-4">
-            <h4 className="text-sm font-semibold text-foreground uppercase tracking-wider">Company</h4>
-            <ul className="space-y-3">
-              <li><Link href="/#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Features</Link></li>
-              <li><Link href="/#testimonials" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Testimonials</Link></li>
-              <li><Link href="/#faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">FAQ</Link></li>
-              <li><Link href="/sign-in" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Sign In</Link></li>
-            </ul>
-          </div>
-
-          {/* Legal Links */}
-          <div className="space-y-4">
-            <h4 className="text-sm font-semibold text-foreground uppercase tracking-wider">Legal</h4>
-            <ul className="space-y-3">
-              <li><Link href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Privacy Policy</Link></li>
-              <li><Link href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Terms of Service</Link></li>
-              <li><Link href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Cookie Policy</Link></li>
-              <li><Link href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Disclaimer</Link></li>
-            </ul>
-          </div>
+    <footer className="relative bg-[#0b0b12] px-6 pt-20 text-white lg:px-16">
+      <div className="mx-auto flex max-w-[1402px] flex-col gap-16 lg:flex-row lg:gap-32">
+        {/* Brand */}
+        <div className="flex max-w-[420px] flex-col items-start gap-6">
+          <Logo href="/" tone="light" size={30} />
+          <p className="text-[14px] leading-[1.6] text-white/60">
+            The AI career platform that helps professionals build stronger
+            resumes, prepare for interviews, and plan their next move.
+          </p>
+          <span className="inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-1.5 text-[13px] font-semibold text-white/80">
+            <span className="h-2 w-2 rounded-full bg-green-500" />
+            All systems operational
+          </span>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="pt-8 border-t border-border/40">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} LaunchTrack. All rights reserved. Built with ❤️ by <Link href="https://github.com/vipinyadav01" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Vipin Yadav</Link>
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Made for Students & professionals worldwide
-            </p>
-          </div>
+        {/* Link columns */}
+        <div className="grid flex-1 grid-cols-2 gap-8 sm:grid-cols-4 lg:gap-10">
+          {columns.map((col) => (
+            <div key={col.title}>
+              <p className="text-[15px] font-semibold text-white/50">{col.title}</p>
+              <ul className="mt-4 flex flex-col">
+                {col.links.map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      href={link.href}
+                      {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                      className="block py-2 text-[14px] text-white/80 transition-colors hover:text-white"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Bottom bar */}
+      <div className="mx-auto mt-[70px] flex max-w-[1402px] flex-col gap-4 border-t border-white/10 pb-8 pt-8 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-[14px] text-white/50">
+          © {new Date().getFullYear()} Launch Track. Built by{' '}
+          <Link
+            href="https://github.com/vipinyadav01"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-white/80 hover:text-white"
+          >
+            Vipin Yadav
+          </Link>
+          .
+        </p>
+        <div className="flex items-center gap-5 text-white/70">
+          <Link href="#" className="text-[14px] hover:text-white">Privacy</Link>
+          <Link href="#" className="text-[14px] hover:text-white">Terms</Link>
+          <span className="h-4 w-px bg-white/15" />
+          <Link href="https://github.com/vipinyadav01/AiCareerCoach-LaunchTrack" target="_blank" rel="noopener noreferrer" aria-label="GitHub" className="hover:text-white">
+            <Github size={18} />
+          </Link>
+          <Link href="#" aria-label="LinkedIn" className="hover:text-white">
+            <Linkedin size={18} />
+          </Link>
+          <Link href="mailto:support@learnerfast.com" aria-label="Email" className="hover:text-white">
+            <Mail size={18} />
+          </Link>
         </div>
       </div>
     </footer>

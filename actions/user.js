@@ -23,74 +23,70 @@ export async function updateUser(data) {
       return { success: false, error: "User not found" };
     }
 
-    // Start a transaction to handle both operations
-    const result = await executeWithRetry(async () => {
-      return await db.$transaction(
-        async (tx) => {
-          // First check if industry exists
-          let industryInsight = await tx.industryInsight.findUnique({
-            where: {
-              industry: data.industry,
-            },
-          });
+    // The user.industry column is a foreign key to IndustryInsight.industry, so
+    // the matching insight row must exist before we set it on the user.
+    let industryInsight = await executeWithRetry(async () => {
+      return await db.industryInsight.findUnique({
+        where: { industry: data.industry },
+      });
+    });
 
-          // If industry doesn't exist, create it with default values
-          if (!industryInsight) {
-            let insights = {};
-            try {
-              insights = await generateAIInsights(data.industry);
-            } catch (error) {
-              console.warn("Failed to generate AI insights, using defaults:", error.message);
-              // If insight generation fails, proceed with minimal record
-              insights = {
-                salaryRanges: [],
-                growthRate: 0,
-                demandLevel: "Unknown",
-                topSkills: [],
-                marketOutlook: "Neutral",
-                keyTrends: [],
-                recommendedSkills: [],
-              };
-            }
+    // If it doesn't exist yet, generate insights with the AI model FIRST —
+    // deliberately OUTSIDE any transaction so a slow/failed AI call never holds
+    // a database connection (which previously caused pool timeouts and made
+    // onboarding hang or fail).
+    if (!industryInsight) {
+      let insights;
+      try {
+        insights = await generateAIInsights(data.industry);
+      } catch (error) {
+        console.warn("Failed to generate AI insights, using defaults:", error.message);
+        insights = {
+          salaryRanges: [],
+          growthRate: 0,
+          demandLevel: "Unknown",
+          topSkills: [],
+          marketOutlook: "Neutral",
+          keyTrends: [],
+          recommendedSkills: [],
+        };
+      }
 
-            industryInsight = await tx.industryInsight.create({
-              data: {
-                industry: data.industry,
-                ...insights,
-                nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-              },
-            });
-          }
+      // upsert (not create) so two people onboarding into the same industry at
+      // once can't collide on the unique `industry` constraint.
+      industryInsight = await executeWithRetry(async () => {
+        return await db.industryInsight.upsert({
+          where: { industry: data.industry },
+          update: {},
+          create: {
+            industry: data.industry,
+            ...insights,
+            nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          },
+        });
+      });
+    }
 
-          // Now update the user
-          const updatedUser = await tx.user.update({
-            where: {
-              id: user.id,
-            },
-            data: {
-              industry: data.industry,
-              experience: data.experience,
-              bio: data.bio,
-              skills: data.skills,
-            },
-          });
-
-          return { updatedUser, industryInsight };
+    // Now the quick user write (single statement — no long-held transaction).
+    const updatedUser = await executeWithRetry(async () => {
+      return await db.user.update({
+        where: { id: user.id },
+        data: {
+          industry: data.industry,
+          experience: data.experience,
+          bio: data.bio,
+          skills: data.skills,
         },
-        {
-          timeout: 15000, // Increased timeout for AI generation
-          maxWait: 20000,
-        }
-      );
+      });
     });
 
     revalidatePath("/dashboard");
     revalidatePath("/onboarding");
-    
-    return { 
-      success: true, 
-      user: result.updatedUser,
-      message: "Profile updated successfully"
+
+    return {
+      success: true,
+      user: updatedUser,
+      message: "Profile updated successfully",
     };
   } catch (error) {
     console.error("Error updating user and industry:", error);

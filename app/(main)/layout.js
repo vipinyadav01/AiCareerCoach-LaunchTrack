@@ -20,7 +20,7 @@ export default async function MainLayout({ children }) {
     <div className="relative min-h-screen">
       <div className="relative z-10">
         <UserSyncNotifier syncResult={syncResult} />
-        <div className='container mx-auto mt-24 mb-20'>{children}</div>
+        <div className='container mx-auto mt-10 mb-20 px-4 sm:px-6 lg:px-8'>{children}</div>
       </div>
     </div>
   );

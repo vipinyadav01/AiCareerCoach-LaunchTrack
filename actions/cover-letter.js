@@ -3,6 +3,7 @@
 import { db } from "@/lib/prisma";
 import { getUserId } from "@/lib/neon-auth-server";
 import { getGeminiModel } from "@/lib/gemini";
+import { analyzeCoverLetter } from "@/lib/inngest/events";
 
 export async function generateCoverLetter(data) {
   const userId = await getUserId();
@@ -59,6 +60,14 @@ const prompt = `
         userId: user.id,
       },
     });
+
+    // Fire the Inngest event so the cover letter is analyzed in the background.
+    // Non-blocking: a send failure must never fail cover-letter creation.
+    try {
+      await analyzeCoverLetter({ userId: user.id, coverLetterId: coverLetter.id });
+    } catch (eventError) {
+      console.warn("Inngest: failed to emit cover-letter/created:", eventError.message);
+    }
 
     return coverLetter;
   } catch (error) {
