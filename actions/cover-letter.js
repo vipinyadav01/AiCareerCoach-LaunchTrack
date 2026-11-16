@@ -1,19 +1,12 @@
 "use server";
 
 import { db } from "@/lib/prisma";
-import { getUserId } from "@/lib/neon-auth-server";
+import { requireDbUser } from "@/lib/checkUser";
 import { getGeminiModel } from "@/lib/gemini";
 import { analyzeCoverLetter } from "@/lib/inngest/events";
 
 export async function generateCoverLetter(data) {
-  const userId = await getUserId();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { neonUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
+  const user = await requireDbUser();
 
 const prompt = `
     Write a professional, company-level cover letter for a ${data.jobTitle} position at ${data.companyName}.
@@ -77,14 +70,7 @@ const prompt = `
 }
 
 export async function getCoverLetters() {
-  const userId = await getUserId();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { neonUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
+  const user = await requireDbUser();
 
   return await db.coverLetter.findMany({
     where: {
@@ -97,14 +83,7 @@ export async function getCoverLetters() {
 }
 
 export async function getCoverLetter(id) {
-  const userId = await getUserId();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { neonUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
+  const user = await requireDbUser();
 
   return await db.coverLetter.findUnique({
     where: {
@@ -115,14 +94,7 @@ export async function getCoverLetter(id) {
 }
 
 export async function getCoverLetterById(id) {
-  const userId = await getUserId();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { neonUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
+  const user = await requireDbUser();
 
   return await db.coverLetter.findUnique({
     where: {
@@ -133,14 +105,7 @@ export async function getCoverLetterById(id) {
 }
 
 export async function updateCoverLetter(id, data) {
-  const userId = await getUserId();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { neonUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
+  const user = await requireDbUser();
 
   try {
     const updatedCoverLetter = await db.coverLetter.update({
@@ -167,14 +132,7 @@ export async function updateCoverLetter(id, data) {
 }
 
 export async function deleteCoverLetter(id) {
-  const userId = await getUserId();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { neonUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
+  const user = await requireDbUser();
 
   return await db.coverLetter.delete({
     where: {

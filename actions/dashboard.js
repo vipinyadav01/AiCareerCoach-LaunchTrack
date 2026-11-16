@@ -1,7 +1,7 @@
 "use server";
 
 import { db, executeWithRetry } from "@/lib/prisma";
-import { getUserId } from "@/lib/neon-auth-server";
+import { requireDbUser } from "@/lib/checkUser";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 import { getGeminiModel } from "@/lib/gemini";
@@ -67,42 +67,14 @@ const validateInsights = (insights) => {
   return true;
 };
 
-export async function checkUserAndRedirect() {
-  try {
-    const userId = await getUserId();
-    if (!userId) {
-      redirect("/auth/sign-in");
-    }
-
-    const user = await executeWithRetry(async () => {
-      return await db.user.findUnique({
-        where: { neonUserId: userId },
-        select: {
-          industry: true,
-          experience: true,
-        },
-      });
-    });
-
-    if (!user || !user.industry) {
-      redirect("/onboarding");
-    }
-
-    return user;
-  } catch (error) {
-    redirect("/onboarding");
-  }
-}
-
 // Cache the insights fetch within a request to prevent duplicate calls
 const getIndustryInsightsImpl = async () => {
-  const userId = await getUserId();
-  if (!userId) throw new Error("Unauthorized");
+  const { id } = await requireDbUser();
 
   try {
     const user = await executeWithRetry(async () => {
       return await db.user.findUnique({
-        where: { neonUserId: userId },
+        where: { id },
         include: {
           industryInsight: true,
         },

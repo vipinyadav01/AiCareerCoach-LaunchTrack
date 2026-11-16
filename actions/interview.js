@@ -1,16 +1,11 @@
 "use server";
 
 import { db } from "@/lib/prisma";
-import { getUserId } from "@/lib/neon-auth-server";
+import { requireDbUser } from "@/lib/checkUser";
 import { getGeminiModel } from "@/lib/gemini";
 
 export async function generateQuiz() {
-  const userId = await getUserId();
-  if (!userId) throw new Error("Unauthorized");
-  const user = await db.user.findUnique({
-    where: { neonUserId: userId },
-  });
-  if (!user) throw new Error("User not found");
+  const user = await requireDbUser();
 
    try {
   const prompt = `
@@ -59,12 +54,7 @@ export async function generateQuiz() {
 }
 
 export async function saveQuizResult(questions, answers, score) {
-  const userId = await getUserId();
-  if (!userId) throw new Error("Unauthorized");
-  const user = await db.user.findUnique({
-    where: { neonUserId: userId },
-  });
-  if (!user) throw new Error("User not found");
+  const user = await requireDbUser();
 
 
   const questionResults = questions.map((q, index) => ({
@@ -138,13 +128,7 @@ export async function saveQuizResult(questions, answers, score) {
 }
 
 export async function getAssessments() {
-  const userId = await getUserId();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { neonUserId: userId },
-  });
-  if (!user) throw new Error("User not found");
+  const user = await requireDbUser();
 
 
   try {

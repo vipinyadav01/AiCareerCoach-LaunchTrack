@@ -78,7 +78,8 @@ export default async function DashboardPage() {
     if (error?.digest?.startsWith('NEXT_REDIRECT')) {
       throw error;
     }
-    // Dashboard page error (logging removed)
-    redirect("/onboarding");
+    // Let the error boundary offer a retry. Redirecting to onboarding here
+    // used to throw people out of the app on any temporary failure.
+    throw error;
   }
 }

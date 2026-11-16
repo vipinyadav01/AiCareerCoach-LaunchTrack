@@ -1,26 +1,16 @@
 "use server";
 
 import { db, executeWithRetry } from "@/lib/prisma";
-import { getUserId } from "@/lib/neon-auth-server";
+import { checkUser } from "@/lib/checkUser";
 import { revalidatePath } from "next/cache";
 import { generateAIInsights } from "./dashboard";
 import { cache } from "react";
 
 export async function updateUser(data) {
   try {
-    const userId = await getUserId();
-    if (!userId) {
-      return { success: false, error: "Unauthorized" };
-    }
-
-    const user = await executeWithRetry(async () => {
-      return await db.user.findUnique({
-        where: { neonUserId: userId },
-      });
-    });
-
+    const user = await checkUser();
     if (!user) {
-      return { success: false, error: "User not found" };
+      return { success: false, error: "Your session has ended. Please sign in again." };
     }
 
     // The user.industry column is a foreign key to IndustryInsight.industry, so
@@ -99,27 +89,9 @@ export async function updateUser(data) {
 
 const getUserOnboardingStatusImpl = async () => {
   try {
-    const userId = await getUserId();
-    
-    if (!userId) {
-      return { success: false, isOnboarded: false, error: "Unauthorized" };
-    }
-
-    const user = await executeWithRetry(async () => {
-      return await db.user.findUnique({
-        where: { neonUserId: userId },
-        select: {
-          id: true,
-          industry: true,
-          experience: true,
-          bio: true,
-          skills: true,
-        },
-      });
-    });
-
+    const user = await checkUser();
     if (!user) {
-      return { success: false, isOnboarded: false, error: "User not found" };
+      return { success: false, isOnboarded: false, error: "Unauthorized" };
     }
 
     // Check if user has completed onboarding by validating all required fields
@@ -143,23 +115,10 @@ const getUserOnboardingStatusImpl = async () => {
       ].filter(Boolean),
     };
   } catch (error) {
+    // Surface outages as errors: answering "not onboarded" here used to send
+    // signed-in people to /onboarding whenever the database was slow.
     console.error("Error checking onboarding status:", error);
-    
-    // If database is unreachable, return a graceful fallback
-    if (error.code === 'P1001' || error.message?.includes("Can't reach database server")) {
-      console.warn("Database server unreachable - this may be a Neon cold start. User will need to complete onboarding.");
-      return { 
-        success: false, 
-        isOnboarded: false, 
-        error: "Database temporarily unavailable. Please try again in a moment." 
-      };
-    }
-    
-    return { 
-      success: false, 
-      isOnboarded: false, 
-      error: "Failed to check onboarding status" 
-    };
+    throw error;
   }
 };
 

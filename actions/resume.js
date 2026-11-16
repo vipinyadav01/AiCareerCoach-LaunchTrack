@@ -1,19 +1,12 @@
 "use server";
 
 import { db } from "@/lib/prisma";
-import { getUserId } from "@/lib/neon-auth-server";
+import { requireDbUser } from "@/lib/checkUser";
 import { revalidatePath } from "next/cache";
 import { getGeminiModel } from "@/lib/gemini";
 
 export async function saveResume(content) {
-  const userId = await getUserId();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { neonUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
+  const user = await requireDbUser();
 
   try {
     const resume = await db.resume.upsert({
@@ -38,14 +31,7 @@ export async function saveResume(content) {
 }
 
 export async function getResume() {
-  const userId = await getUserId();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { neonUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
+  const user = await requireDbUser();
 
   return await db.resume.findUnique({
     where: {
@@ -55,17 +41,8 @@ export async function getResume() {
 }
 
 export async function improveWithAI({ current, type }) {
-  const userId = await getUserId();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { neonUserId: userId },
-    include: {
-      industryInsight: true,
-    },
-  });
-
-  if (!user) throw new Error("User not found");
+  const { id } = await requireDbUser();
+  const user = await db.user.findUnique({ where: { id }, include: { industryInsight: true } });
 
 const prompt = `
     As an expert resume writer, improve the following ${type} description for a ${user.industry || 'professional'} role.

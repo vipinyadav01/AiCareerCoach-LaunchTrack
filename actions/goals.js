@@ -2,17 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/prisma";
-import { getUserId } from "@/lib/neon-auth-server";
+import { requireDbUser } from "@/lib/checkUser";
 
 const KINDS = ["goal", "certification"];
 
-async function getDbUser() {
-  const userId = await getUserId();
-  if (!userId) throw new Error("Unauthorized");
-  const user = await db.user.findUnique({ where: { neonUserId: userId } });
-  if (!user) throw new Error("User not found");
-  return user;
-}
+const getDbUser = requireDbUser;
 
 // Inputs come from the browser: trim, bound and type-check everything.
 function parseGoal(input) {
