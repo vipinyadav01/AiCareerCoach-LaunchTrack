@@ -1,19 +1,20 @@
-import { BarLoader } from "react-spinners";
 import { Suspense } from "react";
+import { Screen, Skeleton } from "@/components/app/screen";
+
+function InterviewSkeleton() {
+  return (
+    <Screen>
+      <div className="mb-8 space-y-3 border-b pb-6">
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-4 w-80" />
+      </div>
+      <Skeleton className="h-24 w-full rounded-xl" />
+      <Skeleton className="mt-6 h-72 w-full rounded-xl" />
+      <span className="sr-only">Loading interview practice</span>
+    </Screen>
+  );
+}
 
 export default function Layout({ children }) {
-    return (
-        <div className="px-5">
-            
-            <Suspense
-                fallback={
-                    <div className="w-full mt-4">
-                        <BarLoader width="100%" color="#6B7280" />
-                    </div>
-                }
-            >
-                {children}
-            </Suspense>
-        </div>
-    );
+  return <Suspense fallback={<InterviewSkeleton />}>{children}</Suspense>;
 }

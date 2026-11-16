@@ -7,15 +7,10 @@ import { format, parse } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { FieldError } from "@/components/app/screen";
 import { entrySchema } from "@/app/lib/schema";
-import { Sparkles, PlusCircle, X, Pencil, Save, Loader2 } from "lucide-react";
+import { Sparkles, Plus, X, Loader2 } from "lucide-react";
 import { improveWithAI } from "@/actions/resume";
 import { toast } from "sonner";
 import useFetch from "@/hooks/use-fetch";
@@ -100,149 +95,122 @@ export function EntryForm({ type, entries, onChange }) {
     });
   };
 
+  const idp = `entry-${type.toLowerCase()}`;
+  const label = type.toLowerCase();
+
   return (
-    <div className="space-y-4">
-      <div className="space-y-4">
-        {entries.map((item, index) => (
-          <Card key={index}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {item.title} @ {item.organization}
-              </CardTitle>
+    <div className="space-y-3">
+      {entries.length > 0 && (
+        <ul className="divide-y border-y">
+          {entries.map((item, index) => (
+            <li key={index} className="flex items-start gap-3 py-3.5">
+              <div className="min-w-0 flex-1 space-y-1">
+                <p className="font-medium">
+                  {item.title}
+                  <span className="font-normal text-muted-foreground">, {item.organization}</span>
+                </p>
+                <p className="tabular text-sm text-muted-foreground">
+                  {item.startDate} to {item.current ? "present" : item.endDate}
+                </p>
+                {item.description && (
+                  <p className="whitespace-pre-wrap pt-1 text-sm leading-relaxed">{item.description}</p>
+                )}
+              </div>
               <Button
-                variant="outline"
+                variant="ghost"
                 size="icon"
                 type="button"
                 onClick={() => handleDelete(index)}
+                aria-label={`Remove ${item.title}`}
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4" aria-hidden="true" />
               </Button>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                {item.current
-                  ? `${item.startDate} - Present`
-                  : `${item.startDate} - ${item.endDate}`}
-              </p>
-              <p className="mt-2 text-sm whitespace-pre-wrap">
-                {item.description}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+            </li>
+          ))}
+        </ul>
+      )}
 
-      {isAdding && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Add {type}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Input
-                  placeholder="Title/Position"
-                  {...register("title")}
-                  error={errors.title}
-                />
-                {errors.title && (
-                  <p className="text-sm text-red-500">{errors.title.message}</p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Input
-                  placeholder="Organization/Company"
-                  {...register("organization")}
-                  error={errors.organization}
-                />
-                {errors.organization && (
-                  <p className="text-sm text-red-500">
-                    {errors.organization.message}
-                  </p>
-                )}
-              </div>
+      {isAdding ? (
+        <div className="space-y-4 rounded-lg bg-muted p-4">
+          <p className="font-medium">New {label}</p>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor={`${idp}-title`}>{type === "Education" ? "Degree or course" : "Title"}</Label>
+              <Input id={`${idp}-title`} className="bg-card" aria-invalid={!!errors.title} {...register("title")} />
+              <FieldError error={errors.title} />
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Input
-                  type="month"
-                  {...register("startDate")}
-                  error={errors.startDate}
-                />
-                {errors.startDate && (
-                  <p className="text-sm text-red-500">
-                    {errors.startDate.message}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Input
-                  type="month"
-                  {...register("endDate")}
-                  disabled={current}
-                  error={errors.endDate}
-                />
-                {errors.endDate && (
-                  <p className="text-sm text-red-500">
-                    {errors.endDate.message}
-                  </p>
-                )}
-              </div>
+            <div className="space-y-1.5">
+              <Label htmlFor={`${idp}-org`}>{type === "Education" ? "Institution" : "Organization"}</Label>
+              <Input id={`${idp}-org`} className="bg-card" aria-invalid={!!errors.organization} {...register("organization")} />
+              <FieldError error={errors.organization} />
             </div>
-
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="current"
-                {...register("current")}
-                onChange={(e) => {
-                  setValue("current", e.target.checked);
-                  if (e.target.checked) {
-                    setValue("endDate", "");
-                  }
-                }}
+            <div className="space-y-1.5">
+              <Label htmlFor={`${idp}-start`}>Start</Label>
+              <Input id={`${idp}-start`} type="month" className="bg-card" aria-invalid={!!errors.startDate} {...register("startDate")} />
+              <FieldError error={errors.startDate} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor={`${idp}-end`}>End</Label>
+              <Input
+                id={`${idp}-end`}
+                type="month"
+                className="bg-card"
+                disabled={current}
+                aria-invalid={!!errors.endDate}
+                {...register("endDate")}
               />
-              <label htmlFor="current">Current {type}</label>
+              <FieldError error={errors.endDate} />
             </div>
+          </div>
 
-            <div className="space-y-2">
-              <Textarea
-                placeholder={`Description of your ${type.toLowerCase()}`}
-                className="h-32"
-                {...register("description")}
-                error={errors.description}
-              />
-              {errors.description && (
-                <p className="text-sm text-red-500">
-                  {errors.description.message}
-                </p>
-              )}
+          <label htmlFor={`${idp}-current`} className="flex w-fit cursor-pointer items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              id={`${idp}-current`}
+              className="h-4 w-4 accent-primary"
+              {...register("current")}
+              onChange={(e) => {
+                setValue("current", e.target.checked);
+                if (e.target.checked) {
+                  setValue("endDate", "");
+                }
+              }}
+            />
+            I am here now
+          </label>
+
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <Label htmlFor={`${idp}-desc`}>Description</Label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleImproveDescription}
+                disabled={isImproving || !watch("description")}
+              >
+                {isImproving ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+                ) : (
+                  <Sparkles className="mr-2 h-4 w-4" aria-hidden="true" />
+                )}
+                {isImproving ? "Improving" : "Improve with AI"}
+              </Button>
             </div>
+            <Textarea
+              id={`${idp}-desc`}
+              className="min-h-28 bg-card"
+              placeholder={`What you did and what changed because of it`}
+              aria-invalid={!!errors.description}
+              {...register("description")}
+            />
+            <FieldError error={errors.description} />
+          </div>
+
+          <div className="flex justify-end gap-2">
             <Button
               type="button"
               variant="ghost"
-              size="sm"
-              onClick={handleImproveDescription}
-              disabled={isImproving || !watch("description")}
-            >
-              {isImproving ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Improving...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Improve with AI
-                </>
-              )}
-            </Button>
-          </CardContent>
-          <CardFooter className="flex justify-end space-x-2">
-            <Button
-              type="button"
-              variant="outline"
               onClick={() => {
                 reset();
                 setIsAdding(false);
@@ -251,21 +219,14 @@ export function EntryForm({ type, entries, onChange }) {
               Cancel
             </Button>
             <Button type="button" onClick={handleAdd}>
-              <PlusCircle className="h-4 w-4 mr-2" />
-              Add Entry
+              Add {label}
             </Button>
-          </CardFooter>
-        </Card>
-      )}
-
-      {!isAdding && (
-        <Button
-          className="w-full"
-          variant="outline"
-          onClick={() => setIsAdding(true)}
-        >
-          <PlusCircle className="h-4 w-4 mr-2" />
-          Add {type}
+          </div>
+        </div>
+      ) : (
+        <Button type="button" variant="outline" onClick={() => setIsAdding(true)}>
+          <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
+          Add {label}
         </Button>
       )}
     </div>

@@ -61,9 +61,7 @@ export default async function DashboardPage() {
           nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         };
         return (
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <DashboardView insights={defaultData} />
-          </div>
+<DashboardView insights={defaultData} />
         );
       }
       // Only redirect if user is truly not onboarded (no error/warning means onboarding issue)
@@ -73,9 +71,7 @@ export default async function DashboardPage() {
     // Dashboard insights warning (logging removed)
 
     return (
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <DashboardView insights={dashboardData} />
-      </div>
+<DashboardView insights={dashboardData} />
     );
   } catch (error) {
     // Only redirect if it's not already a redirect error

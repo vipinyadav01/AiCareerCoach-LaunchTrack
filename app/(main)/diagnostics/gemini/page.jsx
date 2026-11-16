@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { EmptyState, PageHeader, Panel, Screen, Skeleton } from "@/components/app/screen";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, CheckCircle2, XCircle, AlertTriangle, Loader2 } from "lucide-react";
 
@@ -29,214 +28,150 @@ export default function GeminiDiagnosticsPage() {
     fetchDiagnostics();
   }, []);
 
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "ok":
-        return <CheckCircle2 className="h-5 w-5 text-emerald-500" />;
-      case "error":
-        return <XCircle className="h-5 w-5 text-red-500" />;
-      case "warning":
-        return <AlertTriangle className="h-5 w-5 text-amber-500" />;
-      default:
-        return <Loader2 className="h-5 w-5 text-gray-500" />;
-    }
+  const STATUS = {
+    ok: { label: "Passing", icon: CheckCircle2, className: "text-success" },
+    error: { label: "Failing", icon: XCircle, className: "text-destructive" },
+    warning: { label: "Warning", icon: AlertTriangle, className: "text-warning" },
   };
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case "ok":
-        return <Badge className="bg-emerald-500">OK</Badge>;
-      case "error":
-        return <Badge className="bg-red-500">Error</Badge>;
-      case "warning":
-        return <Badge className="bg-amber-500">Warning</Badge>;
-      default:
-        return <Badge variant="secondary">Unknown</Badge>;
-    }
-  };
-
-  if (loading) {
+  const StatusLabel = ({ status }) => {
+    const s = STATUS[status] || { label: "Unknown", icon: Loader2, className: "text-muted-foreground" };
+    const Icon = s.icon;
     return (
-      <div className="container mx-auto px-4 py-8">
-        <Card>
-          <CardContent className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <span className="ml-3 text-muted-foreground">Running diagnostics...</span>
-          </CardContent>
-        </Card>
-      </div>
+      <span className={`inline-flex items-center gap-1.5 text-sm font-medium ${s.className}`}>
+        <Icon className="h-4 w-4" aria-hidden="true" />
+        {s.label}
+      </span>
+    );
+  };
+
+  const refreshButton = (
+    <Button onClick={fetchDiagnostics} variant="outline" disabled={loading}>
+      <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} aria-hidden="true" />
+      {loading ? "Running" : "Run again"}
+    </Button>
+  );
+
+  const header = (
+    <PageHeader
+      title="Gemini diagnostics"
+      description="Checks the API key, model access and a live test request."
+      meta={
+        diagnostics?.timestamp ? `Last run ${new Date(diagnostics.timestamp).toLocaleString()}` : null
+      }
+      actions={refreshButton}
+    />
+  );
+
+  if (loading && !diagnostics) {
+    return (
+      <Screen className="max-w-4xl">
+        {header}
+        <div className="space-y-3" role="status" aria-live="polite">
+          <span className="sr-only">Running diagnostics</span>
+          <Skeleton className="h-20 w-full rounded-xl" />
+          <Skeleton className="h-56 w-full rounded-xl" />
+        </div>
+      </Screen>
     );
   }
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <XCircle className="h-6 w-6 text-red-500" />
-              Error
-            </CardTitle>
-            <CardDescription>Failed to fetch diagnostics</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-red-500">{error}</p>
-            <Button onClick={fetchDiagnostics} className="mt-4">
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Retry
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <Screen className="max-w-4xl">
+        {header}
+        <EmptyState
+          title="The diagnostics request failed"
+          description={error}
+          action={refreshButton}
+        />
+      </Screen>
     );
   }
 
+  const checks = Object.entries(diagnostics?.checks || {});
+  const errors = diagnostics?.errors || [];
+  const warnings = diagnostics?.warnings || [];
+
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Gemini AI Diagnostics</h1>
-          <p className="text-muted-foreground mt-2">
-            Check the status and configuration of Gemini AI integration
-          </p>
+    <Screen className="max-w-4xl">
+      {header}
+
+      <div className="mb-6 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border bg-card px-5 py-4">
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-muted-foreground">Overall</span>
+          <StatusLabel status={diagnostics?.status} />
         </div>
-        <Button onClick={fetchDiagnostics} variant="outline">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh
-        </Button>
+        <span className="tabular text-sm text-muted-foreground">
+          {errors.length} {errors.length === 1 ? "error" : "errors"}, {warnings.length}{" "}
+          {warnings.length === 1 ? "warning" : "warnings"}
+        </span>
       </div>
 
-      {/* Overall Status */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            {getStatusIcon(diagnostics?.status)}
-            Overall Status
-          </CardTitle>
-          <CardDescription>
-            Last checked: {diagnostics?.timestamp ? new Date(diagnostics.timestamp).toLocaleString() : "N/A"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-3">
-            {getStatusBadge(diagnostics?.status)}
-            {diagnostics?.errors?.length > 0 && (
-              <span className="text-red-500">
-                {diagnostics.errors.length} error(s)
-              </span>
-            )}
-            {diagnostics?.warnings?.length > 0 && (
-              <span className="text-amber-500">
-                {diagnostics.warnings.length} warning(s)
-              </span>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Individual Checks */}
-      {diagnostics?.checks && (
-        <div className="space-y-4">
-          <h2 className="text-2xl font-semibold">Diagnostic Checks</h2>
-          {Object.entries(diagnostics.checks).map(([key, check]) => (
-            <Card key={key}>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span className="capitalize">{key.replace(/([A-Z])/g, " $1").trim()}</span>
-                  <div className="flex items-center gap-2">
-                    {getStatusIcon(check.status)}
-                    {getStatusBadge(check.status)}
-                  </div>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {check.message && (
-                  <p className="text-sm text-muted-foreground">{check.message}</p>
-                )}
+      {checks.length > 0 && (
+        <Panel title="Checks" bodyClassName="p-0">
+          <ul className="divide-y">
+            {checks.map(([key, check]) => (
+              <li key={key} className="space-y-2 px-5 py-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="font-medium capitalize">{key.replace(/([A-Z])/g, " $1").trim()}</p>
+                  <StatusLabel status={check.status} />
+                </div>
+                {check.message && <p className="text-sm text-muted-foreground">{check.message}</p>}
                 {check.error && (
-                  <div className="bg-red-50 dark:bg-red-950 p-3 rounded-md">
-                    <p className="text-sm text-red-700 dark:text-red-300 font-mono">
-                      {check.error}
-                    </p>
-                  </div>
+                  <p className="rounded-md bg-destructive/5 px-3 py-2 font-mono text-sm text-destructive [overflow-wrap:anywhere]">
+                    {check.error}
+                  </p>
                 )}
                 {check.responsePreview && (
-                  <div className="bg-muted p-3 rounded-md">
-                    <p className="text-xs font-mono text-muted-foreground">
-                      Response preview: {check.responsePreview}
-                    </p>
-                  </div>
-                )}
-                {check.duration && (
-                  <p className="text-xs text-muted-foreground">
-                    Duration: {check.duration}
+                  <p className="rounded-md bg-muted px-3 py-2 font-mono text-xs text-muted-foreground [overflow-wrap:anywhere]">
+                    {check.responsePreview}
                   </p>
                 )}
-                {check.length && (
-                  <p className="text-xs text-muted-foreground">
-                    Length: {check.length}
+                {(check.duration || check.length) && (
+                  <p className="tabular text-sm text-muted-foreground">
+                    {check.duration && <>Took {check.duration}</>}
+                    {check.duration && check.length && <>, </>}
+                    {check.length && <>{check.length} characters</>}
                   </p>
                 )}
-              </CardContent>
-            </Card>
-          ))}
+              </li>
+            ))}
+          </ul>
+        </Panel>
+      )}
+
+      {(errors.length > 0 || warnings.length > 0) && (
+        <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+          {errors.length > 0 && (
+            <Panel title="Errors">
+              <ul className="list-disc space-y-1.5 pl-5 text-sm text-destructive">
+                {errors.map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            </Panel>
+          )}
+          {warnings.length > 0 && (
+            <Panel title="Warnings">
+              <ul className="list-disc space-y-1.5 pl-5 text-sm text-warning">
+                {warnings.map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            </Panel>
+          )}
         </div>
       )}
 
-      {/* Errors */}
-      {diagnostics?.errors && diagnostics.errors.length > 0 && (
-        <Card className="border-red-200 dark:border-red-800">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
-              <XCircle className="h-5 w-5" />
-              Errors
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="list-disc list-inside space-y-1">
-              {diagnostics.errors.map((error, index) => (
-                <li key={index} className="text-sm text-red-600 dark:text-red-400">
-                  {error}
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Warnings */}
-      {diagnostics?.warnings && diagnostics.warnings.length > 0 && (
-        <Card className="border-amber-200 dark:border-amber-800">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
-              <AlertTriangle className="h-5 w-5" />
-              Warnings
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="list-disc list-inside space-y-1">
-              {diagnostics.warnings.map((warning, index) => (
-                <li key={index} className="text-sm text-amber-600 dark:text-amber-400">
-                  {warning}
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Raw JSON (for debugging) */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Raw Diagnostic Data</CardTitle>
-          <CardDescription>Full diagnostic response for debugging</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <pre className="bg-muted p-4 rounded-md overflow-auto text-xs">
-            {JSON.stringify(diagnostics, null, 2)}
-          </pre>
-        </CardContent>
-      </Card>
-    </div>
+      <details className="group mt-6 rounded-xl border bg-card">
+        <summary className="cursor-pointer list-none rounded-xl px-5 py-4 font-medium focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring">
+          Raw response
+        </summary>
+        <pre className="overflow-auto border-t bg-muted px-5 py-4 font-mono text-xs leading-relaxed">
+          {JSON.stringify(diagnostics, null, 2)}
+        </pre>
+      </details>
+    </Screen>
   );
 }

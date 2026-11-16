@@ -17,11 +17,9 @@ export default async function MainLayout({ children }) {
   const syncResult = { success: true, user };
 
   return (
-    <div className="relative min-h-screen">
-      <div className="relative z-10">
-        <UserSyncNotifier syncResult={syncResult} />
-        <div className='container mx-auto mt-10 mb-20 px-4 sm:px-6 lg:px-8'>{children}</div>
-      </div>
+    <div className="relative z-10 min-h-screen">
+      <UserSyncNotifier syncResult={syncResult} />
+      {children}
     </div>
   );
 }

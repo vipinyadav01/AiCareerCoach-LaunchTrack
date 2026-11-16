@@ -12,6 +12,9 @@ export const config = {
     "/resume/:path*",
     "/ai-cover-letter/:path*",
     "/interview/:path*",
+    "/account/:path*",
+    "/diagnostics/:path*",
+    "/api/diagnostics/:path*",
     // Note: /onboarding is protected but handled by layout to check onboarding status
   ],
 };

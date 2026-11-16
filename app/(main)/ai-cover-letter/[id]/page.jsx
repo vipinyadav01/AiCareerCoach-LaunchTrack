@@ -1,29 +1,30 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { BackLink, PageHeader, Screen } from "@/components/app/screen";
 import { getCoverLetter } from "@/actions/cover-letter";
 import CoverLetterPreview from "../_components/cover-letter-preview";
 
-export default async function EditCoverLetterPage({ params }) {
+export default async function CoverLetterDetailPage({ params }) {
   const { id } = await params;
   const coverLetter = await getCoverLetter(id);
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex flex-col space-y-2">
-        <Link href="/ai-cover-letter">
-          <Button variant="link" className="gap-2 pl-0">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Cover Letters
+    <Screen className="max-w-4xl">
+      <BackLink href="/ai-cover-letter">Cover letters</BackLink>
+      <PageHeader
+        title={coverLetter?.jobTitle || "Cover letter"}
+        description={coverLetter?.companyName ? `For ${coverLetter.companyName}` : null}
+        actions={
+          <Button variant="outline" asChild>
+            <Link href={`/ai-cover-letter/edit/${id}`}>
+              <Pencil className="mr-2 h-4 w-4" aria-hidden="true" />
+              Edit
+            </Link>
           </Button>
-        </Link>
-
-        <h1 className="text-6xl font-bold gradient-title mb-6">
-          {coverLetter?.jobTitle} at {coverLetter?.companyName}
-        </h1>
-      </div>
-
+        }
+      />
       <CoverLetterPreview content={coverLetter?.content} />
-    </div>
+    </Screen>
   );
 }

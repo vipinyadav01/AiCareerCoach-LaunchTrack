@@ -1,3 +1,7 @@
+/* Hallmark · v2.0.0 · redesign: full · scope: app · shape: app screen · theme: brand (#1c32ff, Inter + Schibsted Grotesk) · signature: the salary range ledger on /dashboard */
+/* Hallmark · critique: app screens rebuilt on one panel recipe and one type scale; gradients, glows, tracked caps and invented percentages removed */
+/* Hallmark · waive 26b · cover-letter-editor buttons · the disabled state is styled once in the shared Button primitive */
+/* Hallmark · waive 29 · cover letter save bar · translucent sticky chrome over scrolling form content, per the materials rule */
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "@neondatabase/auth/ui/tailwind";
@@ -15,7 +19,7 @@
 /* ------------------------------------------------------------------ */
 
 .font-heading {
-  font-family: "Apfel Grotezk", "Schibsted Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-heading);
   font-weight: 500;
   letter-spacing: -0.02em;
 }
@@ -24,12 +28,12 @@
    to the new type system so older markup stays consistent. */
 .open-sans,
 .font-main-content {
-  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-sans);
 }
 
 .font-nav,
 .font-navigation {
-  font-family: "Schibsted Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-nav);
 }
 
 @theme inline {
@@ -37,6 +41,7 @@
   --color-foreground: var(--foreground);
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-heading: "Apfel Grotezk", "Schibsted Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-nav: "Schibsted Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "Berkeley Mono", Menlo, monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -55,6 +60,9 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -100,7 +108,10 @@
   --accent: #f0f3ff;
   --accent-foreground: #1c32ff;
 
-  --destructive: #e5484d;
+  --destructive: #d93036;
+  --destructive-foreground: #ffffff;
+  --success: #17804a;
+  --warning: #a35b00;
 
   --border: #ececef;
   --input: #e3e4e9;
@@ -151,10 +162,31 @@
     text-wrap: pretty;
   }
 
+  html, body {
+    overflow-x: clip;
+  }
+
+  html {
+    scrollbar-color: var(--input) transparent;
+  }
+
   /* Blue text-selection to match the brand accent */
   ::selection {
     background: color-mix(in srgb, var(--primary) 18%, transparent);
     color: var(--foreground);
+  }
+}
+
+/* Tabular figures for every number the app screens report */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 

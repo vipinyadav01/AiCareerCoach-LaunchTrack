@@ -14,9 +14,11 @@ import {
 import { toast } from "sonner";
 import MDEditor from "@uiw/react-md-editor";
 import { Button } from "@/components/ui/button";
+import { FieldError, PageHeader, Screen } from "@/components/app/screen";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { saveResume } from "@/actions/resume";
 import { EntryForm } from "./entry-form";
 import useFetch from "@/hooks/use-fetch";
@@ -84,14 +86,13 @@ export default function ResumeBuilder({ initialContent }) {
   const getContactMarkdown = () => {
     const { contactInfo } = formValues;
     const parts = [];
-    if (contactInfo.email) parts.push(`📧 ${contactInfo.email}`);
-    if (contactInfo.mobile) parts.push(`📱 ${contactInfo.mobile}`);
-    if (contactInfo.linkedin)
-      parts.push(`💼 [LinkedIn](${contactInfo.linkedin})`);
-    if (contactInfo.twitter) parts.push(`🐦 [Twitter](${contactInfo.twitter})`);
+    if (contactInfo.email) parts.push(contactInfo.email);
+    if (contactInfo.mobile) parts.push(contactInfo.mobile);
+    if (contactInfo.linkedin) parts.push(`[LinkedIn](${contactInfo.linkedin})`);
+    if (contactInfo.twitter) parts.push(`[Twitter](${contactInfo.twitter})`);
 
     return parts.length > 0
-      ? `## <div align="center">${user.fullName}</div>
+      ? `## <div align="center">${user?.name || ""}</div>
         \n\n<div align="center">\n\n${parts.join(" | ")}\n\n</div>`
       : "";
   };
@@ -139,281 +140,187 @@ export default function ResumeBuilder({ initialContent }) {
         .replace(/\n\s*\n/g, "\n\n") // Normalize multiple newlines to double newlines
         .trim();
 
-      console.log(previewContent, formattedContent);
       await saveResumeFn(previewContent);
     } catch (error) {
       console.error("Save error:", error);
     }
   };
 
+
+  const contactFields = [
+    { name: "email", label: "Email", type: "email", placeholder: "you@example.com", autoComplete: "email" },
+    { name: "mobile", label: "Phone", type: "tel", placeholder: "+91 98765 43210", autoComplete: "tel" },
+    { name: "linkedin", label: "LinkedIn", type: "url", placeholder: "https://linkedin.com/in/your-profile" },
+    { name: "twitter", label: "X / Twitter", type: "url", placeholder: "https://x.com/your-handle" },
+  ];
+
+  const entrySections = [
+    { name: "experience", title: "Work experience", help: "Most recent role first.", type: "Experience" },
+    { name: "education", title: "Education", help: "Degrees, courses and certifications.", type: "Education" },
+    { name: "projects", title: "Projects", help: "Work you can point to.", type: "Project" },
+  ];
+
   return (
-    <div data-color-mode="light" className="space-y-4 pt-20">
-      <div className="flex flex-col md:flex-row justify-between items-center gap-2">
-        <h1 className="font-bold gradient-title text-5xl md:text-6xl">
-          Resume Builder
-        </h1>
-        <div className="space-x-2">
-          <Button
-            variant="destructive"
-            onClick={handleSubmit(onSubmit)}
-            disabled={isSaving}
-          >
-            {isSaving ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="h-4 w-4" />
-                Save
-              </>
-            )}
-          </Button>
-          <Button onClick={generatePDF} disabled={isGenerating}>
-            {isGenerating ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Generating PDF...
-              </>
-            ) : (
-              <>
-                <Download className="h-4 w-4" />
-                Download PDF
-              </>
-            )}
-          </Button>
-        </div>
-      </div>
+    <div data-color-mode="light">
+      <Screen>
+        <PageHeader
+          title="Resume"
+          description="Fill in the form, or switch to Markdown to edit the text directly. The PDF is made from the Markdown view."
+          actions={
+            <>
+              <Button variant="outline" onClick={generatePDF} disabled={isGenerating}>
+                {isGenerating ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+                ) : (
+                  <Download className="mr-2 h-4 w-4" aria-hidden="true" />
+                )}
+                {isGenerating ? "Preparing PDF" : "Download PDF"}
+              </Button>
+              <Button onClick={handleSubmit(onSubmit)} disabled={isSaving}>
+                {isSaving ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+                ) : (
+                  <Save className="mr-2 h-4 w-4" aria-hidden="true" />
+                )}
+                {isSaving ? "Saving" : "Save"}
+              </Button>
+            </>
+          }
+        />
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="edit">Form</TabsTrigger>
-          <TabsTrigger value="preview">Markdown</TabsTrigger>
-        </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="gap-6">
+          <TabsList>
+            <TabsTrigger value="edit">Form</TabsTrigger>
+            <TabsTrigger value="preview">Markdown</TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="edit">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-            {/* Contact Information */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Contact Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg bg-muted/50">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Email</label>
-                  <Input
-                    {...register("contactInfo.email")}
-                    type="email"
-                    placeholder="your@email.com"
-                    error={errors.contactInfo?.email}
-                  />
-                  {errors.contactInfo?.email && (
-                    <p className="text-sm text-red-500">
-                      {errors.contactInfo.email.message}
-                    </p>
-                  )}
+          <TabsContent value="edit">
+            <form onSubmit={handleSubmit(onSubmit)} className="divide-y rounded-xl border bg-card">
+              <FormSection title="Contact" help="Shown at the top of your resume.">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {contactFields.map((f) => (
+                    <div key={f.name} className="space-y-1.5">
+                      <Label htmlFor={`contact-${f.name}`}>{f.label}</Label>
+                      <Input
+                        id={`contact-${f.name}`}
+                        type={f.type}
+                        placeholder={f.placeholder}
+                        autoComplete={f.autoComplete}
+                        aria-invalid={!!errors.contactInfo?.[f.name]}
+                        {...register(`contactInfo.${f.name}`)}
+                      />
+                      <FieldError error={errors.contactInfo?.[f.name]} />
+                    </div>
+                  ))}
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Mobile Number</label>
-                  <Input
-                    {...register("contactInfo.mobile")}
-                    type="tel"
-                    placeholder="+1 234 567 8900"
-                  />
-                  {errors.contactInfo?.mobile && (
-                    <p className="text-sm text-red-500">
-                      {errors.contactInfo.mobile.message}
-                    </p>
+              </FormSection>
+
+              <FormSection title="Summary" help="Two or three sentences on who you are and what you do best.">
+                <Label htmlFor="summary" className="sr-only">Professional summary</Label>
+                <Controller
+                  name="summary"
+                  control={control}
+                  render={({ field }) => (
+                    <Textarea
+                      {...field}
+                      id="summary"
+                      className="min-h-32"
+                      placeholder="Product designer with six years of experience…"
+                      aria-invalid={!!errors.summary}
+                    />
                   )}
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">LinkedIn URL</label>
-                  <Input
-                    {...register("contactInfo.linkedin")}
-                    type="url"
-                    placeholder="https://linkedin.com/in/your-profile"
-                  />
-                  {errors.contactInfo?.linkedin && (
-                    <p className="text-sm text-red-500">
-                      {errors.contactInfo.linkedin.message}
-                    </p>
+                />
+                <FieldError error={errors.summary} />
+              </FormSection>
+
+              <FormSection title="Skills" help="Separate skills with commas.">
+                <Label htmlFor="skills" className="sr-only">Skills</Label>
+                <Controller
+                  name="skills"
+                  control={control}
+                  render={({ field }) => (
+                    <Textarea
+                      {...field}
+                      id="skills"
+                      className="min-h-24"
+                      placeholder="Figma, user research, prototyping"
+                      aria-invalid={!!errors.skills}
+                    />
                   )}
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    Twitter/X Profile
-                  </label>
-                  <Input
-                    {...register("contactInfo.twitter")}
-                    type="url"
-                    placeholder="https://twitter.com/your-handle"
+                />
+                <FieldError error={errors.skills} />
+              </FormSection>
+
+              {entrySections.map((section) => (
+                <FormSection key={section.name} title={section.title} help={section.help}>
+                  <Controller
+                    name={section.name}
+                    control={control}
+                    render={({ field }) => (
+                      <EntryForm type={section.type} entries={field.value} onChange={field.onChange} />
+                    )}
                   />
-                  {errors.contactInfo?.twitter && (
-                    <p className="text-sm text-red-500">
-                      {errors.contactInfo.twitter.message}
-                    </p>
-                  )}
-                </div>
+                  <FieldError error={errors[section.name]} />
+                </FormSection>
+              ))}
+            </form>
+          </TabsContent>
+
+          <TabsContent value="preview" className="space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                type="button"
+                onClick={() => setResumeMode(resumeMode === "preview" ? "edit" : "preview")}
+              >
+                {resumeMode === "preview" ? (
+                  <>
+                    <Edit className="mr-2 h-4 w-4" aria-hidden="true" />
+                    Edit Markdown
+                  </>
+                ) : (
+                  <>
+                    <Monitor className="mr-2 h-4 w-4" aria-hidden="true" />
+                    Show preview
+                  </>
+                )}
+              </Button>
+            </div>
+
+            {resumeMode !== "preview" && (
+              <div
+                role="status"
+                className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/5 px-3 py-2.5 text-sm text-warning"
+              >
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                <span>Edits made here are replaced if you change the form afterwards.</span>
+              </div>
+            )}
+
+            <div className="overflow-hidden rounded-xl border">
+              <MDEditor value={previewContent} onChange={setPreviewContent} height={800} preview={resumeMode} />
+            </div>
+            <div className="hidden">
+              <div id="resume-pdf">
+                <MDEditor.Markdown source={previewContent} style={{ background: "white", color: "black" }} />
               </div>
             </div>
-
-            {/* Summary */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Professional Summary</h3>
-              <Controller
-                name="summary"
-                control={control}
-                render={({ field }) => (
-                  <Textarea
-                    {...field}
-                    className="h-32"
-                    placeholder="Write a compelling professional summary..."
-                    error={errors.summary}
-                  />
-                )}
-              />
-              {errors.summary && (
-                <p className="text-sm text-red-500">{errors.summary.message}</p>
-              )}
-            </div>
-
-            {/* Skills */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Skills</h3>
-              <Controller
-                name="skills"
-                control={control}
-                render={({ field }) => (
-                  <Textarea
-                    {...field}
-                    className="h-32"
-                    placeholder="List your key skills..."
-                    error={errors.skills}
-                  />
-                )}
-              />
-              {errors.skills && (
-                <p className="text-sm text-red-500">{errors.skills.message}</p>
-              )}
-            </div>
-
-            {/* Experience */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Work Experience</h3>
-              <Controller
-                name="experience"
-                control={control}
-                render={({ field }) => (
-                  <EntryForm
-                    type="Experience"
-                    entries={field.value}
-                    onChange={field.onChange}
-                  />
-                )}
-              />
-              {errors.experience && (
-                <p className="text-sm text-red-500">
-                  {errors.experience.message}
-                </p>
-              )}
-            </div>
-
-            {/* Education */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Education</h3>
-              <Controller
-                name="education"
-                control={control}
-                render={({ field }) => (
-                  <EntryForm
-                    type="Education"
-                    entries={field.value}
-                    onChange={field.onChange}
-                  />
-                )}
-              />
-              {errors.education && (
-                <p className="text-sm text-red-500">
-                  {errors.education.message}
-                </p>
-              )}
-            </div>
-
-            {/* Projects */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Projects</h3>
-              <Controller
-                name="projects"
-                control={control}
-                render={({ field }) => (
-                  <EntryForm
-                    type="Project"
-                    entries={field.value}
-                    onChange={field.onChange}
-                  />
-                )}
-              />
-              {errors.projects && (
-                <p className="text-sm text-red-500">
-                  {errors.projects.message}
-                </p>
-              )}
-            </div>
-          </form>
-        </TabsContent>
-
-        <TabsContent value="preview">
-          {activeTab === "preview" && (
-            <Button
-              variant="link"
-              type="button"
-              className="mb-2"
-              onClick={() =>
-                setResumeMode(resumeMode === "preview" ? "edit" : "preview")
-              }
-            >
-              {resumeMode === "preview" ? (
-                <>
-                  <Edit className="h-4 w-4" />
-                  Edit Resume
-                </>
-              ) : (
-                <>
-                  <Monitor className="h-4 w-4" />
-                  Show Preview
-                </>
-              )}
-            </Button>
-          )}
-
-          {activeTab === "preview" && resumeMode !== "preview" && (
-            <div className="flex p-3 gap-2 items-center border-2 border-yellow-600 text-yellow-600 rounded mb-2">
-              <AlertTriangle className="h-5 w-5" />
-              <span className="text-sm">
-                You will lose editied markdown if you update the form data.
-              </span>
-            </div>
-          )}
-          <div className="border rounded-lg">
-            <MDEditor
-              value={previewContent}
-              onChange={setPreviewContent}
-              height={800}
-              preview={resumeMode}
-            />
-          </div>
-          <div className="hidden">
-            <div id="resume-pdf">
-              <MDEditor.Markdown
-                source={previewContent}
-                style={{
-                  background: "white",
-                  color: "black",
-                }}
-              />
-            </div>
-          </div>
-        </TabsContent>
-      </Tabs>
+          </TabsContent>
+        </Tabs>
+      </Screen>
     </div>
+  );
+}
+
+function FormSection({ title, help, children }) {
+  return (
+    <section className="grid grid-cols-1 gap-4 px-5 py-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2.4fr)] lg:gap-10">
+      <div className="space-y-1">
+        <h2 className="text-base font-medium">{title}</h2>
+        {help && <p className="text-sm text-muted-foreground">{help}</p>}
+      </div>
+      <div className="min-w-0 space-y-2">{children}</div>
+    </section>
   );
 }

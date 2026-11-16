@@ -3,19 +3,14 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { generateQuiz, saveQuizResult } from "@/actions/interview";
 import QuizResult from "./quiz-result";
 import useFetch from "@/hooks/use-fetch";
-import { BarLoader } from "react-spinners";
+import { Loader2 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/app/screen";
 
 export default function Quiz() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -85,92 +80,93 @@ export default function Quiz() {
   };
 
   if (generatingQuiz) {
-    return <BarLoader className="mt-4" width={"100%"} color="gray" />;
-  }
-
-  if (resultData) {
     return (
-      <div className="mx-2">
-        <QuizResult result={resultData} onStartNew={startNewQuiz} />
+      <div className="space-y-4" role="status" aria-live="polite">
+        <p className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+          Writing ten questions for your profile
+        </p>
+        <Skeleton className="h-6 w-3/4" />
+        <div className="space-y-2">
+          {[0, 1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-14 w-full rounded-lg" />
+          ))}
+        </div>
       </div>
     );
   }
 
+  if (resultData) {
+    return <QuizResult result={resultData} onStartNew={startNewQuiz} />;
+  }
+
   if (!quizData) {
     return (
-      <Card className="mx-2">
-        <CardHeader>
-          <CardTitle>Ready to test your knowledge?</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">
-            This quiz contains 10 questions specific to your industry and
-            skills. Take your time and choose the best answer for each question.
-          </p>
-        </CardContent>
-        <CardFooter>
-          <Button onClick={generateQuizFn} className="w-full">
-            Start Quiz
-          </Button>
-        </CardFooter>
-      </Card>
+      <div className="space-y-6">
+        <ul className="space-y-2 text-[15px] leading-relaxed">
+          <li>Ten multiple-choice questions on your industry and skills.</li>
+          <li>Check the explanation after each answer, or keep going.</li>
+          <li>Your score is saved when you finish.</li>
+        </ul>
+        <Button onClick={generateQuizFn} size="lg">
+          Start quiz
+        </Button>
+      </div>
     );
   }
 
   const question = quizData[currentQuestion];
+  const isLast = currentQuestion === quizData.length - 1;
 
   return (
-    <Card className="mx-2">
-      <CardHeader>
-        <CardTitle>
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <p className="tabular text-sm text-muted-foreground">
           Question {currentQuestion + 1} of {quizData.length}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <p className="text-lg font-medium">{question.question}</p>
-        <RadioGroup
-          onValueChange={handleAnswer}
-          value={answers[currentQuestion]}
-          className="space-y-2"
-        >
+        </p>
+        <Progress
+          value={((currentQuestion + 1) / quizData.length) * 100}
+          className="h-1 bg-muted"
+          aria-label="Quiz progress"
+        />
+      </div>
+
+      <fieldset className="space-y-4">
+        <legend className="text-xl font-medium leading-snug tracking-[-0.01em]">{question.question}</legend>
+        <RadioGroup onValueChange={handleAnswer} value={answers[currentQuestion]} className="gap-2">
           {question.options.map((option, index) => (
-            <div key={index} className="flex items-center space-x-2">
+            <Label
+              key={index}
+              htmlFor={`option-${index}`}
+              className="flex min-h-14 cursor-pointer items-center gap-3 rounded-lg border bg-card px-4 py-3 text-[15px] font-normal leading-snug transition-colors hover:bg-muted/60 active:bg-accent has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-accent"
+            >
               <RadioGroupItem value={option} id={`option-${index}`} />
-              <Label htmlFor={`option-${index}`}>{option}</Label>
-            </div>
+              <span>{option}</span>
+            </Label>
           ))}
         </RadioGroup>
+      </fieldset>
 
-        {showExplanation && (
-          <div className="mt-4 p-4 bg-muted rounded-lg">
-            <p className="font-medium">Explanation:</p>
-            <p className="text-muted-foreground">{question.explanation}</p>
-          </div>
-        )}
-      </CardContent>
-      <CardFooter className="flex justify-between">
-        {!showExplanation && (
-          <Button
-            onClick={() => setShowExplanation(true)}
-            variant="outline"
-            disabled={!answers[currentQuestion]}
-          >
-            Show Explanation
+      {showExplanation && (
+        <div className="rounded-lg bg-muted px-4 py-3" role="status">
+          <p className="text-sm font-medium">Why</p>
+          <p className="mt-1 text-[15px] leading-relaxed text-muted-foreground">{question.explanation}</p>
+        </div>
+      )}
+
+      <div className="flex items-center justify-between gap-3 border-t pt-5">
+        {!showExplanation ? (
+          <Button onClick={() => setShowExplanation(true)} variant="ghost" disabled={!answers[currentQuestion]}>
+            Show explanation
           </Button>
+        ) : (
+          <span />
         )}
-        <Button
-          onClick={handleNext}
-          disabled={!answers[currentQuestion] || savingResult}
-          className="ml-auto"
-        >
-          {savingResult && (
-            <BarLoader className="mt-4" width={"100%"} color="gray" />
-          )}
-          {currentQuestion < quizData.length - 1
-            ? "Next Question"
-            : "Finish Quiz"}
+        <Button onClick={handleNext} disabled={!answers[currentQuestion] || savingResult}>
+          {savingResult && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
+          {isLast ? (savingResult ? "Saving" : "Finish quiz") : "Next question"}
         </Button>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 }

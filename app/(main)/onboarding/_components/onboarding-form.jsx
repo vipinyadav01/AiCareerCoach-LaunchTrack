@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, ArrowRight } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -68,10 +68,10 @@ const OnboardingForm = ({ industries }) => {
   }, [updateResult, updateLoading]);
 
   const watchIndustry = watch("industry");
-  const labelCls = "text-[13px] font-medium text-[#0b0b12]";
-  const errCls = "mt-1 text-[12px] text-[#e5484d]";
+  const labelCls = "text-[13px] font-medium text-foreground";
+  const errCls = "mt-1 text-[12px] text-destructive";
   const fieldCls =
-    "h-11 rounded-[8px] border-black/15 bg-white text-[#0b0b12] focus-visible:ring-[#1c32ff]/30";
+    "h-11 rounded-[8px] border-input bg-card text-foreground focus-visible:ring-ring/30";
 
   return (
     <div className="mx-auto w-full max-w-lg">
@@ -79,17 +79,17 @@ const OnboardingForm = ({ industries }) => {
       <div className="mb-8 flex flex-col items-center gap-3 text-center">
         <LogoMark size={40} />
         <div className="space-y-1.5">
-          <h1 className="font-heading text-[28px] font-medium tracking-[-0.02em] text-[#0b0b12]">
+          <h1 className="font-heading text-[28px] font-medium tracking-[-0.02em] text-foreground">
             Set up your profile
           </h1>
-          <p className="mx-auto max-w-sm text-[14px] leading-relaxed text-[#5c6070]">
+          <p className="mx-auto max-w-sm text-[14px] leading-relaxed text-muted-foreground">
             Tell us about yourself so we can personalize your career guidance.
           </p>
         </div>
       </div>
 
       {/* Card */}
-      <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-[0_16px_40px_-28px_rgba(11,11,18,0.28)] sm:p-7">
+      <div className="rounded-2xl border border-border bg-card p-6 sm:p-7">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {/* Industry */}
           <div className="space-y-1.5">
@@ -115,7 +115,7 @@ const OnboardingForm = ({ industries }) => {
                 </SelectGroup>
               </SelectContent>
             </Select>
-            {errors.industry && <p className={errCls}>{errors.industry.message}</p>}
+            {errors.industry && <p role="alert" className={errCls}>{errors.industry.message}</p>}
           </div>
 
           {/* Specialization */}
@@ -137,11 +137,11 @@ const OnboardingForm = ({ industries }) => {
                   </SelectGroup>
                 </SelectContent>
               </Select>
-              {errors.subIndustry && <p className={errCls}>{errors.subIndustry.message}</p>}
+              {errors.subIndustry && <p role="alert" className={errCls}>{errors.subIndustry.message}</p>}
             </div>
           )}
 
-          <div className="h-px bg-black/[0.07]" />
+          <div className="h-px bg-border" />
 
           {/* Experience */}
           <div className="space-y-1.5">
@@ -155,7 +155,7 @@ const OnboardingForm = ({ industries }) => {
               className={fieldCls}
               {...register("experience")}
             />
-            {errors.experience && <p className={errCls}>{errors.experience.message}</p>}
+            {errors.experience && <p role="alert" className={errCls}>{errors.experience.message}</p>}
           </div>
 
           {/* Skills */}
@@ -163,12 +163,12 @@ const OnboardingForm = ({ industries }) => {
             <Label htmlFor="skills" className={labelCls}>Skills</Label>
             <Input
               id="skills"
-              placeholder="Python, JavaScript, Project Management..."
+              placeholder="Python, JavaScript, Project Management…"
               className={fieldCls}
               {...register("skills")}
             />
-            <p className="text-[12px] text-[#5c6070]">Separate multiple skills with commas.</p>
-            {errors.skills && <p className={errCls}>{errors.skills.message}</p>}
+            <p className="text-[12px] text-muted-foreground">Separate multiple skills with commas.</p>
+            {errors.skills && <p role="alert" className={errCls}>{errors.skills.message}</p>}
           </div>
 
           {/* Bio */}
@@ -176,11 +176,11 @@ const OnboardingForm = ({ industries }) => {
             <Label htmlFor="bio" className={labelCls}>Professional bio</Label>
             <Textarea
               id="bio"
-              placeholder="Briefly describe your professional background and goals..."
-              className="min-h-24 rounded-[8px] border-black/15 bg-white text-[#0b0b12] resize-none focus-visible:ring-[#1c32ff]/30"
+              placeholder="Briefly describe your professional background and goals…"
+              className="min-h-24 rounded-[8px] border-input bg-card text-foreground resize-none focus-visible:ring-ring/30"
               {...register("bio")}
             />
-            {errors.bio && <p className={errCls}>{errors.bio.message}</p>}
+            {errors.bio && <p role="alert" className={errCls}>{errors.bio.message}</p>}
           </div>
 
           {/* Submit */}
@@ -192,19 +192,16 @@ const OnboardingForm = ({ industries }) => {
             {updateLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving your profile...
+                Saving your profile…
               </>
             ) : (
-              <>
-                Complete profile
-                <ArrowRight className="ml-1.5 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </>
+              "Complete profile"
             )}
           </Button>
         </form>
       </div>
 
-      <p className="mt-4 text-center text-[12px] text-[#5c6070]">
+      <p className="mt-4 text-center text-[12px] text-muted-foreground">
         You can update these details anytime from your profile settings.
       </p>
     </div>
