@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { format, formatDistanceToNow } from "date-fns";
-import { ChevronRight, FileSignature, FileText, MessagesSquare, Pencil, RefreshCw } from "lucide-react";
+import { ChevronRight, FileSignature, FileText, Flag, MessagesSquare, Pencil, Plus, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
+import { createGoal } from "@/actions/goals";
 import { useNeonUser } from "@/hooks/use-neon-auth";
 import { Button } from "@/components/ui/button";
 import { EmptyState, PageHeader, Panel, Screen, Stat, StatStrip } from "@/components/app/screen";
@@ -35,7 +37,23 @@ const NEXT_STEPS = [
   { href: "/resume", icon: FileText, title: "Resume", note: "Edit and export your ATS-ready resume" },
   { href: "/ai-cover-letter", icon: FileSignature, title: "Cover letters", note: "Write a letter for a specific job" },
   { href: "/interview", icon: MessagesSquare, title: "Interview practice", note: "Take a quiz built from your skills" },
+  { href: "/goals", icon: Flag, title: "Goals", note: "Track milestones and certifications" },
 ];
+
+// Loose match so "React.js", "react" and "React JS" count as the same skill.
+const skillKey = (s) => String(s).toLowerCase().replace(/[^a-z0-9+#]/g, "").replace(/js$/, "");
+
+function splitSkills(userSkills, marketSkills) {
+  const mine = new Set(userSkills.map(skillKey));
+  const seen = new Set();
+  const market = marketSkills.filter((s) => {
+    const k = skillKey(s);
+    if (!k || seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+  return { have: market.filter((s) => mine.has(skillKey(s))), gaps: market.filter((s) => !mine.has(skillKey(s))) };
+}
 
 function SalaryLedger({ rows }) {
   if (!rows.length) {
@@ -98,8 +116,7 @@ function SalaryLedger({ rows }) {
   );
 }
 
-function SkillList({ skills, emptyText }) {
-  if (!skills.length) return <p className="text-sm text-muted-foreground">{emptyText}</p>;
+function SkillChips({ skills }) {
   return (
     <ul className="flex flex-wrap gap-2">
       {skills.map((skill) => (
@@ -111,7 +128,74 @@ function SkillList({ skills, emptyText }) {
   );
 }
 
-const DashboardView = ({ insights }) => {
+function GapChip({ skill }) {
+  const [state, setState] = useState("idle");
+  const add = async () => {
+    setState("saving");
+    try {
+      await createGoal({ title: `Learn ${skill}`, kind: "goal" });
+      setState("added");
+      toast.success(`Added "Learn ${skill}" to your goals`);
+    } catch (error) {
+      setState("idle");
+      toast.error(error.message || "Could not add goal");
+    }
+  };
+  return (
+    <li className="inline-flex items-center gap-1 rounded-md border bg-background py-0.5 pl-2.5 pr-0.5 text-sm">
+      {skill}
+      <button
+        type="button"
+        onClick={add}
+        disabled={state !== "idle"}
+        aria-label={`Add learning ${skill} to your goals`}
+        className="inline-flex h-7 min-w-7 items-center justify-center rounded px-1 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground disabled:text-success focus-visible:outline-2 focus-visible:outline-ring"
+      >
+        {state === "added" ? "Added" : <Plus className="h-3.5 w-3.5" aria-hidden="true" />}
+      </button>
+    </li>
+  );
+}
+
+function SkillGap({ userSkills, marketSkills }) {
+  if (!marketSkills.length) return <p className="text-sm text-muted-foreground">No skill data for your industry yet.</p>;
+  if (!userSkills.length) {
+    return (
+      <div className="space-y-3">
+        <p className="text-sm text-muted-foreground">Add your skills to your profile to see which of these you already cover.</p>
+        <SkillChips skills={marketSkills} />
+      </div>
+    );
+  }
+  const { have, gaps } = splitSkills(userSkills, marketSkills);
+  return (
+    <div className="space-y-6">
+      <div className="space-y-2.5">
+        <h3 className="text-sm text-muted-foreground">
+          Gaps to close <span className="tabular">({gaps.length})</span>
+        </h3>
+        {gaps.length ? (
+          <ul className="flex flex-wrap gap-2">
+            {gaps.map((s) => (
+              <GapChip key={s} skill={s} />
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm">You list every skill your market is asking for.</p>
+        )}
+        {gaps.length > 0 && <p className="text-sm text-muted-foreground">Press + to turn a gap into a goal.</p>}
+      </div>
+      <div className="space-y-2.5">
+        <h3 className="text-sm text-muted-foreground">
+          You already have <span className="tabular">({have.length})</span>
+        </h3>
+        {have.length ? <SkillChips skills={have} /> : <p className="text-sm text-muted-foreground">None of the listed skills yet.</p>}
+      </div>
+    </div>
+  );
+}
+
+const DashboardView = ({ insights, userSkills = [] }) => {
   const { user } = useNeonUser();
   const router = useRouter();
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -229,26 +313,17 @@ const DashboardView = ({ insights }) => {
           )}
         </Panel>
 
-        <Panel title="Skills">
-          <div className="space-y-6">
-            <div className="space-y-2.5">
-              <h3 className="text-sm text-muted-foreground">Most in demand</h3>
-              <SkillList skills={data.topSkills} emptyText="No skill data yet." />
-            </div>
-            <div className="space-y-2.5">
-              <h3 className="text-sm text-muted-foreground">Worth learning next</h3>
-              <SkillList skills={data.recommendedSkills} emptyText="No recommendations yet." />
-            </div>
-          </div>
+        <Panel title="Your skills against the market" description="Compared with what employers in your industry ask for.">
+          <SkillGap userSkills={userSkills} marketSkills={[...data.topSkills, ...data.recommendedSkills]} />
         </Panel>
       </div>
 
-      <nav aria-label="Career tools" className="mt-6 grid grid-cols-1 overflow-hidden rounded-xl border bg-card sm:grid-cols-3 sm:divide-x">
+      <nav aria-label="Career tools" className="mt-6 grid grid-cols-1 gap-px overflow-hidden rounded-xl border bg-border sm:grid-cols-2 lg:grid-cols-4">
         {NEXT_STEPS.map(({ href, icon: Icon, title, note }) => (
           <Link
             key={href}
             href={href}
-            className="group flex items-center gap-3 border-b px-5 py-4 transition-colors last:border-b-0 hover:bg-muted active:bg-accent focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring sm:border-b-0"
+            className="group flex items-center gap-3 bg-card px-5 py-4 transition-colors hover:bg-muted active:bg-accent focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
           >
             <Icon className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
             <span className="min-w-0 flex-1">
@@ -256,7 +331,7 @@ const DashboardView = ({ insights }) => {
               <span className="block text-sm text-muted-foreground">{note}</span>
             </span>
             <ChevronRight
-              className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"
+              className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none"
               aria-hidden="true"
             />
           </Link>

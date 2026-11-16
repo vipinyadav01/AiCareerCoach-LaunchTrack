@@ -4,6 +4,7 @@ import { Quote } from "lucide-react";
 import { NsButton } from "@/components/ui/ns-button";
 import { testimonials } from "@/data/testimonials";
 import { faqs } from "../data/faq";
+import { HowItWorks, ProductPreview } from "@/components/home-sections";
 import {
   Accordion,
   AccordionContent,
@@ -26,11 +27,12 @@ const FeatureSection = dynamic(
   { loading: () => <div className="h-96 rounded-[4px] border border-black/10" /> }
 );
 
+// Facts about the product itself, each one checkable in the app.
 const stats = [
-  { value: "95%", label: "Land a job within 6 months" },
-  { value: "50,000+", label: "Professionals in the community" },
-  { value: "3x", label: "More interview calls with AI resumes" },
-  { value: "24/7", label: "Career support, whenever you need it" },
+  { value: "5", label: "Career tools in one account" },
+  { value: "10", label: "Questions in every practice quiz" },
+  { value: "Weekly", label: "Industry data refresh" },
+  { value: "Free", label: "No credit card, no paid plan" },
 ];
 
 // Vertical mono section index label (Namespace-style), pinned right on desktop
@@ -90,7 +92,7 @@ export default function Home() {
       <section className="mt-[39px] px-6 lg:px-10">
         <div className="mx-auto max-w-[1464px]">
           <p className="text-center font-mono text-[14px] uppercase leading-[1.1] tracking-[-0.02em] text-[#0b0b12]">
-            Trusted by professionals building better careers
+            What you get with one profile
           </p>
           <div className="mt-10 grid grid-cols-2 gap-2 lg:grid-cols-4">
             {stats.map((stat) => (
@@ -117,9 +119,9 @@ export default function Home() {
           <div className="max-w-[760px]">
             <SectionHeading>Everything you need to grow your career</SectionHeading>
             <p className="mt-6 text-[18px] leading-[1.4] text-[#5c6070]">
-              One platform, from resume to offer letter — AI-built resumes,
-              interview practice, live market insight, and a roadmap that keeps
-              you moving.
+              One platform from first application to offer: resumes, cover
+              letters, interview practice, weekly market insight and goals that
+              keep you moving.
             </p>
           </div>
           <div className="mt-12 md:mt-16">
@@ -128,10 +130,44 @@ export default function Home() {
         </div>
       </section>
 
+      {/* How it works */}
+      <section id="how-it-works" className="mt-24 md:mt-40">
+        <div className="relative mx-auto max-w-[1464px] px-6 lg:px-10">
+          <SideLabel>02 — How it works</SideLabel>
+          <div className="max-w-[760px]">
+            <SectionHeading>From profile to plan in three steps</SectionHeading>
+            <p className="mt-6 text-[18px] leading-[1.4] text-[#5c6070]">
+              Everything in LaunchTrack starts from one short profile, so each
+              tool already knows your field and your skills.
+            </p>
+          </div>
+          <div className="mt-12 md:mt-16">
+            <HowItWorks />
+          </div>
+        </div>
+      </section>
+
+      {/* Product preview */}
+      <section id="preview" className="mt-24 md:mt-40">
+        <div className="relative mx-auto max-w-[1464px] px-6 lg:px-10">
+          <SideLabel>03 — Dashboard</SideLabel>
+          <div className="max-w-[760px]">
+            <SectionHeading>See where you stand before you apply</SectionHeading>
+            <p className="mt-6 text-[18px] leading-[1.4] text-[#5c6070]">
+              Pay ranges for the roles you want, and the skills between you and
+              them. Each gap becomes a goal in one press.
+            </p>
+          </div>
+          <div className="mt-12 md:mt-16">
+            <ProductPreview />
+          </div>
+        </div>
+      </section>
+
       {/* Testimonials */}
       <section id="testimonials" className="mt-24 md:mt-40">
         <div className="relative mx-auto max-w-[1464px] px-6 lg:px-10">
-          <SideLabel>02 — Success stories</SideLabel>
+          <SideLabel>04 — Success stories</SideLabel>
           <div className="max-w-[760px]">
             <SectionHeading>The results speak for themselves</SectionHeading>
             <p className="mt-6 text-[18px] leading-[1.4] text-[#5c6070]">
@@ -150,12 +186,12 @@ export default function Home() {
       {/* FAQ */}
       <section id="faq" className="mt-24 md:mt-40">
         <div className="relative mx-auto max-w-[1464px] px-6 lg:px-10">
-          <SideLabel>03 — FAQ</SideLabel>
+          <SideLabel>05 — FAQ</SideLabel>
           <div className="grid gap-12 lg:grid-cols-[minmax(0,360px)_1fr] lg:gap-20">
             <div>
               <SectionHeading>Frequently asked questions</SectionHeading>
               <p className="mt-6 text-[18px] leading-[1.4] text-[#5c6070]">
-                Everything you need to know about the platform, pricing, and your
+                What LaunchTrack does, what it costs, and what happens to your
                 data.
               </p>
             </div>

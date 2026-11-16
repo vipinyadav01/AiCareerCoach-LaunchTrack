@@ -8,6 +8,7 @@ const privateRoutes = [
   "/resume",
   "/ai-cover-letter",
   "/interview",
+  "/goals",
   "/onboarding",
   "/diagnostics",
   "/account",

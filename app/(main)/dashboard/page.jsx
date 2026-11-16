@@ -61,7 +61,7 @@ export default async function DashboardPage() {
           nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         };
         return (
-<DashboardView insights={defaultData} />
+<DashboardView insights={defaultData} userSkills={user?.skills || []} />
         );
       }
       // Only redirect if user is truly not onboarded (no error/warning means onboarding issue)
@@ -71,7 +71,7 @@ export default async function DashboardPage() {
     // Dashboard insights warning (logging removed)
 
     return (
-<DashboardView insights={dashboardData} />
+<DashboardView insights={dashboardData} userSkills={user?.skills || []} />
     );
   } catch (error) {
     // Only redirect if it's not already a redirect error

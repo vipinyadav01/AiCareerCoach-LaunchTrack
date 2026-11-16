@@ -23,6 +23,7 @@ model User {
   assessments     Assessment[]
   coverLetter     CoverLetter[]
   resume          Resume?
+  goals           Goal[]
   industryInsight IndustryInsight? @relation(fields: [industry], references: [industry])
 }
 
@@ -79,4 +80,20 @@ model IndustryInsight {
   lastUpdated       DateTime @default(now())
   nextUpdate        DateTime
   users             User[]
+}
+
+// A career goal or a certification the user tracks.
+// kind: "goal" (dueDate = target date) or "certification" (dueDate = expiry date).
+model Goal {
+  id          String    @id @default(cuid())
+  userId      String
+  title       String
+  kind        String    @default("goal")
+  dueDate     DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

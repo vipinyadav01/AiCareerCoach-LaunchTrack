@@ -1,6 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
-import { Github, Linkedin, Mail } from 'lucide-react'
+import { Github, Mail } from 'lucide-react'
 import { Logo } from './logo'
 
 const columns = [
@@ -11,12 +11,14 @@ const columns = [
       { label: 'AI Resume', href: '/resume' },
       { label: 'Cover Letter', href: '/ai-cover-letter' },
       { label: 'Interview Prep', href: '/interview' },
+      { label: 'Goals', href: '/goals' },
     ],
   },
   {
     title: 'Resources',
     links: [
       { label: 'Features', href: '/#features' },
+      { label: 'How it works', href: '/#how-it-works' },
       { label: 'Success stories', href: '/#testimonials' },
       { label: 'FAQ', href: '/#faq' },
       { label: 'GitHub', href: 'https://github.com/vipinyadav01/AiCareerCoach-LaunchTrack', external: true },
@@ -28,14 +30,6 @@ const columns = [
       { label: 'Sign in', href: '/sign-in' },
       { label: 'Get started', href: '/dashboard' },
       { label: 'Onboarding', href: '/onboarding' },
-    ],
-  },
-  {
-    title: 'Legal',
-    links: [
-      { label: 'Privacy Policy', href: '#' },
-      { label: 'Terms of Service', href: '#' },
-      { label: 'Cookie Policy', href: '#' },
     ],
   },
 ]
@@ -51,14 +45,10 @@ export const Footer = () => {
             The AI career platform that helps professionals build stronger
             resumes, prepare for interviews, and plan their next move.
           </p>
-          <span className="inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-1.5 text-[13px] font-semibold text-white/80">
-            <span className="h-2 w-2 rounded-full bg-green-500" />
-            All systems operational
-          </span>
         </div>
 
         {/* Link columns */}
-        <div className="grid flex-1 grid-cols-2 gap-8 sm:grid-cols-4 lg:gap-10">
+        <div className="grid flex-1 grid-cols-2 gap-8 sm:grid-cols-3 lg:gap-10">
           {columns.map((col) => (
             <div key={col.title}>
               <p className="text-[15px] font-semibold text-white/50">{col.title}</p>
@@ -95,14 +85,8 @@ export const Footer = () => {
           .
         </p>
         <div className="flex items-center gap-5 text-white/70">
-          <Link href="#" className="text-[14px] hover:text-white">Privacy</Link>
-          <Link href="#" className="text-[14px] hover:text-white">Terms</Link>
-          <span className="h-4 w-px bg-white/15" />
           <Link href="https://github.com/vipinyadav01/AiCareerCoach-LaunchTrack" target="_blank" rel="noopener noreferrer" aria-label="GitHub" className="hover:text-white">
             <Github size={18} />
-          </Link>
-          <Link href="#" aria-label="LinkedIn" className="hover:text-white">
-            <Linkedin size={18} />
           </Link>
           <Link href="mailto:support@learnerfast.com" aria-label="Email" className="hover:text-white">
             <Mail size={18} />

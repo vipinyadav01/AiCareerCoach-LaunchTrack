@@ -47,6 +47,7 @@ const Header = () => {
       { label: 'Resume', href: '/resume' },
       { label: 'Cover Letter', href: '/ai-cover-letter' },
       { label: 'Interview', href: '/interview' },
+      { label: 'Goals', href: '/goals' },
     ]
     : [
       { label: 'Features', href: '/#features' },

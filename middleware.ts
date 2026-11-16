@@ -12,6 +12,7 @@ export const config = {
     "/resume/:path*",
     "/ai-cover-letter/:path*",
     "/interview/:path*",
+    "/goals/:path*",
     "/account/:path*",
     "/diagnostics/:path*",
     "/api/diagnostics/:path*",

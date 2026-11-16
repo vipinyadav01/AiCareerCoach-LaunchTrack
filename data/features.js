@@ -1,50 +1,51 @@
+// Every card here maps to a screen that exists in the signed-in app.
 export const features = [
   {
     id: 1,
-    title: "AI-Powered Career Guidance",
-    description: "Get personalized career advice and insights powered by advanced AI technology.",
-    icon: "IconBrain"
+    title: "AI career guidance",
+    description: "Insights and next steps for your industry, worked out from the profile you fill in once.",
+    icon: "IconBrain",
   },
   {
     id: 2,
-    title: "Interview Preparation",
-    description: "Practice with role-specific questions and get instant feedback to improve your performance.",
-    icon: "IconBriefcase"
+    title: "Interview practice",
+    description: "Ten-question quizzes built from your industry and skills, with an explanation for every answer.",
+    icon: "IconBriefcase",
   },
   {
     id: 3,
-    title: "Industry Insights",
-    description: "Stay ahead with real-time industry trends, salary data, and market analysis.",
-    icon: "IconChartLine"
+    title: "Industry insights",
+    description: "Salary ranges by role, growth, demand and the trends shaping your field, refreshed every week.",
+    icon: "IconChartLine",
   },
   {
     id: 4,
-    title: "Smart Resume Creation",
-    description: "Generate ATS-optimized resumes with AI assistance and professional templates.",
-    icon: "IconFileText"
+    title: "Resume builder",
+    description: "Fill in a form or edit Markdown, sharpen entries with AI, and download a clean PDF.",
+    icon: "IconFileText",
   },
   {
     id: 5,
-    title: "Networking Opportunities",
-    description: "Connect with industry professionals and expand your professional network.",
-    icon: "IconUsers"
+    title: "Cover letters",
+    description: "Paste a job description and get a tailored first draft you can edit and keep.",
+    icon: "IconMail",
   },
   {
     id: 6,
-    title: "Career Goal Setting",
-    description: "Set and track your career milestones with personalized roadmaps and progress tracking.",
-    icon: "IconTarget"
+    title: "Career goals",
+    description: "Set milestones with target dates and tick them off as you go.",
+    icon: "IconTarget",
   },
   {
     id: 7,
-    title: "Skill Development",
-    description: "Identify skill gaps and get recommendations for courses and certifications.",
-    icon: "IconBulb"
+    title: "Skill gaps",
+    description: "See which in-demand skills you are missing and turn each one into a goal.",
+    icon: "IconBulb",
   },
   {
     id: 8,
-    title: "Certification Tracking",
-    description: "Monitor your professional certifications and get renewal reminders.",
-    icon: "IconCertificate"
-  }
-]; 
+    title: "Certification tracking",
+    description: "Keep your certifications in one list and see which expire in the next 60 days.",
+    icon: "IconCertificate",
+  },
+];
