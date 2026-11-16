@@ -25,7 +25,19 @@ import useFetch from "@/hooks/use-fetch";
 import { useNeonUser } from "@/hooks/use-neon-auth";
 import { entriesToMarkdown } from "@/app/lib/helper";
 import { resumeSchema } from "@/app/lib/schema";
-import html2pdf from "html2pdf.js/dist/html2pdf.min.js";
+import { LayoutTemplate } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { buildResumeTemplate } from "@/data/resume-template";
 
 export default function ResumeBuilder({ initialContent }) {
   const [activeTab, setActiveTab] = useState("edit");
@@ -125,6 +137,8 @@ export default function ResumeBuilder({ initialContent }) {
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
       };
 
+      // Loaded on demand: html2pdf touches `self` at import time and crashes server rendering.
+      const { default: html2pdf } = await import("html2pdf.js/dist/html2pdf.min.js");
       await html2pdf().set(opt).from(element).save();
     } catch (error) {
       console.error("PDF generation error:", error);
@@ -147,6 +161,21 @@ export default function ResumeBuilder({ initialContent }) {
   };
 
 
+  // Fill the Markdown view with the starter resume and open it for editing.
+  const applyTemplate = () => {
+    setPreviewContent(buildResumeTemplate({ name: user?.name, email: user?.email }));
+    setActiveTab("preview");
+    setResumeMode("edit");
+    toast.success("Template added. Replace the sample text with your own.");
+  };
+
+  const templateButton = (props) => (
+    <Button variant="outline" type="button" {...props}>
+      <LayoutTemplate className="mr-2 h-4 w-4" aria-hidden="true" />
+      Use template
+    </Button>
+  );
+
   const contactFields = [
     { name: "email", label: "Email", type: "email", placeholder: "you@example.com", autoComplete: "email" },
     { name: "mobile", label: "Phone", type: "tel", placeholder: "+91 98765 43210", autoComplete: "tel" },
@@ -168,6 +197,25 @@ export default function ResumeBuilder({ initialContent }) {
           description="Fill in the form, or switch to Markdown to edit the text directly. The PDF is made from the Markdown view."
           actions={
             <>
+              {previewContent?.trim() ? (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>{templateButton()}</AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Replace your resume with the template?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        The Markdown you have now will be replaced. Your saved resume stays as it is until you press Save.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Keep mine</AlertDialogCancel>
+                      <AlertDialogAction onClick={applyTemplate}>Use template</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              ) : (
+                templateButton({ onClick: applyTemplate })
+              )}
               <Button variant="outline" onClick={generatePDF} disabled={isGenerating}>
                 {isGenerating ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
