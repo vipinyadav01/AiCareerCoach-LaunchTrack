@@ -11,6 +11,10 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
+export const metadata = {
+  alternates: { canonical: "/" },
+};
+
 // Lazy load heavy, below-the-fold pieces
 const HeroSection = dynamic(() => import("@/components/hero"), {
   loading: () => <div className="mx-4 h-[520px] rounded-[16px] bg-[#1c32ff] sm:h-[620px] lg:h-[700px]" />,
