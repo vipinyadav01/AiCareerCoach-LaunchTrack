@@ -21,7 +21,7 @@ export const features = [
   {
     id: 4,
     title: "Resume builder",
-    description: "Fill in a form or edit Markdown, sharpen entries with AI, and download a clean PDF.",
+    description: "Start from a template, score it against a job with the ATS check, and download a clean PDF.",
     icon: "IconFileText",
   },
   {

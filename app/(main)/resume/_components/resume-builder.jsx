@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { saveResume } from "@/actions/resume";
 import { EntryForm } from "./entry-form";
+import AtsCheck from "./ats-check";
 import useFetch from "@/hooks/use-fetch";
 import { useNeonUser } from "@/hooks/use-neon-auth";
 import { entriesToMarkdown } from "@/app/lib/helper";
@@ -39,7 +40,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { buildResumeTemplate } from "@/data/resume-template";
 
-export default function ResumeBuilder({ initialContent }) {
+export default function ResumeBuilder({ initialContent, initialAts }) {
   const [activeTab, setActiveTab] = useState("edit");
   const [previewContent, setPreviewContent] = useState(initialContent);
   const { user } = useNeonUser();
@@ -240,7 +241,12 @@ export default function ResumeBuilder({ initialContent }) {
           <TabsList>
             <TabsTrigger value="edit">Form</TabsTrigger>
             <TabsTrigger value="preview">Markdown</TabsTrigger>
+            <TabsTrigger value="ats">ATS check</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="ats">
+            <AtsCheck content={previewContent} initialResult={initialAts} />
+          </TabsContent>
 
           <TabsContent value="edit">
             <form onSubmit={handleSubmit(onSubmit)} className="divide-y rounded-xl border bg-card">
