@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 
 export function Screen({ className, children }) {
   return (
-    <div className={cn("mx-auto w-full max-w-6xl px-4 pt-8 pb-24 sm:px-6 lg:px-8", className)}>
+    <div className={cn("w-full px-4 pt-8 pb-24 sm:px-6 lg:px-10", className)}>
       {children}
     </div>
   );
@@ -115,5 +115,5 @@ export function FieldError({ error }) {
 }
 
 export function Skeleton({ className }) {
-  return <div className={cn("animate-pulse rounded-md bg-muted", className)} aria-hidden="true" />;
+  return <div className={cn("animate-pulse rounded-md bg-muted motion-reduce:animate-none", className)} aria-hidden="true" />;
 }

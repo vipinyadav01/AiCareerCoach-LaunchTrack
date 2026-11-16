@@ -18,7 +18,7 @@ export default async function EditCoverLetterPage({ params }) {
   }
 
   return (
-    <Screen className="max-w-5xl">
+    <Screen>
       <CoverLetterEditor coverLetter={coverLetter} />
     </Screen>
   );

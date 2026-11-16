@@ -1,7 +1,7 @@
 /* Hallmark · v2.0.0 · redesign: full · scope: app · shape: app screen · theme: brand (#1c32ff, Inter + Schibsted Grotesk) · signature: the salary range ledger on /dashboard */
 /* Hallmark · critique: app screens rebuilt on one panel recipe and one type scale; gradients, glows, tracked caps and invented percentages removed */
 /* Hallmark · waive 26b · cover-letter-editor buttons · the disabled state is styled once in the shared Button primitive */
-/* Hallmark · waive 29 · cover letter save bar · translucent sticky chrome over scrolling form content, per the materials rule */
+/* Hallmark · waive 29 · cover letter save bar and app top bar · translucent sticky chrome over scrolling content, per the materials rule */
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "@neondatabase/auth/ui/tailwind";
@@ -123,7 +123,7 @@
   --chart-4: #8ea0ff;
   --chart-5: #b9c3ff;
 
-  --sidebar: #ffffff;
+  --sidebar: #fafafb;
   --sidebar-foreground: #0b0b12;
   --sidebar-primary: #1c32ff;
   --sidebar-primary-foreground: #ffffff;

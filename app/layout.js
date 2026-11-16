@@ -13,6 +13,7 @@ import { StructuredData } from "./lib/structured-data";
 import { Footer } from "components/Footer";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import SmoothScroll from "@/components/smooth-scroll";
+import { MarketingOnly } from "@/components/site-chrome";
 
 export { metadata, viewport } from "./lib/metadata";
 
@@ -39,7 +40,9 @@ export default function RootLayout({ children }) {
                 <BackgroundBeams className="fixed inset-0 -z-10 pointer-events-none" />
                 <PerfScrollOptimizer />
                 {/* Header */}
-                <HeaderWrapper />
+                <MarketingOnly>
+                  <HeaderWrapper />
+                </MarketingOnly>
                 <main className="min-h-screen">
                   {children}
                 </main>
@@ -47,7 +50,9 @@ export default function RootLayout({ children }) {
                 <PWAStatus />
                 <ToasterWrapper richColors />
                 {/* Footer */}
-                <Footer />
+                <MarketingOnly>
+                  <Footer />
+                </MarketingOnly>
                 <SpeedInsights />
               </SmoothScroll>
             </ThemeProvider>

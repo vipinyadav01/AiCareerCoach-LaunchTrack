@@ -10,7 +10,7 @@ export default async function CoverLetterDetailPage({ params }) {
   const coverLetter = await getCoverLetter(id);
 
   return (
-    <Screen className="max-w-4xl">
+    <Screen>
       <BackLink href="/ai-cover-letter">Cover letters</BackLink>
       <PageHeader
         title={coverLetter?.jobTitle || "Cover letter"}

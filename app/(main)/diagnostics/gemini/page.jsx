@@ -65,7 +65,7 @@ export default function GeminiDiagnosticsPage() {
 
   if (loading && !diagnostics) {
     return (
-      <Screen className="max-w-4xl">
+      <Screen>
         {header}
         <div className="space-y-3" role="status" aria-live="polite">
           <span className="sr-only">Running diagnostics</span>
@@ -78,7 +78,7 @@ export default function GeminiDiagnosticsPage() {
 
   if (error) {
     return (
-      <Screen className="max-w-4xl">
+      <Screen>
         {header}
         <EmptyState
           title="The diagnostics request failed"
@@ -94,7 +94,7 @@ export default function GeminiDiagnosticsPage() {
   const warnings = diagnostics?.warnings || [];
 
   return (
-    <Screen className="max-w-4xl">
+    <Screen>
       {header}
 
       <div className="mb-6 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border bg-card px-5 py-4">

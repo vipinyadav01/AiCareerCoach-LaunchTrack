@@ -5,7 +5,7 @@ import CoverLetterGenerator from "../_components/cover-letter-generator";
 
 export default function NewCoverLetterPage() {
   return (
-    <Screen className="max-w-3xl">
+    <Screen>
       <BackLink href="/ai-cover-letter">Cover letters</BackLink>
       <PageHeader
         title="New cover letter"
