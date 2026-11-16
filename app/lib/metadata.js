@@ -1,5 +1,7 @@
+import { SITE_URL } from "./site";
+
 export const metadata = {
-  metadataBase: new URL('https://launchtrack.vercel.app'),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "LaunchTrack - AI Career Platform | Personalized Job Search & Interview Prep",
     template: "%s | LaunchTrack - AI Career Platform"
@@ -76,7 +78,7 @@ export const metadata = {
     siteName: "LaunchTrack - AI Career Platform",
     title: "LaunchTrack - AI Career Platform | Personalized Job Search & Interview Prep",
     description: "Transform your career with LaunchTrack's AI-powered career coach. Get personalized job search assistance, interview preparation, cover letter generation, and career guidance.",
-    url: "https://launchtrack.vercel.app",
+    url: "/",
     images: [
       {
         url: "/android-chrome-512x512.png",
@@ -102,14 +104,6 @@ export const metadata = {
     title: "LaunchTrack - AI Career Platform | Personalized Job Search & Interview Prep",
     description: "Transform your career with LaunchTrack's AI-powered career coach. Get personalized job search assistance, interview preparation, and career guidance.",
     images: ["/android-chrome-512x512.png"],
-  },
-  alternates: {
-    canonical: "https://launchtrack.vercel.app",
-  },
-  verification: {
-    google: "your-google-verification-code",
-    yandex: "your-yandex-verification-code",
-    yahoo: "your-yahoo-verification-code",
   },
 };
 

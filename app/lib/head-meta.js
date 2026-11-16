@@ -14,7 +14,6 @@ export function HeadMeta() {
       {/* Additional SEO Meta Tags */}
       <meta name="rating" content="general" />
       <meta name="revisit-after" content="7 days" />
-      <meta name="msvalidate.01" content="your-bing-verification-code" />
       
       {/* Preconnect for Performance */}
       <link rel="preconnect" href="https://fonts.googleapis.com" />

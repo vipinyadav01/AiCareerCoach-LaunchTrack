@@ -1,4 +1,5 @@
 import Script from 'next/script';
+import { SITE_URL } from './site';
 
 export function StructuredData() {
   return (
@@ -13,7 +14,7 @@ export function StructuredData() {
             "@type": "WebApplication",
             "name": "LaunchTrack - AI Career Platform",
             "description": "AI-powered career coach for job search, interview preparation, and career guidance",
-            "url": "https://launchtrack.vercel.app",
+            "url": SITE_URL,
             "applicationCategory": "EducationalApplication",
             "operatingSystem": "Any",
             "browserRequirements": "Requires JavaScript. Requires HTML5.",
@@ -31,7 +32,7 @@ export function StructuredData() {
             "publisher": {
               "@type": "Organization",
               "name": "LaunchTrack",
-              "url": "https://launchtrack.vercel.app"
+              "url": SITE_URL
             },
             "keywords": "AI Career Platform, Job Search, Interview Preparation, GLA University, LaunchTrack, Career Development",
             "featureList": [
@@ -42,7 +43,7 @@ export function StructuredData() {
               "Resume optimization",
               "Industry insights"
             ],
-            "screenshot": "https://launchtrack.vercel.app/android-chrome-512x512.png",
+            "screenshot": `${SITE_URL}/android-chrome-512x512.png`,
             "softwareVersion": "1.0.0",
             "datePublished": "2024-01-01",
             "dateModified": "2024-01-01"
@@ -59,8 +60,8 @@ export function StructuredData() {
             "@context": "https://schema.org",
             "@type": "Organization",
             "name": "LaunchTrack",
-            "url": "https://launchtrack.vercel.app",
-            "logo": "https://launchtrack.vercel.app/android-chrome-512x512.png",
+            "url": SITE_URL,
+            "logo": `${SITE_URL}/android-chrome-512x512.png`,
             "description": "AI-powered career coaching platform",
             "address": {
               "@type": "PostalAddress",
